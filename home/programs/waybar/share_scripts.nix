@@ -12,17 +12,17 @@ in
   '';
   wallpaper_random = pkgs.writeShellScriptBin "wallpaper_random" ''
     killall dynamic_wallpaper
-    ${pkgs.swww}/bin/swww img $(find ~/Pictures/wallpaper/. -name "*.png" | shuf -n1) --transition-type random
+    ${pkgs.awww}/bin/awww img $(find ~/Pictures/wallpaper/. -name "*.png" | shuf -n1) --transition-type random
   '';
   dynamic_wallpaper = pkgs.writeShellScriptBin "dynamic_wallpaper" ''
     while true; do
-      ${pkgs.swww}/bin/swww img $(find ~/Pictures/wallpaper/. -name "*.png" | shuf -n1) --transition-type random
+      ${pkgs.awww}/bin/awww img $(find ~/Pictures/wallpaper/. -name "*.png" | shuf -n1) --transition-type random
       sleep 120
     done
   '';
   default_wall = pkgs.writeShellScriptBin "default_wall" ''
     killall dynamic_wallpaper
-    ${pkgs.swww}/bin/swww img "${wallpaper}" --transition-type random
+    ${pkgs.awww}/bin/awww img "${wallpaper}" --transition-type random
   '';
   recgif = pkgs.writeShellScriptBin "recgif" ''
     TIMESTAMP=$(date "+%Y-%m-%dT%H_%M_%S")

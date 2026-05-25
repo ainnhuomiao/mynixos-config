@@ -16,8 +16,8 @@ in
       Install.WantedBy = [ "graphical-session.target" ];
       Service = {
         Type = "simple";
-        ExecStart = "${pkgs.swww}/bin/swww-daemon";
-        ExecStop = "${pkgs.swww}/bin/swww kill";
+        ExecStart = "${pkgs.awww}/bin/awww-daemon";
+        ExecStop = "${pkgs.awww}/bin/awww kill";
         Restart = "always";
         RestartSec = 3;
       };
@@ -32,7 +32,7 @@ in
       Install.WantedBy = [ "swww.service" ];
       Service = {
         ExecStartPre = "${pkgs.coreutils}/bin/sleep 1";
-        ExecStart = ''${pkgs.swww}/bin/swww img "${wallpaper}" --transition-type random'';
+        ExecStart = ''${pkgs.awww}/bin/awww img "${wallpaper}" --transition-type random'';
         Type = "oneshot";
         RemainAfterExit = true;
       };
