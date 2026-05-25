@@ -1,0 +1,6 @@
+{
+  "huomiao@nixos" = [
+    ../.
+    ./nixos
+  ];
+}

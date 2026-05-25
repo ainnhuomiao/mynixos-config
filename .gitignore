@@ -1,0 +1,7 @@
+result/
+nixos.*
+nixpkgs/
+/.vscode
+myconfig.dae
+.direnv
+secrets/secrets.yaml

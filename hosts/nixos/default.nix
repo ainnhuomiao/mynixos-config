@@ -1,0 +1,33 @@
+{ pkgs, ... }:
+{
+  imports = [ ./hardware-configuration.nix ];
+
+  networking.hostName = "nixos";
+
+  boot = {
+    kernelParams = [
+      "quiet"
+      "splash"
+    ];
+  };
+
+  services = {
+    fstrim.enable = true;
+    fwupd.enable = true;
+  };
+
+  hardware = {
+    enableRedistributableFirmware = true;
+    graphics = {
+      enable = true;
+      enable32Bit = true;
+    };
+  };
+
+  environment.systemPackages = with pkgs; [
+    mesa-demos
+    libva-utils
+    intel-media-driver
+    intel-vaapi-driver
+  ];
+}
