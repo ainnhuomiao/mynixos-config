@@ -4,7 +4,7 @@
     ../../wall
     ../../shell
     ../../dev
-    (import ../../editors/neovim { })
+    ../../editors/neovim
     ../../terminals
     ../../programs
     ../../ai
