@@ -83,7 +83,7 @@ in
 
   programs.nvim = {
     enable = true;
-    defaultEditor = true;
+    defaultEditor = false;
     enableFishIntegration = true;
     enableBashIntegration = true;
     withNixLSP = true;
