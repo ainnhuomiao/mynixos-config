@@ -748,7 +748,8 @@
         "nixpkgs": "nixpkgs_3",
         "nur": "nur",
         "rust-overlay": "rust-overlay_2",
-        "treefmt-nix": "treefmt-nix_2"
+        "treefmt-nix": "treefmt-nix_2",
+        "zen-browser": "zen-browser"
       }
     },
     "rust-overlay": {
@@ -860,6 +861,26 @@
         "owner": "srid",
         "repo": "unionmount",
         "type": "github"
+      }
+    },
+    "zen-browser": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1778822459,
+        "narHash": "sha256-hJlFMK7Es783KU/mhLEGC+xim/EqBMVdbsWgthquo6Y=",
+        "ref": "refs/heads/master",
+        "rev": "90d4d395e2be09b2d314816dadd34660528c4ee4",
+        "revCount": 304,
+        "type": "git",
+        "url": "https://github.com/youwen5/zen-browser-flake"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://github.com/youwen5/zen-browser-flake"
       }
     }
   },
