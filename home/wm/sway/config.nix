@@ -324,6 +324,11 @@ in
       bindsym Print exec --no-startup-id               flameshot_watermark
       bindsym $mod+q exec --no-startup-id              qq
 
+      # wallpaper
+      bindsym $mod+Shift+w exec --no-startup-id        wallpaper_random
+      bindsym $mod+Ctrl+w exec --no-startup-id         dynamic_wallpaper
+      bindsym $mod+Ctrl+Shift+w exec --no-startup-id   default_wall
+
 
       # Kill focused window
       bindsym $mod+Shift+p kill
