@@ -1,5 +1,5 @@
 {
-  description = "Ruixi-rebirth's NixOS Configuration";
+  description = "huomiao's NixOS Configuration";
 
   outputs =
     inputs@{ self, ... }:
@@ -121,7 +121,6 @@
       url = "github:NixOS/flake-registry";
       flake = false;
     };
-    daeuniverse.url = "github:daeuniverse/flake.nix";
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -130,9 +129,7 @@
       url = "github:hyprwm/hyprpicker";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    impermanence.url = "github:nix-community/impermanence";
     lanzaboote = {
-      #please read this doc -> https://nix-community.github.io/lanzaboote/
       url = "github:nix-community/lanzaboote";
       inputs.nixpkgs.follows = "nixpkgs";
     };
@@ -146,35 +143,21 @@
       url = "github:Mic92/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nixpkgs-wayland = {
-      url = "github:nix-community/nixpkgs-wayland";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    sops-nix = {
-      url = "github:Mic92/sops-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     treefmt-nix.url = "github:numtide/treefmt-nix";
-    nixos-wsl.url = "github:nix-community/NixOS-WSL";
-    go-musicfox.url = "github:go-musicfox/go-musicfox";
   };
 
   nixConfig = {
     extra-substituters = [
       "https://nix-community.cachix.org"
-      "https://ruixi-rebirth.cachix.org"
       "https://cache.nixos.org"
-      "https://nixpkgs-wayland.cachix.org"
     ];
     extra-trusted-public-keys = [
       "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-      "ruixi-rebirth.cachix.org-1:ypGqoIU9MfXwv/fE02ZGg8mutJqmcYHgLTR1DMoPGac="
       "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-      "nixpkgs-wayland.cachix.org-1:3lwxaILxMRkVhehr5StQprHdEo4IrE8sRho9R9HOLYA="
     ];
     trusted-users = [
       "root"

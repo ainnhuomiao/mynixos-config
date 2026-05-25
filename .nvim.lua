@@ -2,7 +2,7 @@
 local nvim_lsp = vim.lsp
 nvim_lsp.enable("nixd")
 local nixos_options_expr =
-  'let flake = builtins.getFlake ("git+file://" + toString ./.); in flake.nixosConfigurations.k-on.options // flake.nixosConfigurations.yu.options'
+  'let flake = builtins.getFlake ("git+file://" + toString ./.); in flake.nixosConfigurations.nixos.options'
 local home_manager_options_expr = nixos_options_expr .. ".home-manager.users.type.getSubOptions [ ]"
 local flake_parts_options_expr =
   'let flake = builtins.getFlake ("git+file://" + toString ./.); in flake.debug.options // flake.currentSystem.options'

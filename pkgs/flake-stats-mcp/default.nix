@@ -13,7 +13,7 @@ buildGoModule {
 
   meta = with lib; {
     description = "一个简单的 NixOS Flake 概览统计 MCP Server，用于演示 AI 工具扩展。";
-    homepage = "https://github.com/Ruixi-rebirth/flakes";
+    homepage = "https://github.com/ainnhuomiao/mynixos-config";
     license = licenses.mit;
     maintainers = with maintainers; [ ];
     mainProgram = "flake-stats-mcp";
