@@ -109,6 +109,7 @@ in
       #           Misc              #
       #-----------------------------#
       output * adaptive_sync on
+      output eDP-1 scale 1.25
 
       default_border pixel 3
       default_floating_border pixel 3
