@@ -133,6 +133,21 @@ just rebuild-switch
 | `XF86AudioPlay` | 播放/暂停 |
 | `XF86AudioNext` / `Prev` | 上一首/下一首 |
 
+### Firefox 快捷键
+
+| 按键 | 功能 |
+|------|------|
+| `Alt` + `b` | 启动 Firefox |
+| `Ctrl` + `L` | 聚焦地址栏 |
+| `Ctrl` + `T` | 新标签页 |
+| `Ctrl` + `W` | 关闭标签页 |
+| `Ctrl` + `Shift` + `T` | 恢复关闭的标签 |
+| `Ctrl` + `Tab` | 切换标签页 |
+| `Ctrl` + `1`~`8` | 切换到对应标签 |
+| `Ctrl` + `F` | 页面内搜索 |
+| `F5` / `Ctrl` + `R` | 刷新页面 |
+| `F12` | 开发者工具 |
+
 ### 其他设置
 
 - **CapsLock** = Escape
