@@ -1,54 +1,37 @@
-#### 💡 Installation Suggestions
+# mynixos-config
 
-- **Host Selection**:
-  - `minimal`: **Highly recommended for initial installation.** It contains only the base system, making the process fast and stable. If you are installing NixOS (not WSL), please choose this first.
-  - `yu`: Based on **WSL** (Windows Subsystem for Linux).
-  - `k-on`: A regular **NixOS** full configuration (includes desktop environment, etc.).
-- **Hardware Requirements**:
-  - Recommended RAM: **> 8GB**.
-  - **Reason**: In the NixOS Live environment, operations occur in RAM and Nix downloads many dependencies. Insufficient memory often leads to "No space left on device" errors.
-  - **Suggestion**: If your RAM is limited, install the `minimal` configuration first. Once the system is successfully installed and booted, you can then switch to your final configuration (e.g., `k-on`) by running `just rebuild-switch`.
+基于 Nix Flakes 的个人 NixOS 配置。
 
----
+## 主机
 
-#### 📽️ Installation Demo
+| 主机 | 类型 | 说明 |
+|------|------|------|
+| `nixos` | 物理机 | 完整桌面环境配置 |
 
-https://github.com/user-attachments/assets/6aff86cd-eccd-46e0-b4fc-df42fd79e85e
+## 特性
 
----
+- **Flake** — 声明式、可复现的系统配置
+- **Home Manager** — 用户级应用与 dotfiles 管理
+- **Disko** — 声明式磁盘分区
+- **Lanzaboote** — Secure Boot 支持
+- **SOPS** — 加密管理敏感信息
+- **Impermanence** — 无状态系统（可选）
+- **Dae** — 透明代理
 
-step0: Enter the nixos livecd environment
+## 快速开始
 
 ```bash
-sudo -i
+# 克隆仓库
+git clone https://github.com/ainnhuomiao/mynixos-config.git
+
+# 进入开发环境
+cd mynixos-config
+nix develop --extra-experimental-features 'nix-command flakes'
+
+# 应用配置
+just rebuild-switch
 ```
 
-step1:
+## 参考
 
-```console
-nix run nixpkgs#git clone https://github.com/Ruixi-rebirth/flakes.git --extra-experimental-features nix-command --extra-experimental-features flakes
-```
-
-step2:
-
-```console
-cd flakes; rm -rf .git
-```
-
-step3:
-
-```console
-nix develop --extra-experimental-features nix-command --extra-experimental-features flakes
-```
-
-step4
-
-```console
-just disko
-```
-
-step5
-
-```console
-just install
-```
+- 原始配置来源: [Ruixi-rebirth/flakes](https://github.com/Ruixi-rebirth/flakes)
