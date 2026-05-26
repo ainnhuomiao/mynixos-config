@@ -46,26 +46,26 @@ in
       {
         bg = (h n.nord11);
         is = "orphan";
-        name = "*";
+        url = "*";
       }
       {
         fg = (h n.nord14);
         is = "exec";
-        name = "*";
+        url = "*";
       }
       {
         bg = (h n.nord11);
         is = "dummy";
-        name = "*";
+        url = "*";
       }
       {
         bg = (h n.nord11);
         is = "dummy";
-        name = "*/";
+        url = "*/";
       }
       {
         fg = (h n.nord9);
-        name = "*/";
+        url = "*/";
       }
     ];
   };

@@ -23,7 +23,7 @@
   open = {
     rules = [
       {
-        name = "*/";
+        url = "*/";
         use = [
           "edit"
           "open"
@@ -80,7 +80,7 @@
         ];
       }
       {
-        name = "*";
+        url = "*";
         use = [
           "open"
           "reveal"
