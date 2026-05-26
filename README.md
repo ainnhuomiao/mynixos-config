@@ -8,18 +8,111 @@
 |------|------|------|
 | `nixos` | 物理机 | 完整桌面环境配置 (Sway WM) |
 
-## 特性
+## 软件
 
-- **Sway** — Wayland 平铺窗口管理器，类 i3 体验
-- **Waybar** — 状态栏、系统托盘、工作区指示器
-- **AWWW (swww)** — 动态壁纸
-- **Kitty** — GPU 加速终端
-- **Firefox + Edge** — 浏览器
-- **Rofi** — 应用启动器、剪贴板历史、电源菜单
-- **Fish + Starship** — 现代化 Shell 体验
-- **SOPS + Age** — 加密管理敏感信息
-- **Lanzaboote** — Secure Boot 支持
-- **Disko** — 声明式磁盘分区
+### 系统
+
+| 软件 | 说明 |
+|------|------|
+| **Sway** | Wayland 平铺窗口管理器，类 i3 体验 |
+| **Waybar** | 状态栏、系统托盘、工作区指示器 |
+| **swww** | 动态壁纸 |
+| **Rofi** | 应用启动器、剪贴板历史、电源菜单 |
+| **Mako** | 通知守护进程 |
+| **Flameshot** | 截图工具 (支持水印/阴影) |
+| **Fcitx5** | 中文输入法 |
+| **GTK / Papirus** | 主题与图标 |
+| **SOPS + Age** | 加密管理敏感信息 |
+| **Lanzaboote** | Secure Boot 支持 |
+| **Disko** | 声明式磁盘分区 |
+
+### 终端
+
+| 软件 | 说明 |
+|------|------|
+| **Kitty** | GPU 加速终端模拟器 |
+| **Fish** | 现代化 Shell |
+| **Starship** | 跨 Shell 提示符 |
+| **Zoxide** | 智能目录跳转 (替代 cd) |
+| **fzf** | 模糊搜索 |
+| **ripgrep / fd / bat / delta** | 现代 CLI 工具集 |
+
+### 浏览器
+
+| 软件 | 说明 |
+|------|------|
+| **Firefox** | 开源浏览器 |
+| **Microsoft Edge** | 备选浏览器 |
+| **Zen** | 基于 Firefox 的社区浏览器 |
+
+### 开发
+
+| 软件 | 说明 |
+|------|------|
+| **Neovim** | 终端编辑器 (LazyVim) |
+| **Helix** | 模态编辑器 |
+| **Git** | 版本控制 |
+| **Lazygit** | Git TUI |
+| **Rust** | Rust 工具链 (via rust-overlay) |
+| **Go** | Go 语言工具链 |
+| **Haskell** | GHC + Cabal |
+| **C/C++** | Clang + CMake + Meson + Ninja + Bear |
+| **TypeScript / Node / Bun** | Web 开发 |
+| **Protobuf / gRPC** | RPC 工具链 |
+| **Direnv** | 按目录加载环境变量 |
+
+### AI
+
+| 软件 | 说明 |
+|------|------|
+| **Claude Code** | Anthropic CLI 编码助手 |
+| **Gemini CLI** | Google AI 助手 |
+| **GitHub Copilot CLI** | GitHub AI 助手 |
+| **Codex (OpenAI)** | OpenAI CLI 编码助手 |
+| **OpenCode** | 基于 Anomaly AI 的编码助手 |
+
+### 通讯
+
+| 软件 | 说明 |
+|------|------|
+| **Discord** | 语音/文字聊天 |
+| **Telegram** | 即时通讯 |
+| **QQ** | 即时通讯 |
+| **WeChat** | 即时通讯 |
+| **Feishu / ByteDance-Feishu** | 协作办公 |
+| **Tencent Meeting** | 视频会议 |
+| **Vesktop** | Discord 第三方客户端 |
+| **Element Desktop** | Matrix 客户端 |
+| **Thunderbird** | 邮件客户端 |
+
+### 影音
+
+| 软件 | 说明 |
+|------|------|
+| **mpv** | 视频播放器 |
+| **mpd + ncmpcpp** | 本地音乐播放器 |
+| **Splayer** | 网易云音乐客户端 |
+| **Go-MusicFox** | 终端音乐播放器 |
+| **Cava** | 终端音频可视化 |
+| **Kdenlive** | 视频编辑器 |
+| **OBS Studio** | 直播/录屏 |
+
+### 工具
+
+| 软件 | 说明 |
+|------|------|
+| **Bilibili** | 哔哩哔哩客户端 |
+| **Bili Live TUI** | 终端 B 站直播 |
+| **yt-dlp** | 视频下载工具 |
+| **Yazi** | 终端文件管理器 |
+| **Zathura** | PDF 阅读器 |
+| **Fastfetch** | 系统信息工具 |
+| **Kooha** | 屏幕录制 |
+| **imv / swayimg** | 图片查看器 |
+| **btop** | 系统资源监控 |
+| **DBEaver** | 数据库管理工具 |
+| **Emanote** | 个人知识库 |
+| **nix-index / nix-locate** | Nix 包搜索 |
 
 ## 快速开始
 
