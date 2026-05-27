@@ -21,6 +21,7 @@ in
         "";
     interactiveShellInit = ''
       set fish_greeting ""
+      fastfetch
       set fish_key_bindings  fish_vi_key_bindings
       ${pkgs.any-nix-shell}/bin/any-nix-shell fish | source
 
