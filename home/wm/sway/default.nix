@@ -1,4 +1,7 @@
 { pkgs, inputs, ... }:
+let
+  sharedScripts = import ../../programs/waybar/share_scripts.nix { inherit pkgs; };
+in
 {
   imports = [ ./config.nix ];
 
@@ -9,6 +12,9 @@
   };
   home.packages = [
     inputs.hyprpicker.packages.${pkgs.stdenv.hostPlatform.system}.hyprpicker
+    sharedScripts.wallpaper_random
+    sharedScripts.dynamic_wallpaper
+    sharedScripts.default_wall
   ]
   ++ (with pkgs; [
     swaylock

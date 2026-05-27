@@ -12,11 +12,11 @@ in
   '';
   wallpaper_random = pkgs.writeShellScriptBin "wallpaper_random" ''
     killall dynamic_wallpaper
-    ${pkgs.awww}/bin/awww img $(find ~/Pictures/wallpaper/. -name "*.png" | shuf -n1) --transition-type random
+    ${pkgs.awww}/bin/awww img $(find ~/Pictures/wallpaper/. \( -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" \) | shuf -n1) --transition-type random
   '';
   dynamic_wallpaper = pkgs.writeShellScriptBin "dynamic_wallpaper" ''
     while true; do
-      ${pkgs.awww}/bin/awww img $(find ~/Pictures/wallpaper/. -name "*.png" | shuf -n1) --transition-type random
+      ${pkgs.awww}/bin/awww img $(find ~/Pictures/wallpaper/. \( -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" \) | shuf -n1) --transition-type random
       sleep 120
     done
   '';
