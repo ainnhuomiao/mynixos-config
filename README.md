@@ -114,14 +114,127 @@
 | **Emanote** | 个人知识库 |
 | **nix-index / nix-locate** | Nix 包搜索 |
 
-## 快速开始
+## 从零开始：全新 NixOS 安装教程
+
+本教程假设你有一台全新的机器，从 NixOS 官方 ISO 启动后开始操作。
+
+### 前置准备
+
+1. 从 [NixOS 官网](https://nixos.org/download) 下载最新的 **Minimal ISO**，制作 U 盘启动盘
+2. 确保机器已连接网络（有线或 WiFi）：
+   ```bash
+   # 有线网络通常自动获取 IP，验证连通性：
+   ping -c 1 github.com
+
+   # WiFi 连接（如果需要）：
+   wpa_passphrase "WiFi名称" "WiFi密码" > /etc/wpa_supplicant.conf
+   systemctl restart wpa_supplicant
+   ```
+
+### 第一步：克隆仓库
 
 ```bash
 git clone https://github.com/ainnhuomiao/mynixos-config.git
 cd mynixos-config
+```
+
+### 第二步：修改个人信息
+
+编辑 `me.nix`，将内容替换为你自己的信息：
+
+```nix
+{
+  userName = "你的用户名";             # 系统用户名称
+  email = "your@email.com";           # Git 提交邮箱
+  domain = "localhost";               # 主机域名
+  initialHashedPassword = "";         # 留空，安装脚本会自动设置
+  githubUserName = "你的github";       # GitHub 用户名
+  gitSignKey = "";
+  sshPublicKey = "";                  # 可选：SSH 公钥
+  gpgPublicKey = "";
+}
+```
+
+> `initialHashedPassword` 留空即可，安装脚本会交互式地让你输入密码并自动替换。
+
+### 第三步：进入 flake 开发环境
+
+```bash
+nix develop --extra-experimental-features 'nix-command flakes'
+```
+
+该命令会进入一个包含 `git`、`neovim`、`just` 等工具的 shell 环境。
+
+### 第四步：磁盘分区 (Disko)
+
+`disko` 脚本会以声明式方式擦除并分区你的硬盘。
+
+```bash
+just disko
+```
+
+交互流程：
+1. **选择主机** — 目前只有一个 `nixos`
+2. **选择分区布局** — 两个选项：
+   - `single-device.nix`：无加密，简单分区（ESP + 根分区）
+   - `single-device-luks.nix`：LUKS 全盘加密
+3. **设置 LUKS 密码**（若选择加密布局）
+4. **检查并编辑** 分区布局文件 — 确认磁盘路径（如 `/dev/nvme0n1`）与你机器的实际情况一致
+5. **输入 `YES` 确认** — 此操作将**清空磁盘**
+
+脚本会自动运行：
+- Disko 分区并格式化
+- 挂载分区到 `/mnt`
+- 生成硬件配置 `hosts/nixos/hardware-configuration.nix`
+- 将 flake 仓库拷贝到 `/mnt/etc/nixos/flakes`
+
+### 第五步：系统安装
+
+```bash
+just install
+```
+
+交互流程：
+1. **选择主机** — 选择 `nixos`
+2. **设置用户密码** — 输入并确认，脚本会自动更新 `me.nix` 中的密码哈希
+3. **开始安装** — 执行 `nixos-install --flake .#nixos`
+
+等待构建完成（首次需要编译较多包，可能数十分钟）。
+
+### 第六步：重启进入新系统
+
+```bash
+reboot
+```
+
+输入你设置的密码登录。
+
+### 第七步：后续维护
+
+已经进入桌面环境后，该仓库仍位于：
+
+```bash
+cd /etc/nixos/flakes
+```
+
+日常更新系统：
+
+```bash
 nix develop --extra-experimental-features 'nix-command flakes'
 just rebuild-switch
 ```
+
+该脚本会依次运行 `nix flake check`、`nix fmt`，然后交互式选择主机并重建。
+
+### 首次使用建议
+
+- **壁纸**：`Mod` + `Shift` + `w` 随机切换壁纸
+- **输入法**：`Ctrl` + `Space` 切换中英文
+- **启动器**：`Super` 键打开 Rofi 应用菜单
+- **终端**：`Mod` + `Return` 打开 Kitty
+- **浏览器**：`Mod` + `b` 启动 Firefox
+
+> `Mod` 键默认是 **Alt**，详见下方的 [Sway 按键操作](#sway-按键操作) 章节。
 
 ## Sway 按键操作
 
