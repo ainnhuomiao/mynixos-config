@@ -20,8 +20,17 @@
         };
         soft-wrap.enable = true;
         statusline = {
-          left = [ "mode" "spinner" "file-name" ];
-          right = [ "diagnostics" "selections" "position" "file-encoding" ];
+          left = [
+            "mode"
+            "spinner"
+            "file-name"
+          ];
+          right = [
+            "diagnostics"
+            "selections"
+            "position"
+            "file-encoding"
+          ];
         };
         whitespace = {
           render.space = "all";
