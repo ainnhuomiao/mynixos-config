@@ -5,7 +5,6 @@
 }:
 {
   boot = {
-    bootspec.enable = true;
     loader = {
       systemd-boot =
         if !enableLanzaboote then

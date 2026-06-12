@@ -23,12 +23,17 @@
       ];
       auto-allocate-uids = true;
       use-cgroups = true;
-      auto-optimise-store = true; # Optimise syslinks
+      auto-optimise-store = true;
       accept-flake-config = true;
       flake-registry = "${inputs.flake-registry}/flake-registry.json";
       builders-use-substitutes = true;
       keep-derivations = true;
       keep-outputs = true;
+      access-tokens =
+        let
+          tokenFile = "/root/.config/nix/access-tokens";
+        in
+        if builtins.pathExists tokenFile then builtins.readFile tokenFile else "";
     };
     gc = {
       automatic = true;
