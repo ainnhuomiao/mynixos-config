@@ -107,6 +107,7 @@
     binsh = "${pkgs.dash}/bin/dash";
     shells = [ pkgs.fish ];
     systemPackages = with pkgs; [
+      nix-output-monitor
       nix-tree
       gcc
       clang

@@ -39,6 +39,8 @@ in
       ls = "eza";
       n = "fastfetch";
       top = "btop";
+      rs = "sudo nixos-rebuild switch --flake ~/flakes#nixos 2>&1 | nom";
+      ru = "nix flake update --flake ~/flakes";
     };
     functions = {
       nf = ''

@@ -113,6 +113,7 @@
 | **DBEaver**                | 数据库管理工具 |
 | **Emanote**                | 个人知识库     |
 | **nix-index / nix-locate** | Nix 包搜索     |
+| **nix-output-monitor**    | Nix 构建可视化 |
 
 ## 从零开始：全新 NixOS 安装教程
 
@@ -224,11 +225,19 @@ cd /etc/nixos/flakes
 日常更新系统：
 
 ```bash
+# 更新 flake 输入
+ru
+
+# 重建系统（带可视化）
+rs
+```
+
+也可通过 `just` 命令：
+
+```bash
 nix develop --extra-experimental-features 'nix-command flakes'
 just rebuild-switch
 ```
-
-该脚本会依次运行 `nix flake check`、`nix fmt`，然后交互式选择主机并重建。
 
 ### 首次使用建议
 
