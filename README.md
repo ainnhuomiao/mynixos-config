@@ -113,7 +113,7 @@
 | **DBEaver**                | 数据库管理工具 |
 | **Emanote**                | 个人知识库     |
 | **nix-index / nix-locate** | Nix 包搜索     |
-| **nix-output-monitor**    | Nix 构建可视化 |
+| **nix-output-monitor**     | Nix 构建可视化 |
 
 ## 从零开始：全新 NixOS 安装教程
 
