@@ -8,6 +8,10 @@ let
   emanotePackage = inputs.emanote.packages.${pkgs.stdenv.hostPlatform.system}.emanote;
 in
 {
+  systemd.user.tmpfiles.rules = [
+    "d %h/Blog 0755 - - -"
+  ];
+
   systemd.user.services.emanote = {
     Unit = {
       Description = "Emanote ~/Blog";
@@ -15,7 +19,8 @@ in
     };
     Install.WantedBy = [ "default.target" ];
     Service = {
-      Restart = "always";
+      Restart = "on-failure";
+      RestartSec = 2;
       ExecStart = "${emanotePackage}/bin/emanote -L /home/${me.userName}/Blog run --port=7000";
     };
   };

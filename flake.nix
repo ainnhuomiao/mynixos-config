@@ -3,113 +3,14 @@
 
   outputs =
     inputs@{ self, ... }:
-    let
-      selfPkgs = import ./pkgs;
-    in
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
-      debug = true;
       systems = [ "x86_64-linux" ];
       imports = [
+        ./flake/modules
         ./hosts
-      ]
-      ++ [
         inputs.flake-root.flakeModule
         inputs.treefmt-nix.flakeModule
       ];
-      flake = {
-        overlays.default = inputs.nixpkgs.lib.composeManyExtensions (
-          [ selfPkgs.overlay ] ++ import ./overlays
-        );
-      };
-      perSystem =
-        {
-          config,
-          pkgs,
-          system,
-          ...
-        }:
-        {
-          # NOTE: These overlays apply to the Nix shell only. See `modules/nix.nix` for system overlays.
-          _module.args.pkgs = import inputs.nixpkgs {
-            inherit system;
-            overlays = [
-              #inputs.foo.overlays.default
-            ];
-          };
-
-          treefmt.config = {
-            inherit (config.flake-root) projectRootFile;
-            flakeCheck = true;
-            settings = {
-              global.excludes = [
-                "*.png"
-                "*.conf"
-                "*.fish"
-                "justfile"
-                "*.dae"
-                "*secrets.yaml"
-              ];
-            };
-            package = pkgs.treefmt;
-            programs.nixfmt.enable = true;
-            programs.prettier.enable = true;
-            programs.shfmt.enable = true;
-            programs.stylua = {
-              enable = true;
-              settings = {
-                indent_type = "Spaces";
-                indent_width = 2;
-              };
-            };
-          };
-
-          devShells = {
-            # run by `nix devlop` or `nix-shell`(legacy)
-            # Temporarily enable experimental features, run by`nix develop --extra-experimental-features nix-command --extra-experimental-features flakes`
-            default = pkgs.mkShell {
-              nativeBuildInputs = with pkgs; [
-                git
-                neovim
-                sbctl
-                just
-                jq
-              ];
-              inputsFrom = [
-                config.flake-root.devShell
-              ];
-            };
-            # run by `nix develop .#<name>`
-            # NOTE: Here are some of the steps I documented, see `https://github.com/Mic92/sops-nix` for more details
-            # ```
-            # mkdir -p ~/.config/sops/age
-            # age-keygen -o ~/.config/sops/age/keys.txt
-            # age-keygen -y ~/.config/sops/age/keys.txt
-            # sudo mkdir -p /var/lib/sops-nix
-            # sudo cp ~/.config/sops/age/keys.txt /var/lib/sops-nix/keys.txt
-            # nvim $FLAKE_ROOT/.sops.yaml
-            # mkdir $FLAKE_ROOT/secrets
-            # sops $FLAKE_ROOT/secrets/secrets.yaml
-            # ```
-            secret = pkgs.mkShell {
-              name = "secret";
-              nativeBuildInputs = with pkgs; [
-                sops
-                age
-                neovim
-                ssh-to-age
-              ];
-              shellHook = ''
-                export EDITOR=nvim
-                export PS1="\[\e[0;31m\](Secret)\$ \[\e[m\]"
-              '';
-              inputsFrom = [
-                config.flake-root.devShell
-              ];
-            };
-          };
-          # used by the `nix fmt` command
-          formatter = config.treefmt.build.wrapper;
-        };
     };
 
   inputs = {

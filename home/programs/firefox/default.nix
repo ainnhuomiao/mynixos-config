@@ -4,5 +4,8 @@
     MOZ_ENABLE_WAYLAND = "1";
   };
 
-  programs.firefox.enable = true;
+  programs.firefox = {
+    enable = true;
+    configPath = ".mozilla/firefox";
+  };
 }

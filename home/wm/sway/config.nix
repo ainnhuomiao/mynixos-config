@@ -26,10 +26,6 @@ let
       --text-clear-color ${n.nord0}
     rm /tmp/screen.png /tmp/screen_blur.png
   '';
-  launch_waybar = pkgs.writeShellScriptBin "launch_waybar" ''
-    killall .waybar-wrapped
-    ${pkgs.waybar}/bin/waybar > /dev/null 2>&1 &
-  '';
   suspendScript = pkgs.writeShellScript "suspend-script" ''
     RUNNING_COUNT=$(${pkgs.pipewire}/bin/pw-cli i all | ${pkgs.ripgrep}/bin/rg "state: \"running\"" -c || true)
     if [ -z "$RUNNING_COUNT" ]; then
@@ -182,7 +178,6 @@ in
       #-----------#
       # Autostart #
       #-----------#
-      exec_always  --no-startup-id  ${launch_waybar}/bin/launch_waybar &
       exec_always pkill wl-paste; wl-paste --watch cliphist store
       exec_always  ${pkgs.autotiling}/bin/autotiling
       #exec_always  --no-startup-id  mako &

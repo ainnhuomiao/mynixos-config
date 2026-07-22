@@ -8,8 +8,7 @@
     let
       me = import ../me.nix;
       inherit (inputs.nixpkgs.lib) nixosSystem;
-      homeImports = import "${self}/home/profiles";
-      mod = "${self}/system";
+      homeProfiles = import ../home/profiles;
       specialArgs = {
         inherit inputs self me;
         appearance = import ../lib/appearance.nix;
@@ -21,7 +20,7 @@
           backupFileExtension = "backup";
           extraSpecialArgs = specialArgs;
           users.${me.userName}.imports =
-            homeImports."${me.userName}@${hostName}"
+            homeProfiles."${me.userName}@${hostName}"
               or (throw "no home profile for ${me.userName}@${hostName}");
         };
       };
@@ -33,15 +32,7 @@
         };
         modules = [
           ./nixos
-          "${mod}/core"
-          "${mod}/core/boot.nix"
-          "${mod}/core/network.nix"
-          "${mod}/mihomo.nix"
-          "${mod}/nix"
-          "${mod}/hardware"
-          "${mod}/virtualisation.nix"
-          "${mod}/programs/fonts.nix"
-          "${mod}/programs/desktop.nix"
+          ../system
           inputs.lanzaboote.nixosModules.lanzaboote
           inputs.home-manager.nixosModules.home-manager
           (mkHomeManager "nixos")

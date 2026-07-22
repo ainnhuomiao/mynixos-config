@@ -162,6 +162,7 @@ rs
 ```text
 .
 ├── assets/wallpapers/       # 由配置直接引用的壁纸文件
+├── flake/modules/           # Flake 开发环境、格式化和 overlays 输出
 ├── home/                    # Home Manager 模块
 │   ├── ai/                  # AI CLI 与 Context7 MCP 激活脚本
 │   ├── dev/                 # 开发工具链
@@ -175,11 +176,16 @@ rs
 ├── lib/scripts/             # 安装、分区和重建脚本
 ├── overlays/                # nixpkgs overlays
 ├── pkgs/                    # 仓库自有包
-├── system/                  # NixOS 系统模块
+├── system/                  # NixOS 系统模块及统一聚合入口
 ├── flake.nix
 ├── justfile
 └── me.nix                   # 用户名、Git 信息和初始密码哈希
 ```
+
+配置入口遵循两条规则：
+
+- `flake.nix` 只声明 inputs，并组合 `flake/modules/` 与 `hosts/`。
+- 各目录的 `default.nix` 只负责聚合同目录模块，具体配置放在职责明确的文件中。
 
 ## 日常维护
 

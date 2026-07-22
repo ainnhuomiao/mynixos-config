@@ -14,8 +14,8 @@ in
     enable = true;
     # package = inputs.nixpkgs-wayland.packages.${pkgs.stdenv.hostPlatform.system}.waybar;
     systemd = {
-      enable = false; # disable it,autostart it in sway conf
-      targets = [ "graphical-session.target" ];
+      enable = true;
+      targets = [ "sway-session.target" ];
     };
     style = ''
       * {
@@ -383,5 +383,16 @@ in
         };
       }
     ];
+  };
+
+  systemd.user.services.waybar = {
+    Unit = {
+      Wants = [ "pipewire-pulse.service" ];
+      After = [ "pipewire-pulse.service" ];
+    };
+    Service = {
+      Environment = [ "GDK_BACKEND=wayland" ];
+      RestartSec = 2;
+    };
   };
 }

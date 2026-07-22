@@ -1,20 +1,42 @@
-let
-  directoryContents = builtins.readDir ./.;
-  # Conditionally imported per profile instead of globally:
-  # - waybar: Sway desktop only → home/profiles/k-on
-  # - wsl:    WSL host only     → home/profiles/yu
-  excludeDirs = [
-    "waybar"
-    "wsl"
-  ];
-  directories = builtins.filter (
-    name:
-    directoryContents."${name}" == "directory"
-    && builtins.pathExists (./. + "/${name}/default.nix")
-    && !(builtins.elem name excludeDirs)
-  ) (builtins.attrNames directoryContents);
-  modulePaths = map (name: ./. + "/${name}") directories;
-in
 {
-  imports = modulePaths;
+  imports = [
+    ./bili_live
+    ./bilibili
+    ./clashtui
+    ./dbclient
+    ./discord
+    ./edge
+    ./emailclient
+    ./emanote
+    ./fastfetch
+    ./fcitx5
+    ./firefox
+    ./flameshot
+    ./git
+    ./gpg
+    ./gtk
+    ./helix
+    ./im
+    ./imgview
+    ./kooha
+    ./launcher
+    ./lazygit
+    ./motrix
+    ./mpv
+    ./music
+    ./nix-index
+    ./notice
+    ./obs-studio
+    ./obsidian
+    ./resource_monitor
+    ./search
+    ./splayer
+    ./ssh
+    ./video_editor
+    ./yazi
+    ./yt-dlp
+    ./zathura
+    ./zen
+    ./zoxide
+  ];
 }
