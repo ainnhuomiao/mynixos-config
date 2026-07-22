@@ -2,31 +2,6 @@
 let
   n = appearance.palettes.nord;
   h = appearance.toHex;
-  watermark = pkgs.fetchurl {
-    url = "https://raw.githubusercontent.com/Ruixi-rebirth/someSource/main/watermark/watermark2.png";
-    sha256 = "sha256-q8wNjF7HAofZoRohnFpNLsd9kViuLGimtF9q7xloSgE=";
-  };
-  grimshot_watermark = pkgs.writeShellScriptBin "grimshot_watermark" ''
-        FILE=$(date "+%Y-%m-%d"T"%H_%M_%S").png
-    # Get the picture from maim
-        grimshot --notify save anything $HOME/Pictures/src.png >> /dev/null 2>&1
-    # add shadow, round corner, border and watermark
-        convert $HOME/Pictures/src.png \
-          \( +clone -alpha extract \
-          -draw 'fill black polygon 0,0 0,8 8,0 fill white circle 8,8 8,0' \
-          \( +clone -flip \) -compose Multiply -composite \
-          \( +clone -flop \) -compose Multiply -composite \
-          \) -alpha off -compose CopyOpacity -composite $HOME/Pictures/output.png
-    #
-        convert $HOME/Pictures/output.png -bordercolor none -border 20 \( +clone -background black -shadow 80x8+15+15 \) \
-          +swap -background transparent -layers merge +repage $HOME/Pictures/$FILE
-    #
-        composite -gravity Southeast "${watermark}" $HOME/Pictures/$FILE $HOME/Pictures/$FILE
-    #
-        wl-copy < $HOME/Pictures/$FILE
-    #   remove the other pictures
-        rm $HOME/Pictures/src.png $HOME/Pictures/output.png
-  '';
   myswaylock = pkgs.writeShellScriptBin "myswaylock" ''
     ${pkgs.grim}/bin/grim /tmp/screen.png
     ${pkgs.ffmpeg}/bin/ffmpeg -y -loglevel error -i /tmp/screen.png -vf "gblur=sigma=8,colorlevels=rimin=0.1:gimin=0.1:bimin=0.1" -update 1 -frames:v 1 /tmp/screen_blur.png
@@ -85,7 +60,7 @@ in
       #---------p
       # mod key #
       #---------#
-      set $mod Mod1
+      set $mod Mod4
 
       #---------------#
       # waybar toggle #
@@ -186,10 +161,16 @@ in
       #------------------------------------------#
       for_window [app_id="telegram"] move --no-auto-back-and-forth container to workspace TG
       for_window [app_id="telegram"] focus
+      for_window [app_id="(?i)^wechat$"] move --no-auto-back-and-forth container to workspace WC
+      for_window [app_id="(?i)^wechat$"] focus
+      for_window [class="(?i)^wechat$"] move --no-auto-back-and-forth container to workspace WC
+      for_window [class="(?i)^wechat$"] focus
       # for_window [app_id="musicfox"] move --no-auto-back-and-forth container to workspace Music
       # for_window [app_id="musicfox"] focus
       for_window [app_id="com.github.th_ch.youtube_music"] move --no-auto-back-and-forth container to workspace Music
       for_window [app_id="com.github.th_ch.youtube_music"] focus
+      for_window [app_id="firefox"] move --no-auto-back-and-forth container to workspace Ff
+      for_window [app_id="firefox"] focus
       for_window [app_id="QQ"] move --no-auto-back-and-forth container to workspace QQ
       for_window [app_id="QQ"] focus
 
@@ -315,15 +296,19 @@ in
       # quick start some applications
       # bindsym $mod+m exec --no-startup-id              kitty --class="musicfox" --hold sh -c "musicfox"
       bindsym $mod+m exec --no-startup-id              pear-desktop
-      bindsym $mod+b exec --no-startup-id              nvidia-offload firefox
+      bindsym $mod+Shift+b exec --no-startup-id        firefox
       bindsym $mod+Shift+d exec kitty --class="danmufloat" --hold sh -c "export TERM=xterm-256color && bili"
       bindsym $mod+Shift+x exec --no-startup-id        ${myswaylock}/bin/myswaylock
-      bindsym $mod+t exec --no-startup-id              Telegram
-      bindsym $mod+bracketleft  exec --no-startup-id   grimshot --notify copysave anything ~/Pictures/$(date "+%Y-%m-%d"T"%H_%M_%S_no_watermark").png
+      bindsym $mod+Shift+t exec --no-startup-id        Telegram
+      bindsym $mod+bracketleft  exec --no-startup-id   grimshot --notify copysave anything ~/Pictures/$(date "+%Y-%m-%d"T"%H_%M_%S").png
       bindsym $mod+bracketright exec --no-startup-id   grimshot --notify copy anything
-      bindsym $mod+a exec --no-startup-id              ${grimshot_watermark}/bin/grimshot_watermark
-      bindsym Print exec --no-startup-id               flameshot_watermark
-      bindsym $mod+q exec --no-startup-id              qq
+      bindsym $mod+a exec --no-startup-id              grimshot --notify copysave anything ~/Pictures/$(date "+%Y-%m-%d"T"%H_%M_%S").png
+      bindsym Print exec --no-startup-id               flameshot gui
+      bindsym $mod+Shift+q exec --no-startup-id        qq
+      bindsym Alt+Shift+q workspace QQ
+      bindsym Alt+Shift+t workspace TG
+      bindsym Alt+Shift+w workspace WC
+      bindsym Alt+Shift+b workspace Ff
 
       # wallpaper
       bindsym $mod+Shift+w exec --no-startup-id        wallpaper_random
@@ -332,16 +317,16 @@ in
 
 
       # Kill focused window
-      bindsym $mod+Shift+p kill
+      bindsym $mod+q kill
 
       # Start your launcher
-      bindsym Super_L exec pkill rofi || ~/.config/rofi/launcher.sh
+      bindsym $mod+z exec pkill rofi || ~/.config/rofi/launcher.sh
 
       # Clipboard history
       bindsym $mod+v exec pkill rofi ||  ~/.config/rofi/clipboard.sh
 
       # Start your powermenu
-      bindsym $mod+Super_L exec pkill rofi || bash ~/.config/rofi/powermenu.sh
+      bindsym $mod+Shift+p exec pkill rofi || bash ~/.config/rofi/powermenu.sh
 
       # Reload the configuration file
       bindsym $mod+Shift+c reload
@@ -349,12 +334,12 @@ in
       # Exit sway (logs you out of your Wayland session)
       bindsym $mod+Shift+e exec swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -B 'Yes, exit sway' 'swaymsg exit'
 
-      # Drag floating windows by holding down $mod and left mouse button.
-      # Resize them with right mouse button + $mod.
+      # Drag floating windows by holding down Super and left mouse button.
+      # Resize them with right mouse button + Super.
       # Despite the name, also works for non-floating windows.
       # Change normal to inverse to use left mouse button for resizing and right
       # mouse button for dragging.
-      floating_modifier $mod normal
+      floating_modifier Mod4 normal
 
       #----------------#
       # Moving around: #

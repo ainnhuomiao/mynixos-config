@@ -17,7 +17,9 @@
         inputs.treefmt-nix.flakeModule
       ];
       flake = {
-        overlays.default = selfPkgs.overlay;
+        overlays.default = inputs.nixpkgs.lib.composeManyExtensions (
+          [ selfPkgs.overlay ] ++ import ./overlays
+        );
       };
       perSystem =
         {
@@ -125,6 +127,7 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    herdr.url = "github:ogulcancelik/herdr";
     hyprpicker = {
       url = "github:hyprwm/hyprpicker";
       inputs.nixpkgs.follows = "nixpkgs";

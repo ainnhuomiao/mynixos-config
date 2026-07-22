@@ -1,9 +1,6 @@
 { pkgs, ... }:
 let
-  wallpaper = pkgs.fetchurl {
-    url = "https://raw.githubusercontent.com/Ruixi-rebirth/someSource/main/wall/nord.png";
-    sha256 = "sha256-ZkuTlFDRPALR//8sbRAqiiAGApyqpKMA2zElRa2ABhY=";
-  };
+  wallpaperDirectory = ../../assets/wallpapers;
 in
 {
   systemd.user.services = {
@@ -32,7 +29,7 @@ in
       Install.WantedBy = [ "swww.service" ];
       Service = {
         ExecStartPre = "${pkgs.coreutils}/bin/sleep 1";
-        ExecStart = ''${pkgs.awww}/bin/awww img "${wallpaper}" --transition-type random'';
+        ExecStart = ''${pkgs.awww}/bin/awww img "${wallpaperDirectory}/default.png" --transition-type random'';
         Type = "oneshot";
         RemainAfterExit = true;
       };

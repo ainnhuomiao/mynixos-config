@@ -15,7 +15,7 @@ in
     # package = inputs.nixpkgs-wayland.packages.${pkgs.stdenv.hostPlatform.system}.waybar;
     systemd = {
       enable = false; # disable it,autostart it in sway conf
-      target = "graphical-session.target";
+      targets = [ "graphical-session.target" ];
     };
     style = ''
       * {
@@ -243,14 +243,14 @@ in
           "interval" = 1;
           "exec-if" = "sleep 0.1";
           "on-click" = "pkill -SIGINT wf-recorder || ${sharedScripts.recgif}/bin/recgif";
-          "on-click-right" = "flameshot_watermark";
+          "on-click-right" = "flameshot gui";
           "tooltip" = false;
         };
         "custom/wall" = {
           "on-click" = "${sharedScripts.wallpaper_random}/bin/wallpaper_random";
           "on-click-middle" = "${sharedScripts.default_wall}/bin/default_wall";
           "on-click-right" =
-            "killall dynamic_wallpaper || ${sharedScripts.dynamic_wallpaper}/bin/dynamic_wallpaper &";
+            "pkill -f '/bin/dynamic_wallpaper' || ${sharedScripts.dynamic_wallpaper}/bin/dynamic_wallpaper &";
           "format" = " 󰠖 ";
           "tooltip" = false;
         };

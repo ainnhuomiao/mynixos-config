@@ -6,17 +6,12 @@
 {
   boot = {
     loader = {
-      systemd-boot =
-        if !enableLanzaboote then
-          {
-            enable = true;
-            editor = false;
-            consoleMode = "auto";
-          }
-        else
-          {
-            enable = lib.mkForce false;
-          };
+      systemd-boot.enable = lib.mkForce false;
+      grub = lib.mkIf (!enableLanzaboote) {
+        enable = true;
+        efiSupport = true;
+        device = "nodev";
+      };
       efi = {
         canTouchEfiVariables = true;
         efiSysMountPoint = "/boot";

@@ -50,6 +50,8 @@ in
     enable = true;
     extraPackages = with pkgs; [
       bun
+      pnpm
+      yarn
     ];
   };
 }

@@ -18,8 +18,8 @@
     "xhci_pci"
     "thunderbolt"
     "nvme"
-    "usbhid"
     "usb_storage"
+    "usbhid"
     "sd_mod"
     "sdhci_pci"
   ];
@@ -28,12 +28,35 @@
   boot.extraModulePackages = [ ];
 
   fileSystems."/" = {
-    device = "/dev/disk/by-uuid/4a427baf-2326-40b5-93a9-b7ea453a98db";
-    fsType = "ext4";
+    device = "/dev/disk/by-uuid/6f4fa6dd-f03c-44ba-b6fd-e405350b6a00";
+    fsType = "btrfs";
+    options = [
+      "subvol=root"
+      "compress=zstd"
+    ];
+  };
+
+  fileSystems."/home" = {
+    device = "/dev/disk/by-uuid/6f4fa6dd-f03c-44ba-b6fd-e405350b6a00";
+    fsType = "btrfs";
+    options = [
+      "subvol=home"
+      "compress=zstd"
+    ];
+  };
+
+  fileSystems."/nix" = {
+    device = "/dev/disk/by-uuid/6f4fa6dd-f03c-44ba-b6fd-e405350b6a00";
+    fsType = "btrfs";
+    options = [
+      "subvol=nix"
+      "compress=zstd"
+      "noatime"
+    ];
   };
 
   fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/C5F7-8A41";
+    device = "/dev/disk/by-uuid/B912-32E8";
     fsType = "vfat";
     options = [
       "fmask=0022"
@@ -43,11 +66,9 @@
 
   swapDevices = [
     {
-      device = "/dev/disk/by-uuid/49776b39-2f5b-4e60-9b9d-db678b1ace1e";
+      device = "/dev/disk/by-uuid/849d72ea-e2fc-4a63-948f-9a5d0975e707";
     }
   ];
-
-  networking.useDHCP = lib.mkDefault true;
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;

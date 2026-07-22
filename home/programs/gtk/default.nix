@@ -1,4 +1,9 @@
-{ pkgs, appearance, ... }:
+{
+  pkgs,
+  config,
+  appearance,
+  ...
+}:
 
 {
   home.sessionVariables = {
@@ -34,6 +39,7 @@
       gtk-xft-hintstyle = "hintslight";
       gtk-xft-rgba = "rgb";
     };
+    gtk4.theme = config.gtk.theme;
     gtk2.extraConfig = ''
       gtk-xft-antialias=1
       gtk-xft-hinting=1

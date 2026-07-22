@@ -1,9 +1,15 @@
 { pkgs, ... }:
 let
-  wallpaper = pkgs.fetchurl {
-    url = "https://raw.githubusercontent.com/Ruixi-rebirth/someSource/main/wall/nord.png";
-    sha256 = "sha256-ZkuTlFDRPALR//8sbRAqiiAGApyqpKMA2zElRa2ABhY=";
-  };
+  wallpaperDirectory = ../../../assets/wallpapers;
+  selectWallpaper = ''
+    wallpaper=$(${pkgs.findutils}/bin/find "${wallpaperDirectory}" -type f \
+      \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' \) \
+      -print0 | ${pkgs.coreutils}/bin/shuf -z -n 1 | ${pkgs.findutils}/bin/xargs -0 -r printf '%s')
+    if [[ -z "$wallpaper" ]]; then
+      ${pkgs.libnotify}/bin/notify-send "Wallpaper" "No images found in assets/wallpapers"
+      exit 1
+    fi
+  '';
 in
 {
   cava-internal = pkgs.writeShellScriptBin "cava-internal" ''
@@ -11,18 +17,20 @@ in
     cava -p ~/.config/cava/config_internal | sed -u 's/;//g;s/0/▁/g;s/1/▂/g;s/2/▃/g;s/3/▄/g;s/4/▅/g;s/5/▆/g;s/6/▇/g;s/7/█/g;'
   '';
   wallpaper_random = pkgs.writeShellScriptBin "wallpaper_random" ''
-    killall dynamic_wallpaper
-    ${pkgs.awww}/bin/awww img $(find ~/Pictures/wallpaper/. \( -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" \) | shuf -n1) --transition-type random
+    ${pkgs.procps}/bin/pkill -f '/bin/dynamic_wallpaper' || true
+    ${selectWallpaper}
+    ${pkgs.awww}/bin/awww img "$wallpaper" --transition-type random
   '';
   dynamic_wallpaper = pkgs.writeShellScriptBin "dynamic_wallpaper" ''
     while true; do
-      ${pkgs.awww}/bin/awww img $(find ~/Pictures/wallpaper/. \( -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" \) | shuf -n1) --transition-type random
-      sleep 120
+      ${selectWallpaper}
+      ${pkgs.awww}/bin/awww img "$wallpaper" --transition-type random
+      ${pkgs.coreutils}/bin/sleep 120
     done
   '';
   default_wall = pkgs.writeShellScriptBin "default_wall" ''
-    killall dynamic_wallpaper
-    ${pkgs.awww}/bin/awww img "${wallpaper}" --transition-type random
+    ${pkgs.procps}/bin/pkill -f '/bin/dynamic_wallpaper' || true
+    ${pkgs.awww}/bin/awww img "${wallpaperDirectory}/default.png" --transition-type random
   '';
   recgif = pkgs.writeShellScriptBin "recgif" ''
     TIMESTAMP=$(date "+%Y-%m-%dT%H_%M_%S")

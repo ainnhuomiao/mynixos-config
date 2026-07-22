@@ -1,381 +1,386 @@
 # mynixos-config
 
-基于 Nix Flakes 的个人 NixOS 配置，使用 Sway 桌面环境。
+个人 NixOS Flake 配置，面向 `x86_64-linux` 物理机 `nixos`。系统使用 Sway、Home Manager、Mihomo TUN、Fish 和一组自定义 overlays。
 
-## 主机
+> 这是与当前硬件、用户名和本地状态绑定的个人配置，不是可直接用于任意机器的通用模板。复用前至少需要检查 `me.nix`、`hosts/nixos/hardware-configuration.nix`、磁盘布局和 Mihomo 配置。
 
-| 主机    | 类型   | 说明                       |
-| ------- | ------ | -------------------------- |
-| `nixos` | 物理机 | 完整桌面环境配置 (Sway WM) |
+## 当前架构
 
-## 软件
+| 项目     | 当前配置                                                      |
+| -------- | ------------------------------------------------------------- |
+| Flake    | `flake-parts` + `nixos-unstable-small`                        |
+| 主机     | `nixos`                                                       |
+| 平台     | `x86_64-linux`                                                |
+| 桌面     | Sway + Waybar + Rofi + Mako                                   |
+| Shell    | Fish + Starship                                               |
+| 用户配置 | Home Manager，`useGlobalPkgs` 和 `useUserPackages` 均启用     |
+| 音频     | PipeWire，启用 ALSA、PulseAudio 和 JACK                       |
+| 网络代理 | Mihomo 系统服务，TUN 自动路由                                 |
+| 引导     | GRUB EFI；Lanzaboote 模块已接入，但当前主机未启用 Secure Boot |
+| 文件系统 | 当前主机使用 Btrfs 子卷和独立 EFI 分区                        |
 
-### 系统
+## 主要功能
 
-| 软件              | 说明                               |
-| ----------------- | ---------------------------------- |
-| **Sway**          | Wayland 平铺窗口管理器，类 i3 体验 |
-| **Waybar**        | 状态栏、系统托盘、工作区指示器     |
-| **swww**          | 动态壁纸                           |
-| **Rofi**          | 应用启动器、剪贴板历史、电源菜单   |
-| **Mako**          | 通知守护进程                       |
-| **Flameshot**     | 截图工具 (支持水印/阴影)           |
-| **Fcitx5**        | 中文输入法                         |
-| **GTK / Papirus** | 主题与图标                         |
-| **SOPS + Age**    | 加密管理敏感信息                   |
-| **Lanzaboote**    | Secure Boot 支持                   |
-| **Disko**         | 声明式磁盘分区                     |
+### 桌面
 
-### 终端
+- Sway Wayland 平铺窗口管理器，`Mod` 键为 `Super`
+- Waybar 状态栏、托盘和自定义快捷操作
+- Rofi 应用启动器、剪贴板历史和电源菜单
+- Flameshot 与 Grimshot 截图，不添加水印或额外后处理
+- Swaylock 使用当前屏幕的模糊截图作为锁屏背景
+- 15 分钟空闲后尝试挂起；有活跃音频流时避免自动挂起
+- Fcitx5 中文输入法，使用左 `Ctrl` + 左 `Shift` 切换
+- PipeWire、蓝牙、NetworkManager 托盘和 XDG Portal
+- Firefox 保持默认界面，仅启用安装和 Wayland 环境变量
 
-| 软件                           | 说明                   |
-| ------------------------------ | ---------------------- |
-| **Kitty**                      | GPU 加速终端模拟器     |
-| **Fish**                       | 现代化 Shell           |
-| **Starship**                   | 跨 Shell 提示符        |
-| **Zoxide**                     | 智能目录跳转 (替代 cd) |
-| **fzf**                        | 模糊搜索               |
-| **ripgrep / fd / bat / delta** | 现代 CLI 工具集        |
+### Shell
 
-### 浏览器
+- Fish 使用 Vi 键位并由 Starship 提供提示符
+- Fastfetch 不随终端自动运行；可通过 `n` 别名手动启动
 
-| 软件               | 说明                      |
-| ------------------ | ------------------------- |
-| **Firefox**        | 开源浏览器                |
-| **Microsoft Edge** | 备选浏览器                |
-| **Zen**            | 基于 Firefox 的社区浏览器 |
+### 开发环境
 
-### 开发
+- Neovim、Helix、Git、Lazygit
+- C/C++：GCC、Clang、GDB、CMake、Meson、Ninja、Bear
+- Rust：`rust-overlay`
+- Go、Haskell、Node.js、TypeScript、Bun
+- Protobuf、gRPC、Direnv
+- `nixd`、`nixfmt`、`treefmt-nix`
 
-| 软件                        | 说明                                 |
-| --------------------------- | ------------------------------------ |
-| **Neovim**                  | 终端编辑器 (LazyVim)                 |
-| **Helix**                   | 模态编辑器                           |
-| **Git**                     | 版本控制                             |
-| **Lazygit**                 | Git TUI                              |
-| **Rust**                    | Rust 工具链 (via rust-overlay)       |
-| **Go**                      | Go 语言工具链                        |
-| **Haskell**                 | GHC + Cabal                          |
-| **C/C++**                   | Clang + CMake + Meson + Ninja + Bear |
-| **TypeScript / Node / Bun** | Web 开发                             |
-| **Protobuf / gRPC**         | RPC 工具链                           |
-| **Direnv**                  | 按目录加载环境变量                   |
+### AI 与 MCP
 
-### AI
+安装以下 AI CLI：
 
-| 软件                   | 说明                       |
-| ---------------------- | -------------------------- |
-| **Claude Code**        | Anthropic CLI 编码助手     |
-| **Gemini CLI**         | Google AI 助手             |
-| **GitHub Copilot CLI** | GitHub AI 助手             |
-| **Codex (OpenAI)**     | OpenAI CLI 编码助手        |
-| **OpenCode**           | 基于 Anomaly AI 的编码助手 |
+- Claude Code
+- Codex
+- Gemini CLI
+- GitHub Copilot CLI
+- OpenCode
+- cc-switch
 
-### 通讯
+Home Manager 激活时会将远程 Context7 MCP 地址 `https://mcp.context7.com/mcp` 合并到以下配置：
 
-| 软件                          | 说明                 |
-| ----------------------------- | -------------------- |
-| **Discord**                   | 语音/文字聊天        |
-| **Telegram**                  | 即时通讯             |
-| **QQ**                        | 即时通讯             |
-| **WeChat**                    | 即时通讯             |
-| **Feishu / ByteDance-Feishu** | 协作办公             |
-| **Tencent Meeting**           | 视频会议             |
-| **Vesktop**                   | Discord 第三方客户端 |
-| **Element Desktop**           | Matrix 客户端        |
-| **Thunderbird**               | 邮件客户端           |
+| 工具               | 配置文件                           |
+| ------------------ | ---------------------------------- |
+| Codex              | `~/.codex/config.toml`             |
+| Claude Code        | `~/.claude.json`                   |
+| OpenCode           | `~/.config/opencode/opencode.json` |
+| GitHub Copilot CLI | `~/.copilot/mcp-config.json`       |
+| cc-switch          | `~/.cc-switch/cc-switch.db`        |
 
-### 影音
+激活脚本只更新 Context7 项，不接管各工具的完整配置。它还会同步 cc-switch 中的 Codex Live backup，避免切换供应商后恢复旧 MCP 配置。
 
-| 软件              | 说明             |
-| ----------------- | ---------------- |
-| **mpv**           | 视频播放器       |
-| **mpd + ncmpcpp** | 本地音乐播放器   |
-| **Splayer**       | 网易云音乐客户端 |
-| **Go-MusicFox**   | 终端音乐播放器   |
-| **Cava**          | 终端音频可视化   |
-| **Kdenlive**      | 视频编辑器       |
-| **OBS Studio**    | 直播/录屏        |
+另外安装：
 
-### 工具
+- `mcp-nixos`：NixOS/Nixpkgs 查询 MCP
+- `flake-stats-mcp`：本仓库中的简单 Flake 统计 MCP
 
-| 软件                       | 说明           |
-| -------------------------- | -------------- |
-| **Bilibili**               | 哔哩哔哩客户端 |
-| **Bili Live TUI**          | 终端 B 站直播  |
-| **yt-dlp**                 | 视频下载工具   |
-| **Yazi**                   | 终端文件管理器 |
-| **Zathura**                | PDF 阅读器     |
-| **Fastfetch**              | 系统信息工具   |
-| **Kooha**                  | 屏幕录制       |
-| **imv / swayimg**          | 图片查看器     |
-| **btop**                   | 系统资源监控   |
-| **DBEaver**                | 数据库管理工具 |
-| **Emanote**                | 个人知识库     |
-| **nix-index / nix-locate** | Nix 包搜索     |
-| **nix-output-monitor**     | Nix 构建可视化 |
-
-## 从零开始：全新 NixOS 安装教程
-
-本教程假设你有一台全新的机器，从 NixOS 官方 ISO 启动后开始操作。
-
-### 前置准备
-
-1. 从 [NixOS 官网](https://nixos.org/download) 下载最新的 **Minimal ISO**，制作 U 盘启动盘
-2. 确保机器已连接网络（有线或 WiFi）：
-
-   ```bash
-   # 有线网络通常自动获取 IP，验证连通性：
-   ping -c 1 github.com
-
-   # WiFi 连接（如果需要）：
-   wpa_passphrase "WiFi名称" "WiFi密码" > /etc/wpa_supplicant.conf
-   systemctl restart wpa_supplicant
-   ```
-
-### 第一步：克隆仓库
+检查 OpenCode MCP 状态：
 
 ```bash
-git clone https://github.com/ainnhuomiao/mynixos-config.git
+opencode mcp list
+```
+
+### Mihomo TUN
+
+`system/mihomo.nix` 将 Mihomo 作为系统服务运行：
+
+- TUN 设备名为 `Mihomo`
+- 启用 `auto-route`、`auto-redirect`、DNS 劫持和 fake-ip
+- RFC1918 私网及 IPv6 ULA 地址不进入 TUN
+- MetaCubeXD Web UI：<http://127.0.0.1:9090/ui>
+- `clashtui` 用于终端管理节点、连接和日志
+- 订阅更新 timer 每 24 小时执行一次，开机 10 分钟后首次运行
+
+运行前必须准备：
+
+```text
+/var/lib/mihomo-config/config.yaml
+/var/lib/mihomo-config/subscription.url
+```
+
+常用命令：
+
+```bash
+sudo systemctl status mihomo
+sudo systemctl restart mihomo
+sudo systemctl start mihomo-subscription-update
+sudo journalctl -u mihomo -f
+clashtui
+```
+
+## 壁纸
+
+壁纸文件直接存放在仓库：
+
+```text
+assets/wallpapers/
+```
+
+默认壁纸必须命名为：
+
+```text
+assets/wallpapers/default.png
+```
+
+随机和定时切换会递归识别：
+
+- `.png`
+- `.jpg`
+- `.jpeg`
+- `.webp`
+
+新增、删除或替换壁纸后需要重建系统，使文件进入新的 Nix store 路径：
+
+```bash
+rs
+```
+
+壁纸由 `awww` daemon 管理，恢复休眠后会自动重新应用默认壁纸。
+
+## 自定义包与 Overlays
+
+`overlays/default.nix` 组合以下 overlays：
+
+| 包                | 用途                                                       |
+| ----------------- | ---------------------------------------------------------- |
+| `cc-switch`       | 固定使用上游 CLI 二进制，目前为 5.9.0                      |
+| `clashtui`        | 应用中文界面补丁                                           |
+| `pywalfox-native` | 安装 Firefox native messaging manifest                     |
+| `vesktop`         | 注入本地 Mihomo 代理环境变量                               |
+| `motrix-next`     | 使用 `autoPatchelfHook` 修复 sidecar 在 NixOS 上的动态链接 |
+
+仓库自己的包位于 `pkgs/`：
+
+- `bili_tui`
+- `fcitx5-pinyin-moegirl`
+- `fcitx5-pinyin-zhwiki`
+- `flake-stats-mcp`
+
+## 目录结构
+
+```text
+.
+├── assets/wallpapers/       # 由配置直接引用的壁纸文件
+├── home/                    # Home Manager 模块
+│   ├── ai/                  # AI CLI 与 Context7 MCP 激活脚本
+│   ├── dev/                 # 开发工具链
+│   ├── editors/             # 编辑器
+│   ├── programs/            # 桌面与 CLI 应用
+│   ├── shell/               # Fish、Starship 和命令别名
+│   ├── wall/                # awww 服务与默认壁纸
+│   └── wm/sway/             # Sway 配置与快捷键
+├── hosts/nixos/             # 当前物理机配置和硬件配置
+├── lib/disko_layout/        # 普通与 LUKS 单盘布局
+├── lib/scripts/             # 安装、分区和重建脚本
+├── overlays/                # nixpkgs overlays
+├── pkgs/                    # 仓库自有包
+├── system/                  # NixOS 系统模块
+├── flake.nix
+├── justfile
+└── me.nix                   # 用户名、Git 信息和初始密码哈希
+```
+
+## 日常维护
+
+仓库默认位于：
+
+```text
+~/mynixos-config
+```
+
+Fish 提供以下快捷命令：
+
+| 命令 | 等价操作                                                               |
+| ---- | ---------------------------------------------------------------------- |
+| `rs` | `sudo nixos-rebuild switch --flake ~/mynixos-config#nixos 2>&1 \| nom` |
+| `ru` | `nix flake update --flake ~/mynixos-config`                            |
+| `rd` | 删除用户和系统旧世代，并回收不再引用的 store 路径                      |
+
+典型更新流程：
+
+```bash
+ru
+rs
+```
+
+需要释放空间时：
+
+```bash
+rd
+```
+
+> `rd` 会不可逆地删除旧 generations，删除后无法回滚到这些系统版本。
+
+也可以使用仓库脚本。`just rebuild-switch` 会先执行 `nix flake check` 和 `nix fmt`，再交互选择主机并切换：
+
+```bash
+nix develop
+just rebuild-switch
+```
+
+其他检查命令：
+
+```bash
+nix flake check
+nix fmt
+nix build --no-link .#nixosConfigurations.nixos.config.system.build.toplevel
+```
+
+## Sway 快捷键
+
+`Mod` 为 `Super`。原本由 Super 单键触发的 Rofi 启动器改为使用 Alt。
+
+### 启动与系统
+
+| 按键                       | 功能             |
+| -------------------------- | ---------------- |
+| `Mod` + `Return`           | 打开 Kitty       |
+| `Mod` + `Shift` + `Return` | 打开浮动 Kitty   |
+| `Mod` + `z`                | Rofi 应用启动器  |
+| `Mod` + `v`                | Rofi 剪贴板历史  |
+| `Mod` + `Shift` + `p`      | Rofi 电源菜单    |
+| `Mod` + `Shift` + `b`      | Firefox          |
+| `Mod` + `Shift` + `t`      | Telegram         |
+| `Mod` + `Shift` + `q`      | QQ               |
+| `Alt` + `Shift` + `q`      | 切换到 QQ 工作区 |
+| `Alt` + `Shift` + `t`      | 切换到 TG 工作区 |
+| `Alt` + `Shift` + `w`      | 切换到 WC 工作区 |
+| `Alt` + `Shift` + `b`      | 切换到 Ff 工作区 |
+| `Mod` + `m`                | Pear Desktop     |
+| `Mod` + `Shift` + `x`      | 锁屏             |
+| `Mod` + `Shift` + `c`      | 重载 Sway        |
+| `Mod` + `Shift` + `e`      | 退出 Sway        |
+| `Mod` + `o`                | 切换 Waybar 显示 |
+
+### 窗口与工作区
+
+| 按键                                 | 功能                       |
+| ------------------------------------ | -------------------------- |
+| `Mod` + `h/j/k/l` 或方向键           | 移动焦点                   |
+| `Mod` + `Shift` + `h/j/k/l` 或方向键 | 移动窗口                   |
+| `Mod` + `q`                          | 关闭窗口                   |
+| `Mod` + `f`                          | 全屏切换                   |
+| `Mod` + `Shift` + `Space`            | 浮动/平铺切换              |
+| `Mod` + `Space`                      | 在浮动区和平铺区间切换焦点 |
+| `Mod` + `1` 到 `0`                   | 切换工作区 1 到 10         |
+| `Mod` + `Shift` + `1` 到 `0`         | 移动窗口到工作区           |
+| `Mod` + `Ctrl` + `1` 到 `0`          | 移动窗口并跟随到工作区     |
+| `Mod` + `/`                          | 当前与上一个工作区切换     |
+| `Mod` + `.` / `,`                    | 下一个/上一个工作区        |
+| `Mod` + `-` / `=`                    | 放入/取出 scratchpad       |
+| `Mod` + `r`                          | 进入窗口大小调整模式       |
+| `Mod` + `g`                          | 关闭窗口间隙               |
+| `Mod` + `Shift` + `g`                | 恢复窗口间隙               |
+
+### 截图
+
+| 按键        | 功能                                         |
+| ----------- | -------------------------------------------- |
+| `Print`     | 打开 Flameshot GUI                           |
+| `Mod` + `[` | Grimshot 交互截图，复制并保存到 `~/Pictures` |
+| `Mod` + `]` | Grimshot 交互截图，仅复制到剪贴板            |
+| `Mod` + `a` | Grimshot 交互截图，复制并保存到 `~/Pictures` |
+
+截图不添加水印、阴影或边框。
+
+### 壁纸
+
+| 按键                           | 功能                                 |
+| ------------------------------ | ------------------------------------ |
+| `Mod` + `Shift` + `w`          | 从 `assets/wallpapers/` 随机选择一次 |
+| `Mod` + `Ctrl` + `w`           | 启动每 120 秒随机切换                |
+| `Mod` + `Ctrl` + `Shift` + `w` | 停止轮换并恢复 `default.png`         |
+
+## 全新安装
+
+### 1. 启动安装环境
+
+从 NixOS Minimal ISO 启动，连接网络并克隆仓库：
+
+```bash
+git clone <你的仓库地址> mynixos-config
 cd mynixos-config
-```
-
-### 第二步：修改个人信息
-
-编辑 `me.nix`，将内容替换为你自己的信息：
-
-```nix
-{
-  userName = "你的用户名";             # 系统用户名称
-  email = "your@email.com";           # Git 提交邮箱
-  domain = "localhost";               # 主机域名
-  initialHashedPassword = "";         # 留空，安装脚本会自动设置
-  githubUserName = "你的github";       # GitHub 用户名
-  gitSignKey = "";
-  sshPublicKey = "";                  # 可选：SSH 公钥
-  gpgPublicKey = "";
-}
-```
-
-> `initialHashedPassword` 留空即可，安装脚本会交互式地让你输入密码并自动替换。
-
-### 第三步：进入 flake 开发环境
-
-```bash
 nix develop --extra-experimental-features 'nix-command flakes'
 ```
 
-该命令会进入一个包含 `git`、`neovim`、`just` 等工具的 shell 环境。
+### 2. 修改个人与硬件配置
 
-### 第四步：磁盘分区 (Disko)
+至少检查：
 
-`disko` 脚本会以声明式方式擦除并分区你的硬盘。
+- `me.nix`
+- `hosts/nixos/default.nix`
+- `hosts/nixos/hardware-configuration.nix`
+- `lib/disko_layout/single-device.nix`
+- `lib/disko_layout/single-device-luks.nix`
+
+不要直接复用当前机器的磁盘 UUID、设备路径或密码哈希。
+
+### 3. 分区
 
 ```bash
 just disko
 ```
 
-交互流程：
+脚本会：
 
-1. **选择主机** — 目前只有一个 `nixos`
-2. **选择分区布局** — 两个选项：
-   - `single-device.nix`：无加密，简单分区（ESP + 根分区）
-   - `single-device-luks.nix`：LUKS 全盘加密
-3. **设置 LUKS 密码**（若选择加密布局）
-4. **检查并编辑** 分区布局文件 — 确认磁盘路径（如 `/dev/nvme0n1`）与你机器的实际情况一致
-5. **输入 `YES` 确认** — 此操作将**清空磁盘**
+1. 发现 flake 中的 NixOS 主机。
+2. 选择普通单盘或 LUKS 单盘布局。
+3. 允许检查和编辑布局。
+4. 要求输入 `YES` 后才擦除、格式化并挂载磁盘。
+5. 生成硬件配置并复制仓库到 `/mnt/etc/nixos/flakes`。
 
-脚本会自动运行：
+> 该操作会清空目标磁盘。执行前必须确认布局中的设备路径。
 
-- Disko 分区并格式化
-- 挂载分区到 `/mnt`
-- 生成硬件配置 `hosts/nixos/hardware-configuration.nix`
-- 将 flake 仓库拷贝到 `/mnt/etc/nixos/flakes`
+### 4. 安装
 
-### 第五步：系统安装
+当前系统 activation 要求 Mihomo 配置存在。运行安装前，根据自己的订阅准备目标系统中的文件：
+
+```bash
+sudo install -d -m 2770 /mnt/var/lib/mihomo-config
+sudo install -m 0640 /path/to/config.yaml /mnt/var/lib/mihomo-config/config.yaml
+sudo install -m 0640 /path/to/subscription.url /mnt/var/lib/mihomo-config/subscription.url
+```
+
+其中 `subscription.url` 是只包含订阅 URL 的文本文件。
+
+然后安装系统：
 
 ```bash
 just install
 ```
 
-交互流程：
+安装脚本会设置用户密码，并运行：
 
-1. **选择主机** — 选择 `nixos`
-2. **设置用户密码** — 输入并确认，脚本会自动更新 `me.nix` 中的密码哈希
-3. **开始安装** — 执行 `nixos-install --flake .#nixos`
+```bash
+nixos-install --no-root-passwd --flake .#nixos
+```
 
-等待构建完成（首次需要编译较多包，可能数十分钟）。
-
-### 第六步：重启进入新系统
+安装完成后重启：
 
 ```bash
 reboot
 ```
 
-输入你设置的密码登录。
+### 5. 首次登录
 
-### 第七步：后续维护
-
-已经进入桌面环境后，该仓库仍位于：
+登录后将仓库放到 `~/mynixos-config`。后续修改统一使用：
 
 ```bash
-cd /etc/nixos/flakes
+sudo nixos-rebuild switch --flake ~/mynixos-config#nixos
 ```
 
-日常更新系统：
+## 注意事项
 
-```bash
-# 更新 flake 输入
-ru
-
-# 重建系统（带可视化）
-rs
-```
-
-也可通过 `just` 命令：
-
-```bash
-nix develop --extra-experimental-features 'nix-command flakes'
-just rebuild-switch
-```
-
-### 首次使用建议
-
-- **壁纸**：`Mod` + `Shift` + `w` 随机切换壁纸
-- **输入法**：`Ctrl` + `Space` 切换中英文
-- **启动器**：`Super` 键打开 Rofi 应用菜单
-- **终端**：`Mod` + `Return` 打开 Kitty
-- **浏览器**：`Mod` + `b` 启动 Firefox
-
-> `Mod` 键默认是 **Alt**，详见下方的 [Sway 按键操作](#sway-按键操作) 章节。
-
-## Sway 按键操作
-
-> Mod 键 = **Alt**
-
-### 应用启动
-
-| 按键                       | 功能             |
-| -------------------------- | ---------------- |
-| `Mod` + `Return`           | 打开终端 (Kitty) |
-| `Mod` + `Shift` + `Return` | 打开浮动终端     |
-| `Mod` + `b`                | Firefox          |
-| `Mod` + `t`                | Telegram         |
-| `Mod` + `q`                | QQ               |
-| `Mod` + `m`                | 音乐播放器       |
-| `Super`                    | Rofi 应用启动器  |
-| `Mod` + `v`                | Rofi 剪贴板历史  |
-| `Mod` + `Super`            | Rofi 电源菜单    |
-
-### 窗口操作
-
-| 按键                              | 功能                  |
-| --------------------------------- | --------------------- |
-| `Mod` + `h` / `j` / `k` / `l`     | 移动焦点 (←↓↑→)       |
-| `Mod` + `←` / `↓` / `↑` / `→`     | 移动焦点 (方向键)     |
-| `Mod` + `Shift` + `h`/`j`/`k`/`l` | 移动窗口              |
-| `Mod` + `Shift` + `←`/`↓`/`↑`/`→` | 移动窗口 (方向键)     |
-| `Mod` + `Shift` + `p`             | 关闭窗口              |
-| `Mod` + `f`                       | 全屏切换              |
-| `Mod` + `Shift` + `space`         | 浮动/平铺切换         |
-| `Mod` + `space`                   | 平铺区/浮动区焦点切换 |
-| `Mod` + `-`                       | 窗口收入暂存区        |
-| `Mod` + `=`                       | 从暂存区取出窗口      |
-| `Mod` + `p`                       | 聚焦父容器            |
-| `Mod` + `c`                       | 聚焦子容器            |
-
-### 工作区
-
-| 按键                      | 功能                   |
-| ------------------------- | ---------------------- |
-| `Mod` + `1` ~ `0`         | 切换到工作区 1~10      |
-| `Mod` + `Shift` + `1`~`0` | 移动窗口到工作区       |
-| `Mod` + `Ctrl` + `1`~`0`  | 移动窗口并跟随到工作区 |
-| `Mod` + `/`               | 切换到上一个工作区     |
-| `Mod` + `.`               | 下一个工作区           |
-| `Mod` + `,`               | 上一个工作区           |
-
-### 布局
-
-| 按键        | 功能         |
-| ----------- | ------------ |
-| `Mod` + `;` | 垂直分割     |
-| `Mod` + `'` | 水平分割     |
-| `Mod` + `s` | 堆叠布局     |
-| `Mod` + `w` | 标签页布局   |
-| `Mod` + `e` | 切换分割方向 |
-
-### 调整窗口大小
-
-| 按键                               | 功能                                |
-| ---------------------------------- | ----------------------------------- |
-| `Mod` + `r`                        | 进入大小调整模式 (h/j/k/l 或方向键) |
-| `Shift` + `Ctrl` + `h`/`j`/`k`/`l` | 快速调整大小 (±5px)                 |
-
-### 截图
-
-| 按键        | 功能                             |
-| ----------- | -------------------------------- |
-| `Print`     | 区域截图 (Flameshot + 水印+阴影) |
-| `Mod` + `[` | 区域截图保存 (无水印)            |
-| `Mod` + `]` | 区域截图到剪贴板 (无水印)        |
-| `Mod` + `a` | 区域截图 (Grimshot + 水印+阴影)  |
-
-### 壁纸
-
-| 按键                           | 功能                   |
-| ------------------------------ | ---------------------- |
-| `Mod` + `Shift` + `w`          | 随机切换壁纸           |
-| `Mod` + `Ctrl` + `w`           | 定时轮换壁纸 (每2分钟) |
-| `Mod` + `Ctrl` + `Shift` + `w` | 恢复默认壁纸           |
-
-### 其他
-
-| 按键                  | 功能             |
-| --------------------- | ---------------- |
-| `Mod` + `Shift` + `x` | 锁屏             |
-| `Mod` + `Shift` + `c` | 重载 Sway 配置   |
-| `Mod` + `Shift` + `e` | 退出 Sway        |
-| `Mod` + `o`           | 切换 Waybar 显隐 |
-| `Mod` + `g`           | 关闭窗口间隙     |
-| `Mod` + `Shift` + `g` | 开启窗口间隙     |
-
-### 媒体键
-
-| 按键                           | 功能          |
-| ------------------------------ | ------------- |
-| `XF86AudioRaiseVolume`         | 音量 +        |
-| `XF86AudioLowerVolume`         | 音量 -        |
-| `XF86AudioMute`                | 静音          |
-| `XF86AudioMicMute`             | 麦克风静音    |
-| `XF86MonBrightnessUp` / `Down` | 亮度调节      |
-| `XF86AudioPlay`                | 播放/暂停     |
-| `XF86AudioNext` / `Prev`       | 上一首/下一首 |
-
-### Firefox 快捷键
-
-| 按键                   | 功能           |
-| ---------------------- | -------------- |
-| `Alt` + `b`            | 启动 Firefox   |
-| `Ctrl` + `L`           | 聚焦地址栏     |
-| `Ctrl` + `T`           | 新标签页       |
-| `Ctrl` + `W`           | 关闭标签页     |
-| `Ctrl` + `Shift` + `T` | 恢复关闭的标签 |
-| `Ctrl` + `Tab`         | 切换标签页     |
-| `Ctrl` + `1`~`8`       | 切换到对应标签 |
-| `Ctrl` + `F`           | 页面内搜索     |
-| `F5` / `Ctrl` + `R`    | 刷新页面       |
-| `F12`                  | 开发者工具     |
-
-### 其他设置
-
-- **CapsLock** = Escape
-- 触摸板：轻触点击、自然滚动、中键模拟
-- 窗口跟随鼠标：关闭
-- 鼠标拖动窗口：`Mod` + 左键拖拽 / 右键调整大小
-- 空闲 15 分钟自动挂起，挂起前自动锁屏
-- 自适应同步 (VRR)
+- 当前用户配置使用 `home-manager.useUserPackages = true`。修改 Home Manager 包后应执行完整的 `nixos-rebuild switch`，只运行独立 Home Manager activation 不会更新 `/etc/profiles/per-user/<user>/bin`。
+- `NIX_AUTO_RUN=1` 已启用，未安装的命令可能由 comma 临时运行。常用命令应显式加入系统或 Home Manager 包列表，避免意外使用 nix-index 中的旧版本。
+- `sudo` 和 `doas` 当前均对 wheel 用户配置为免密码，仅适合受控的个人机器。
+- `me.nix` 包含密码哈希和个人信息；公开仓库前应评估是否需要迁移到 sops-nix。
+- `nix.gc` 每周运行并删除两天前的旧引用；手动 `rd` 会进行更彻底的旧世代清理。
 
 ## 参考
 
-- 原始配置来源: [Ruixi-rebirth/flakes](https://github.com/Ruixi-rebirth/flakes)
+- [NixOS](https://nixos.org/)
+- [Home Manager](https://github.com/nix-community/home-manager)
+- [Disko](https://github.com/nix-community/disko)
+- [Ruixi-rebirth/flakes](https://github.com/Ruixi-rebirth/flakes)

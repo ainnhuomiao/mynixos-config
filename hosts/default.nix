@@ -36,8 +36,10 @@
           "${mod}/core"
           "${mod}/core/boot.nix"
           "${mod}/core/network.nix"
+          "${mod}/mihomo.nix"
           "${mod}/nix"
           "${mod}/hardware"
+          "${mod}/virtualisation.nix"
           "${mod}/programs/fonts.nix"
           "${mod}/programs/desktop.nix"
           inputs.lanzaboote.nixosModules.lanzaboote

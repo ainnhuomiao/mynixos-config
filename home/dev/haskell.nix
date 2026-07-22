@@ -30,7 +30,10 @@ let
 
       config = mkIf cfg.enable (mkMerge [
         {
-          home.packages = [ cfg.package ];
+          home.packages = [
+            cfg.package
+            pkgs.haskellPackages.haskell-language-server
+          ];
         }
         (mkIf cfg.enableCabal {
           home.packages = [ pkgs.haskellPackages.cabal-install ];

@@ -41,8 +41,10 @@
       pulsemixer
       sshpass
       imagemagick
+      chafa
       grim
       slurp
+      satty
       linux-wifi-hotspot
       scrcpy
       gource

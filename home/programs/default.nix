@@ -8,7 +8,10 @@ let
     "wsl"
   ];
   directories = builtins.filter (
-    name: directoryContents."${name}" == "directory" && !(builtins.elem name excludeDirs)
+    name:
+    directoryContents."${name}" == "directory"
+    && builtins.pathExists (./. + "/${name}/default.nix")
+    && !(builtins.elem name excludeDirs)
   ) (builtins.attrNames directoryContents);
   modulePaths = map (name: ./. + "/${name}") directories;
 in
