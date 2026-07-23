@@ -1,6 +1,4 @@
 [
-  (import ./cc-switch.nix)
-  (import ./clashtui.nix)
-  (import ./pywalfox.nix)
+  (import ./cc-switch-cli.nix)
   (import ./motrix-next.nix)
 ]

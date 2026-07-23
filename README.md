@@ -32,6 +32,8 @@
 - Fcitx5 中文输入法，使用左 `Ctrl` + 左 `Shift` 切换
 - PipeWire、蓝牙、NetworkManager 托盘和 XDG Portal
 - Firefox 保持默认界面，仅启用安装和 Wayland 环境变量
+- Vesktop 使用 nixpkgs 官方包，并自动放入 `VT` 工作区
+- SPlayer 使用 `Alt` + `Shift` + `s` 启动，并自动放入 `SPlayer` 工作区
 
 ### Shell
 
@@ -56,7 +58,11 @@
 - Gemini CLI
 - GitHub Copilot CLI
 - OpenCode
-- cc-switch
+- `cc-switch-cli`
+- Herdr
+
+`cc-switch-cli` 以 systemd 用户服务运行 Codex 代理，登录后自动执行
+`cc-switch-cli proxy serve --takeover codex`，服务异常退出时自动重启。
 
 Home Manager 激活时会将远程 Context7 MCP 地址 `https://mcp.context7.com/mcp` 合并到以下配置：
 
@@ -66,9 +72,9 @@ Home Manager 激活时会将远程 Context7 MCP 地址 `https://mcp.context7.com
 | Claude Code        | `~/.claude.json`                   |
 | OpenCode           | `~/.config/opencode/opencode.json` |
 | GitHub Copilot CLI | `~/.copilot/mcp-config.json`       |
-| cc-switch          | `~/.cc-switch/cc-switch.db`        |
+| cc-switch 数据库   | `~/.cc-switch/cc-switch.db`        |
 
-激活脚本只更新 Context7 项，不接管各工具的完整配置。它还会同步 cc-switch 中的 Codex Live backup，避免切换供应商后恢复旧 MCP 配置。
+激活脚本只更新 Context7 项，不接管各工具的完整配置。如果已有 cc-switch 数据库，它还会同步其中的 Codex Live backup，避免代理恢复旧 MCP 配置。
 
 另外安装：
 
@@ -81,6 +87,12 @@ Home Manager 激活时会将远程 Context7 MCP 地址 `https://mcp.context7.com
 opencode mcp list
 ```
 
+检查 Codex 代理服务：
+
+```bash
+systemctl --user status cc-switch-cli
+```
+
 ### Mihomo TUN
 
 `system/mihomo.nix` 将 Mihomo 作为系统服务运行：
@@ -89,24 +101,50 @@ opencode mcp list
 - 启用 `auto-route`、`auto-redirect`、DNS 劫持和 fake-ip
 - RFC1918 私网及 IPv6 ULA 地址不进入 TUN
 - MetaCubeXD Web UI：<http://127.0.0.1:9090/ui>
-- `clashtui` 用于终端管理节点、连接和日志
-- 订阅更新 timer 每 24 小时执行一次，开机 10 分钟后首次运行
+- 多个订阅使用独立的 Mihomo `proxy-providers`，每 6 小时自动更新
+- 节点自动添加订阅名前缀，避免不同订阅出现同名节点
+- `mihomo-sub` 提供交互式菜单管理订阅，URL 使用隐藏输入
+- systemd 监听订阅文件，修改后自动验证、生成配置并重启 Mihomo
 
-运行前必须准备：
+订阅信息保存在：
 
 ```text
-/var/lib/mihomo-config/config.yaml
-/var/lib/mihomo-config/subscription.url
+/var/lib/mihomo-config/subscriptions.yaml
 ```
 
-常用命令：
+运行交互式管理器：
 
 ```bash
-sudo systemctl status mihomo
-sudo systemctl restart mihomo
-sudo systemctl start mihomo-subscription-update
-sudo journalctl -u mihomo -f
-clashtui
+mihomo-sub
+```
+
+菜单支持查看、添加或替换、删除、刷新单个订阅和刷新全部订阅。订阅 URL
+保存在本机 `/var/lib/mihomo-config/subscriptions.yaml`，不会进入 Git 或 Nix store。
+
+也可以直接编辑底层文件：
+
+```yaml
+subscriptions:
+  default:
+    url: https://example.com/subscription-a
+  kitty:
+    url: https://example.com/subscription-b
+  sanmao-200:
+    url: https://example.com/subscription-c
+```
+
+添加订阅时增加一个映射，删除订阅时删除对应映射。订阅名只能包含字母、
+数字、点、下划线和连字符。保存后 `mihomo-config-regenerate.path` 会触发配置
+验证；只有生成成功才会替换 `/var/lib/mihomo-config/config.yaml` 并重启服务。
+原有 ClashTui `profiles` 目录和单订阅 `subscription.url` 会在首次切换时自动
+迁移，旧文件不会被删除。
+
+服务命令：
+
+```bash
+systemctl status mihomo
+systemctl restart mihomo
+journalctl -u mihomo -f
 ```
 
 ## 壁纸
@@ -142,13 +180,12 @@ rs
 
 `overlays/default.nix` 组合以下 overlays：
 
-| 包                | 用途                                                       |
-| ----------------- | ---------------------------------------------------------- |
-| `cc-switch`       | 固定使用上游 CLI 二进制，目前为 5.9.0                      |
-| `clashtui`        | 应用中文界面补丁                                           |
-| `pywalfox-native` | 安装 Firefox native messaging manifest                     |
-| `vesktop`         | 注入本地 Mihomo 代理环境变量                               |
-| `motrix-next`     | 使用 `autoPatchelfHook` 修复 sidecar 在 NixOS 上的动态链接 |
+| 包              | 用途                                                 |
+| --------------- | ---------------------------------------------------- |
+| `cc-switch-cli` | 固定上游源码提交，版本为 `5.9.2-unstable-2026-07-22` |
+| `motrix-next`   | 更新到 `3.9.6`，并修复 sidecar 在 NixOS 上的动态链接 |
+
+Vesktop 直接使用 nixpkgs 官方 `vesktop` 包，不再通过自定义 overlay 或二次打包安装。
 
 仓库自己的包位于 `pkgs/`：
 
@@ -164,7 +201,7 @@ rs
 ├── assets/wallpapers/       # 由配置直接引用的壁纸文件
 ├── flake/modules/           # Flake 开发环境、格式化和 overlays 输出
 ├── home/                    # Home Manager 模块
-│   ├── ai/                  # AI CLI 与 Context7 MCP 激活脚本
+│   ├── ai/                  # AI CLI、Codex 代理服务与 Context7 MCP 激活脚本
 │   ├── dev/                 # 开发工具链
 │   ├── editors/             # 编辑器
 │   ├── programs/            # 桌面与 CLI 应用
@@ -235,7 +272,7 @@ nix build --no-link .#nixosConfigurations.nixos.config.system.build.toplevel
 
 ## Sway 快捷键
 
-`Mod` 为 `Super`。原本由 Super 单键触发的 Rofi 启动器改为使用 Alt。
+`Mod` 为 `Super`。
 
 ### 启动与系统
 
@@ -249,11 +286,13 @@ nix build --no-link .#nixosConfigurations.nixos.config.system.build.toplevel
 | `Mod` + `Shift` + `b`      | Firefox          |
 | `Mod` + `Shift` + `t`      | Telegram         |
 | `Mod` + `Shift` + `q`      | QQ               |
+| `Mod` + `Shift` + `v`      | Vesktop          |
 | `Alt` + `Shift` + `q`      | 切换到 QQ 工作区 |
 | `Alt` + `Shift` + `t`      | 切换到 TG 工作区 |
 | `Alt` + `Shift` + `w`      | 切换到 WC 工作区 |
 | `Alt` + `Shift` + `b`      | 切换到 Ff 工作区 |
-| `Mod` + `m`                | Pear Desktop     |
+| `Alt` + `Shift` + `v`      | 切换到 VT 工作区 |
+| `Alt` + `Shift` + `s`      | 启动 SPlayer     |
 | `Mod` + `Shift` + `x`      | 锁屏             |
 | `Mod` + `Shift` + `c`      | 重载 Sway        |
 | `Mod` + `Shift` + `e`      | 退出 Sway        |
@@ -340,21 +379,14 @@ just disko
 
 ### 4. 安装
 
-当前系统 activation 要求 Mihomo 配置存在。运行安装前，根据自己的订阅准备目标系统中的文件：
-
-```bash
-sudo install -d -m 2770 /mnt/var/lib/mihomo-config
-sudo install -m 0640 /path/to/config.yaml /mnt/var/lib/mihomo-config/config.yaml
-sudo install -m 0640 /path/to/subscription.url /mnt/var/lib/mihomo-config/subscription.url
-```
-
-其中 `subscription.url` 是只包含订阅 URL 的文本文件。
-
-然后安装系统：
+系统 activation 会创建空的 Mihomo 订阅文件和仅包含 `DIRECT` 的初始配置，
+因此安装前不需要把订阅 URL 写入目标磁盘。直接安装系统：
 
 ```bash
 just install
 ```
+
+首次进入新系统后，使用 `mihomo-sub add NAME` 添加订阅。
 
 安装脚本会设置用户密码，并运行：
 

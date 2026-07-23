@@ -169,6 +169,14 @@ in
       for_window [app_id="firefox"] focus
       for_window [app_id="QQ"] move --no-auto-back-and-forth container to workspace QQ
       for_window [app_id="QQ"] focus
+      for_window [app_id="(?i)^vesktop$"] move --no-auto-back-and-forth container to workspace VT
+      for_window [app_id="(?i)^vesktop$"] focus
+      for_window [class="(?i)^vesktop$"] move --no-auto-back-and-forth container to workspace VT
+      for_window [class="(?i)^vesktop$"] focus
+      for_window [app_id="(?i)^splayer$"] move --no-auto-back-and-forth container to workspace SPlayer
+      for_window [app_id="(?i)^splayer$"] focus
+      for_window [class="(?i)^splayer$"] move --no-auto-back-and-forth container to workspace SPlayer
+      for_window [class="(?i)^splayer$"] focus
 
       #---------------------#
       # Focus follows mouse #
@@ -290,7 +298,7 @@ in
 
       # quick start some applications
       # bindsym $mod+m exec --no-startup-id              kitty --class="musicfox" --hold sh -c "musicfox"
-      bindsym $mod+m exec --no-startup-id              pear-desktop
+      bindsym Alt+Shift+s exec --no-startup-id         splayer
       bindsym $mod+Shift+b exec --no-startup-id        firefox
       bindsym $mod+Shift+d exec kitty --class="danmufloat" --hold sh -c "export TERM=xterm-256color && bili"
       bindsym $mod+Shift+x exec --no-startup-id        ${myswaylock}/bin/myswaylock
@@ -374,6 +382,8 @@ in
       bindsym $mod+8 workspace number 8
       bindsym $mod+9 workspace number 9
       bindsym $mod+0 workspace number 10
+      bindsym Mod1+Shift+v workspace VT
+      bindsym $mod+Shift+v exec vesktop
       # Move focused container to workspace
       bindsym $mod+Shift+1 move container to workspace number 1
       bindsym $mod+Shift+2 move container to workspace number 2

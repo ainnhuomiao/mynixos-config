@@ -2,7 +2,6 @@
   imports = [
     ./bili_live
     ./bilibili
-    ./clashtui
     ./dbclient
     ./discord
     ./edge
