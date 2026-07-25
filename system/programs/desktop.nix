@@ -19,11 +19,18 @@
   security.pam.services.swaylock = { };
   xdg.portal = {
     enable = true;
-    wlr.enable = true;
+    config.sway = {
+      default = [ "gtk" ];
+      "org.freedesktop.impl.portal.ScreenCast" = [ "wlr" ];
+      "org.freedesktop.impl.portal.Screenshot" = [ "wlr" ];
+    };
+    wlr = {
+      enable = true;
+      settings.screencast.chooser_type = "none";
+    };
     configPackages = [ pkgs.gnome-session ];
     extraPortals = [
       pkgs.xdg-desktop-portal-gtk
-      pkgs.xdg-desktop-portal-wlr
     ];
   };
 

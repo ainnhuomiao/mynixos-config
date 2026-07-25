@@ -1,8 +1,8 @@
 { pkgs, ... }:
 {
   home = {
-    packages = with pkgs; [
-      thunderbird
+    packages = [
+      pkgs.thunderbird-bin
     ];
   };
 }
