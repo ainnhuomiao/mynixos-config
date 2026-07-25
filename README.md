@@ -35,6 +35,42 @@
 - Vesktop 使用 nixpkgs 官方包，并自动放入 `VT` 工作区
 - SPlayer 使用 `Alt` + `Shift` + `s` 启动，并自动放入 `SPlayer` 工作区
 
+### 录屏（wf-recorder）
+
+全屏录制并将视频保存到当前目录：
+
+```bash
+wf-recorder -f recording.mkv
+```
+
+使用 `slurp` 框选录制区域：
+
+```bash
+wf-recorder -g "$(slurp)" -f recording.mkv
+```
+
+录制画面的同时录制默认音频设备：
+
+```bash
+wf-recorder --audio -f recording.mkv
+```
+
+框选区域并同时录音：
+
+```bash
+wf-recorder -g "$(slurp)" --audio -f recording.mkv
+```
+
+多显示器环境下可先查看输出名称，再录制指定输出：
+
+```bash
+wf-recorder -L
+wf-recorder -o DP-1 -f recording.mkv
+```
+
+录制过程中按 `Ctrl` + `C` 即可停止并保存视频。需要固定帧率时可使用
+`-r` 参数，例如 `wf-recorder -r 60 -f recording.mkv`。
+
 ### Shell
 
 - Fish 使用 Vi 键位并由 Starship 提供提示符
