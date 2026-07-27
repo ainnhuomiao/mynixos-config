@@ -525,6 +525,29 @@
         "type": "github"
       }
     },
+    "nix-pi": {
+      "inputs": {
+        "home-manager": [
+          "home-manager"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1785164797,
+        "narHash": "sha256-5BGzioyjCNPz5aEWk4WpKDKyBYV1TQT4qK1DbRMe2iY=",
+        "owner": "ainnhuomiao",
+        "repo": "nix-pi",
+        "rev": "36af3f009b4f0b6c6d0e6f0d1bb1cacf6633b539",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ainnhuomiao",
+        "repo": "nix-pi",
+        "type": "github"
+      }
+    },
     "nixd": {
       "inputs": {
         "flake-parts": "flake-parts_3",
@@ -757,6 +780,7 @@
         "hyprpicker": "hyprpicker",
         "lanzaboote": "lanzaboote",
         "nix-index-database": "nix-index-database",
+        "nix-pi": "nix-pi",
         "nixd": "nixd",
         "nixpkgs": "nixpkgs_4",
         "nur": "nur",

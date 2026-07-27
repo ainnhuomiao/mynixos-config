@@ -10,7 +10,11 @@
     in
     {
       packages = {
-        inherit (pkgs) bili_tui flake-stats-mcp motrix-next;
+        inherit (pkgs)
+          bili_tui
+          flake-stats-mcp
+          motrix-next
+          ;
       };
     };
 }

@@ -11,7 +11,10 @@ let
   ];
 in
 {
-  imports = [ ./mcp.nix ];
+  imports = [
+    ./mcp.nix
+    inputs.nix-pi.homeManagerModules.default
+  ];
 
   home.packages =
     with pkgs;
