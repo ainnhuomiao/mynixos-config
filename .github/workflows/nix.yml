@@ -35,6 +35,27 @@ jobs:
           name: ainnhuomiao
           skipPush: true
 
+      - name: Build cached packages
+        id: cached-packages
+        run: |
+          paths=$(nix build \
+            --no-link \
+            --print-build-logs \
+            --print-out-paths \
+            .#bili_tui \
+            .#flake-stats-mcp \
+            .#motrix-next)
+          echo "paths=${paths//$'\n'/ }" >> "$GITHUB_OUTPUT"
+
+      - name: Push cached packages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: cachix/cachix-action@v17
+        with:
+          name: ainnhuomiao
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          pathsToPush: ${{ steps.cached-packages.outputs.paths }}
+          skipAddingSubstituter: true
+
       - name: Check flake
         run: nix flake check --print-build-logs
 
