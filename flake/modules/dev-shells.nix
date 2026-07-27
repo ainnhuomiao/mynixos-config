@@ -19,6 +19,7 @@
             jq
             just
             neovim
+            nix-output-monitor
             sbctl
           ];
           inputsFrom = [ config.flake-root.devShell ];

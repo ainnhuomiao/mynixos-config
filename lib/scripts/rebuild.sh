@@ -1,18 +1,10 @@
 #!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
 PAMT=sudo
 
-# 1. Validate the flake configuration
-echo "🔍 Validating flake configuration..."
-nix flake check
-
-# 2. Format the code
-echo "🎨 Formatting code..."
-nix fmt
-
-# 3. Dynamically discover hosts from flake
+# 1. Dynamically discover hosts from flake
 echo "🕵️ Discovering hosts..."
 # Extracting keys from nixosConfigurations using nix flake show --json and jq
 if ! hosts_json=$(nix flake show --json 2>/dev/null); then
@@ -41,6 +33,6 @@ fi
 
 selected_host="${hosts[$((choice - 1))]}"
 
-# 4. Rebuild the selected host
+# 2. Rebuild the selected host
 echo "🚀 Rebuilding $selected_host..."
-$PAMT nixos-rebuild switch --flake ".#$selected_host"
+$PAMT nixos-rebuild switch --flake ".#$selected_host" 2>&1 | nom

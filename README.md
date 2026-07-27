@@ -136,7 +136,9 @@ systemctl --user status cc-switch-cli
 - TUN 设备名为 `Mihomo`
 - 启用 `auto-route`、`auto-redirect`、DNS 劫持和 fake-ip
 - RFC1918 私网及 IPv6 ULA 地址不进入 TUN
-- MetaCubeXD Web UI：<http://127.0.0.1:9090/ui>
+- 使用 MetaCubeX MRS 规则集让中国大陆域名和 IP 直连，其余公网流量走代理
+- 国内域名使用阿里/腾讯 DoH，其他域名使用经规则路由的境外 DoH
+- Zashboard Web UI：<http://127.0.0.1:9090/ui>
 - 多个订阅使用独立的 Mihomo `proxy-providers`，每 6 小时自动更新
 - 节点自动添加订阅名前缀，避免不同订阅出现同名节点
 - `mihomo-sub` 提供交互式菜单管理订阅，URL 使用隐藏输入
@@ -207,7 +209,7 @@ assets/wallpapers/default.png
 新增、删除或替换壁纸后需要重建系统，使文件进入新的 Nix store 路径：
 
 ```bash
-rs
+just rebuild-switch
 ```
 
 壁纸由 `awww` daemon 管理，恢复休眠后会自动重新应用默认壁纸。
@@ -268,42 +270,48 @@ Vesktop 直接使用 nixpkgs 官方 `vesktop` 包，不再通过自定义 overla
 ~/mynixos-config
 ```
 
-Fish 提供以下快捷命令：
+仓库使用 `just` 统一管理常用维护命令：
 
-| 命令 | 等价操作                                                               |
-| ---- | ---------------------------------------------------------------------- |
-| `rs` | `sudo nixos-rebuild switch --flake ~/mynixos-config#nixos 2>&1 \| nom` |
-| `ru` | `nix flake update --flake ~/mynixos-config`                            |
-| `rd` | 删除用户和系统旧世代，并回收不再引用的 store 路径                      |
+| 命令                  | 操作                                                    |
+| --------------------- | ------------------------------------------------------- |
+| `just update`         | 更新所有 flake inputs，并通过 `nom` 显示更新状态        |
+| `just check`          | 检查 flake outputs，并通过 `nom` 显示构建状态           |
+| `just format`         | 格式化仓库                                              |
+| `just build [host]`   | 构建主机配置但不切换，默认主机为 `nixos`                |
+| `just show`           | 显示 flake outputs                                      |
+| `just develop`        | 通过 `nom` 进入默认开发环境                             |
+| `just generations`    | 显示 NixOS 系统世代                                     |
+| `just rebuild-switch` | 检查并格式化配置，选择主机，然后通过 `nom` 美化重建输出 |
+| `just clean`          | 删除用户和系统旧世代，并回收不再引用的 store 路径       |
 
 典型更新流程：
 
 ```bash
-ru
-rs
+just update
+just rebuild-switch
 ```
 
 需要释放空间时：
 
 ```bash
-rd
+just clean
 ```
 
-> `rd` 会不可逆地删除旧 generations，删除后无法回滚到这些系统版本。
+> `just clean` 会不可逆地删除旧 generations，删除后无法回滚到这些系统版本。
 
-也可以使用仓库脚本。`just rebuild-switch` 会先执行 `nix flake check` 和 `nix fmt`，再交互选择主机并切换：
+直接运行 `just` 可以查看全部 recipes。`just rebuild-switch` 会先执行 `just check` 和 `just format`，再交互选择主机，并通过 `nix-output-monitor` 美化重建输出：
 
 ```bash
-nix develop
+just
 just rebuild-switch
 ```
 
 其他检查命令：
 
 ```bash
-nix flake check
-nix fmt
-nix build --no-link .#nixosConfigurations.nixos.config.system.build.toplevel
+just check
+just format
+just build
 ```
 
 ## Sway 快捷键
@@ -424,10 +432,10 @@ just install
 
 首次进入新系统后，使用 `mihomo-sub add NAME` 添加订阅。
 
-安装脚本会设置用户密码，并运行：
+安装脚本会设置用户密码，并通过 `nix-output-monitor` 显示安装构建进度：
 
 ```bash
-nixos-install --no-root-passwd --flake .#nixos
+just install
 ```
 
 安装完成后重启：
@@ -441,7 +449,7 @@ reboot
 登录后将仓库放到 `~/mynixos-config`。后续修改统一使用：
 
 ```bash
-sudo nixos-rebuild switch --flake ~/mynixos-config#nixos
+just rebuild-switch
 ```
 
 ## 注意事项
@@ -450,7 +458,7 @@ sudo nixos-rebuild switch --flake ~/mynixos-config#nixos
 - `NIX_AUTO_RUN=1` 已启用，未安装的命令可能由 comma 临时运行。常用命令应显式加入系统或 Home Manager 包列表，避免意外使用 nix-index 中的旧版本。
 - `sudo` 和 `doas` 当前均对 wheel 用户配置为免密码，仅适合受控的个人机器。
 - `me.nix` 包含密码哈希和个人信息；公开仓库前应评估是否需要迁移到 sops-nix。
-- `nix.gc` 每周运行并删除两天前的旧引用；手动 `rd` 会进行更彻底的旧世代清理。
+- `nix.gc` 每周运行并删除两天前的旧引用；手动执行 `just clean` 会进行更彻底的旧世代清理。
 
 ## 参考
 

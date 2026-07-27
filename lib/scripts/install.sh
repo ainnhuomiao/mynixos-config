@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
 # Change directory to the flake root (installer location).
 # This script assumes the flake has been copied to /mnt/etc/nixos/flakes
@@ -85,6 +85,6 @@ while true; do
 
   # 3. Execute installation
   echo "🚀 Starting nixos-install for $selected_host..."
-  nixos-install --no-root-passwd --flake ".#$selected_host"
+  nixos-install --no-root-passwd --flake ".#$selected_host" --log-format internal-json -v 2>&1 | nom --json
   break
 done

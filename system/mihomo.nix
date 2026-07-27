@@ -11,13 +11,20 @@ let
   configFile = "${configDirectory}/config.yaml";
   subscriptionsFile = "${configDirectory}/subscriptions.yaml";
   providerDirectory = "${configDirectory}/proxy-providers";
+  ruleProviderDirectory = "${configDirectory}/rule-providers";
   legacySubscriptionFile = "${configDirectory}/subscription.url";
   legacyClashTuiProfiles = "/home/${userName}/.config/clashtui/profiles";
+
+  zashboard = pkgs.fetchzip {
+    url = "https://github.com/Zephyruso/zashboard/releases/download/v3.16.0/dist.zip";
+    hash = "sha256-HnbkkmDJeTE+ynvgLevWuGGRVjUlO8fIAGaPHLHxbj8=";
+  };
 
   generateConfig = pkgs.writeShellApplication {
     name = "mihomo-generate-config";
     runtimeInputs = with pkgs; [
       coreutils
+      mihomo
       yq-go
     ];
     text = ''
@@ -64,6 +71,7 @@ let
       dns:
         enable: true
         ipv6: false
+        respect-rules: true
         listen: 0.0.0.0:1053
         enhanced-mode: fake-ip
         fake-ip-range: 198.18.0.1/16
@@ -74,10 +82,32 @@ let
           - 223.5.5.5
           - 119.29.29.29
         nameserver:
-          - https://dns.alidns.com/dns-query
-          - https://doh.pub/dns-query
+          - https://1.1.1.1/dns-query
+          - https://8.8.8.8/dns-query
+        nameserver-policy:
+          "rule-set:cn-domain":
+            - https://dns.alidns.com/dns-query
+            - https://doh.pub/dns-query
         proxy-server-nameserver:
           - https://dns.alidns.com/dns-query
+          - https://doh.pub/dns-query
+      rule-providers:
+        cn-domain:
+          type: http
+          behavior: domain
+          format: mrs
+          path: ${ruleProviderDirectory}/cn-domain.mrs
+          url: https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/cn.mrs
+          interval: 86400
+          proxy: DIRECT
+        cn-ip:
+          type: http
+          behavior: ipcidr
+          format: mrs
+          path: ${ruleProviderDirectory}/cn-ip.mrs
+          url: https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/cn.mrs
+          interval: 86400
+          proxy: DIRECT
       proxy-providers: {}
       proxy-groups:
         - name: 节点选择
@@ -91,6 +121,8 @@ let
         - IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
         - IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
         - IP-CIDR6,fc00::/7,DIRECT,no-resolve
+        - RULE-SET,cn-domain,DIRECT
+        - RULE-SET,cn-ip,DIRECT,no-resolve
         - MATCH,节点选择
       YAML
 
@@ -167,6 +199,7 @@ let
             fi
 
             yq eval '.' "$tmp_file" >/dev/null
+            mihomo -t -d "${configDirectory}" -f "$tmp_file"
             chmod 0640 "$tmp_file"
             mv -f "$tmp_file" "${configFile}"
             trap - EXIT
@@ -419,7 +452,7 @@ in
     enable = true;
     tunMode = true;
     configFile = configFile;
-    webui = pkgs.metacubexd;
+    webui = zashboard;
   };
 
   users.groups.${configGroup} = { };
@@ -453,6 +486,7 @@ in
   systemd.tmpfiles.rules = [
     "d ${configDirectory} 2770 ${userName} ${configGroup} -"
     "d ${providerDirectory} 2770 ${userName} ${configGroup} -"
+    "d ${ruleProviderDirectory} 2770 ${userName} ${configGroup} -"
   ];
 
   systemd.services.mihomo-config-regenerate = {
@@ -481,7 +515,8 @@ in
     text = ''
       install -d -o ${userName} -g ${configGroup} -m 2770 \
         "${configDirectory}" \
-        "${providerDirectory}"
+        "${providerDirectory}" \
+        "${ruleProviderDirectory}"
 
       ${migrateSubscriptions}/bin/mihomo-migrate-subscriptions
       chown ${userName}:${configGroup} "${subscriptionsFile}"

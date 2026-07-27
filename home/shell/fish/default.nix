@@ -38,9 +38,6 @@ in
       ls = "eza";
       n = "fastfetch";
       top = "btop";
-      rs = "sudo nixos-rebuild switch --flake ~/mynixos-config#nixos 2>&1 | nom";
-      ru = "nix flake update --flake ~/mynixos-config";
-      rd = "nix-collect-garbage -d && sudo nix-collect-garbage -d";
     };
     functions = {
       nf = ''
