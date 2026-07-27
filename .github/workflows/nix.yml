@@ -1,0 +1,54 @@
+name: Nix
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nix-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build NixOS x86_64-linux
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ github.token }}
+
+      - name: Configure read-only Cachix
+        if: github.event_name != 'push' || github.ref != 'refs/heads/main'
+        uses: cachix/cachix-action@v17
+        with:
+          name: ainnhuomiao
+          skipPush: true
+
+      - name: Configure writable Cachix
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: cachix/cachix-action@v17
+        with:
+          name: ainnhuomiao
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+
+      - name: Check flake
+        run: nix flake check --print-build-logs
+
+      - name: Build NixOS system
+        run: >-
+          nix build
+          --no-link
+          --print-build-logs
+          .#nixosConfigurations.nixos.config.system.build.toplevel
