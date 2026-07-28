@@ -89,7 +89,8 @@ function resolveSpec(name: string, spec: string): string {
 
   // Preserve exact versions and non-registry protocols. Ranges such as
   // `^1.2.3` are pinned to the version already selected by bun.lock.
-  const exactVersion = /^v?\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/;
+  const exactVersion =
+    /^v?\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/;
   if (exactVersion.test(spec) || /^[A-Za-z][A-Za-z+.-]*:/.test(spec)) {
     return spec;
   }

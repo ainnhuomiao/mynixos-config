@@ -708,7 +708,9 @@
   "@oh-my-pi/pi-wire" = copyPathToStore (__OH_MY_PI_SRC__ + "/packages/wire");
   "@oh-my-pi/snapcompact" = copyPathToStore (__OH_MY_PI_SRC__ + "/packages/snapcompact");
   "@oh-my-pi/swarm-extension" = copyPathToStore (__OH_MY_PI_SRC__ + "/packages/swarm-extension");
-  "@oh-my-pi/typescript-edit-benchmark" = copyPathToStore (__OH_MY_PI_SRC__ + "/packages/typescript-edit-benchmark");
+  "@oh-my-pi/typescript-edit-benchmark" = copyPathToStore (
+    __OH_MY_PI_SRC__ + "/packages/typescript-edit-benchmark"
+  );
   "@opentelemetry/api-logs@0.220.0" = fetchurl {
     url = "https://registry.npmjs.org/@opentelemetry/api-logs/-/api-logs-0.220.0.tgz";
     hash = "sha512-CmVa4ImJ+ynfrPMNaAXHET6Bhb44SwzmfyVJFq9ni2jgXJR/l7C6gfVFddNmHP+ZOkP9cf4f9DBe68qVLTHc9w==";
