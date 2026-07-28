@@ -16,7 +16,10 @@
   inputs = {
     # update single input: `nix flake lock --update-input <name>`
     # update all inputs: `nix flake update`
-    disko.url = "github:nix-community/disko";
+    bun2nix = {
+      url = "github:nix-community/bun2nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     emanote.url = "github:srid/emanote";
     flake-parts.url = "github:hercules-ci/flake-parts";
     flake-root.url = "github:srid/flake-root";
@@ -37,20 +40,19 @@
       url = "github:nix-community/lanzaboote";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nixd = {
-      url = "github:nix-community/nixd";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable-small";
+    oh-my-pi-src = {
+      url = "github:can1357/oh-my-pi/v17.1.7";
+      flake = false;
+    };
+    oh-my-pi-zh-src = {
+      url = "github:LiuQingHuaYang/oh-my-pi-zh/v17.1.7";
+      flake = false;
+    };
     nur.url = "github:nix-community/NUR";
     nix-index-database = {
       url = "github:Mic92/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
-    };
-    nix-pi = {
-      url = "github:ainnhuomiao/nix-pi";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.home-manager.follows = "home-manager";
     };
     rust-overlay = {
       url = "github:oxalica/rust-overlay";

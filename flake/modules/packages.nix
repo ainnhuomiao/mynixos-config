@@ -14,6 +14,7 @@
           bili_tui
           flake-stats-mcp
           motrix-next
+          oh-my-pi-zh
           ;
       };
     };

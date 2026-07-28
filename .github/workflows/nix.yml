@@ -44,7 +44,8 @@ jobs:
             --print-out-paths \
             .#bili_tui \
             .#flake-stats-mcp \
-            .#motrix-next)
+            .#motrix-next \
+            .#oh-my-pi-zh)
           echo "paths=${paths//$'\n'/ }" >> "$GITHUB_OUTPUT"
 
       - name: Push cached packages
