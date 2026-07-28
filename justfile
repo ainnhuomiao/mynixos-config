@@ -11,7 +11,7 @@ update:
 
 # Check all flake outputs with nix-output-monitor
 check:
-    nix flake check --log-format internal-json -v 2>&1 | nom --json
+    nix flake check --fallback --log-format internal-json -v 2>&1 | nom --json
 
 # Format the repository
 format:

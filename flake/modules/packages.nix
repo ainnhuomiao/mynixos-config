@@ -13,6 +13,7 @@
         inherit (pkgs)
           bili_tui
           flake-stats-mcp
+          mcp-nixos
           motrix-next
           oh-my-pi-zh
           ;
