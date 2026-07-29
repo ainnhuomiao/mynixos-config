@@ -1,394 +1,354 @@
 # mynixos-config
 
-个人 NixOS Flake 配置，面向 `x86_64-linux` 物理机 `nixos`。系统使用 Sway、Home Manager、Mihomo TUN、Fish 和一组自定义 overlays。
+个人 NixOS Flake 配置，当前面向 `x86_64-linux` 主机 `nixos`。仓库同时管理 NixOS、Home Manager、Sway 桌面、开发环境、AI CLI、Mihomo TUN、自定义包与 overlays。
 
-> 这是与当前硬件、用户名和本地状态绑定的个人配置，不是可直接用于任意机器的通用模板。复用前至少需要检查 `me.nix`、`hosts/nixos/hardware-configuration.nix`、磁盘布局和 Mihomo 配置。
+> 这是与个人硬件、用户名和本地状态绑定的配置，不是开箱即用的通用模板。复用前必须检查 `me.nix`、`hosts/nixos/`、磁盘布局以及涉及个人凭据的配置。
 
-## 当前架构
+## 配置概览
 
-| 项目     | 当前配置                                                      |
-| -------- | ------------------------------------------------------------- |
-| Flake    | `flake-parts` + `nixos-unstable-small`                        |
-| 主机     | `nixos`                                                       |
-| 平台     | `x86_64-linux`                                                |
-| 桌面     | Sway + Waybar + Rofi + Mako                                   |
-| Shell    | Fish + Starship                                               |
-| 用户配置 | Home Manager，`useGlobalPkgs` 和 `useUserPackages` 均启用     |
-| 音频     | PipeWire，启用 ALSA、PulseAudio 和 JACK                       |
-| 网络代理 | Mihomo 系统服务，TUN 自动路由                                 |
-| 引导     | GRUB EFI；Lanzaboote 模块已接入，但当前主机未启用 Secure Boot |
-| 文件系统 | 当前主机使用 Btrfs 子卷和独立 EFI 分区                        |
+| 项目         | 当前配置                                  |
+| ------------ | ----------------------------------------- |
+| Flake        | `flake-parts`                             |
+| Nixpkgs      | `nixos-unstable-small`                    |
+| 平台         | `x86_64-linux`                            |
+| 主机         | `nixos`                                   |
+| 内核         | `linuxPackages_latest`                    |
+| 桌面         | Sway + Waybar + Rofi                      |
+| 用户环境     | Home Manager，作为 NixOS 模块集成         |
+| Shell        | Fish + Starship                           |
+| 音频         | PipeWire（ALSA、PulseAudio、JACK）        |
+| 网络         | NetworkManager + Mihomo TUN               |
+| 引导         | GRUB EFI；可选 Lanzaboote，当前主机未启用 |
+| 文件系统     | Btrfs 子卷 + 独立 EFI 分区 + Swap         |
+| 容器         | Docker + Distrobox + Flatpak              |
+| 系统状态版本 | NixOS `26.05`，Home Manager `25.11`       |
+
+当前配置入口为：
+
+```text
+flake.nix
+└── hosts/default.nix
+    └── nixosConfigurations.nixos
+        ├── hosts/nixos/
+        ├── system/
+        └── home/profiles/huomiao@nixos
+```
 
 ## 主要功能
 
-### 桌面
+### 桌面与日常应用
 
-- Sway Wayland 平铺窗口管理器，`Mod` 键为 `Super`
-- Waybar 状态栏、托盘和自定义快捷操作
-- Rofi 应用启动器、剪贴板历史和电源菜单
-- Flameshot 与 Grimshot 截图，不添加水印或额外后处理
-- Swaylock 使用当前屏幕的模糊截图作为锁屏背景
-- 15 分钟空闲后尝试挂起；有活跃音频流时避免自动挂起
-- Fcitx5 中文输入法，使用左 `Ctrl` + 左 `Shift` 切换
-- PipeWire、蓝牙、NetworkManager 托盘和 XDG Portal
-- Firefox 保持默认界面，仅启用安装和 Wayland 环境变量
-- Vesktop 使用 nixpkgs 官方包，并自动放入 `VT` 工作区
-- SPlayer 使用 `Alt` + `Shift` + `s` 启动，并自动放入 `SPlayer` 工作区
-
-### 录屏（wf-recorder）
-
-全屏录制并将视频保存到当前目录：
-
-```bash
-wf-recorder -f recording.mkv
-```
-
-使用 `slurp` 框选录制区域：
-
-```bash
-wf-recorder -g "$(slurp)" -f recording.mkv
-```
-
-录制画面的同时录制默认音频设备：
-
-```bash
-wf-recorder --audio -f recording.mkv
-```
-
-框选区域并同时录音：
-
-```bash
-wf-recorder -g "$(slurp)" --audio -f recording.mkv
-```
-
-多显示器环境下可先查看输出名称，再录制指定输出：
-
-```bash
-wf-recorder -L
-wf-recorder -o DP-1 -f recording.mkv
-```
-
-录制过程中按 `Ctrl` + `C` 即可停止并保存视频。需要固定帧率时可使用
-`-r` 参数，例如 `wf-recorder -r 60 -f recording.mkv`。
-
-### Shell
-
-- Fish 使用 Vi 键位并由 Starship 提供提示符
-- Fastfetch 不随终端自动运行；可通过 `n` 别名手动启动
+- Sway Wayland 平铺窗口管理器，`Mod` 为 `Super`
+- Waybar 状态栏、Rofi 启动器、剪贴板菜单和电源菜单
+- Kitty、Firefox、Zen Browser、Google Chrome、Microsoft Edge、Telegram、QQ、Vesktop
+- Flameshot、Grimshot、Satty、wf-recorder、Kooha、OBS Studio
+- MPV、SPlayer、Go Musicfox、Bilibili 工具、Motrix Next
+- Nemo、Yazi、Zathura、Obsidian、Emanote
+- Fcitx5 + Rime + 中文扩展词库，左 `Ctrl` + 左 `Shift` 切换输入法
+- PipeWire、Blueman、NetworkManager Applet、XDG Desktop Portal
+- 登录 TTY1 后由 Fish 自动启动 Sway
+- 15 分钟空闲后尝试挂起；检测到活跃音频流时避免自动挂起
+- 锁屏时截取当前屏幕并生成模糊背景
 
 ### 开发环境
 
-- Neovim、Helix、Git、Lazygit
+Home Manager 配置包含：
+
+- 编辑器：Neovim、Helix
+- 版本控制：Git、GitHub CLI、Lazygit
 - C/C++：GCC、Clang、GDB、CMake、Meson、Ninja、Bear
 - Rust：`rust-overlay`
 - Go、Haskell、Node.js、TypeScript、Bun
 - Protobuf、gRPC、Direnv
-- `nixd`、`nixfmt`、`treefmt-nix`
+- Nix：`nixd`、`nixfmt`、`treefmt-nix`、`nix-output-monitor`
+- 外部二进制兼容：`nix-ld`
 
-### AI 与 MCP
+默认开发 Shell 提供 `git`、`jq`、`just`、`neovim`、`nom` 和 `sbctl`。另有 `secret` Shell，提供 `age`、`sops` 和 `ssh-to-age`：
 
-安装以下 AI CLI：
+```bash
+nix develop
+nix develop .#secret
+```
+
+### AI CLI 与 MCP
+
+`home/ai/` 当前安装：
 
 - Claude Code
 - Codex
 - Gemini CLI
 - GitHub Copilot CLI
 - OpenCode
-- `cc-switch-cli`
+- `cc-switch`
 - Herdr
+- Oh My Pi 中文版（`oh-my-pi-zh`）
+- `omp-provider` 中文交互式配置工具
+- `mcp-nixos`
+- `flake-stats-mcp`
 
-`cc-switch-cli` 以 systemd 用户服务运行 Codex 代理，登录后自动执行
-`cc-switch-cli proxy serve --takeover codex`，服务异常退出时自动重启。
+`omp-provider` 用于管理 Oh My Pi 的中转站、模型目录、模型策略、角色、备份与迁移：
 
-Home Manager 激活时会将远程 Context7 MCP 地址 `https://mcp.context7.com/mcp` 合并到以下配置：
+```bash
+omp-provider
+omp-provider --doctor
+```
 
-| 工具               | 配置文件                           |
+Home Manager 激活时只合并 Context7 MCP 项，不接管各工具的完整配置：
+
+| 工具               | 配置位置                           |
 | ------------------ | ---------------------------------- |
 | Codex              | `~/.codex/config.toml`             |
 | Claude Code        | `~/.claude.json`                   |
 | OpenCode           | `~/.config/opencode/opencode.json` |
 | GitHub Copilot CLI | `~/.copilot/mcp-config.json`       |
-| cc-switch 数据库   | `~/.cc-switch/cc-switch.db`        |
+| cc-switch          | `~/.cc-switch/cc-switch.db`        |
 
-激活脚本只更新 Context7 项，不接管各工具的完整配置。如果已有 cc-switch 数据库，它还会同步其中的 Codex Live backup，避免代理恢复旧 MCP 配置。
-
-另外安装：
-
-- `mcp-nixos`：NixOS/Nixpkgs 查询 MCP
-- `flake-stats-mcp`：本仓库中的简单 Flake 统计 MCP
-
-检查 OpenCode MCP 状态：
-
-```bash
-opencode mcp list
-```
-
-检查 Codex 代理服务：
-
-```bash
-systemctl --user status cc-switch-cli
-```
+Context7 地址为 `https://mcp.context7.com/mcp`。如果 cc-switch 数据库存在，激活脚本还会同步其中的 Context7 记录和 Codex Live backup。
 
 ### Mihomo TUN
 
-`system/mihomo.nix` 将 Mihomo 作为系统服务运行：
+`system/mihomo.nix` 将 Mihomo 作为系统服务运行，并在本机动态生成配置：
 
-- TUN 设备名为 `Mihomo`
-- 启用 `auto-route`、`auto-redirect`、DNS 劫持和 fake-ip
-- RFC1918 私网及 IPv6 ULA 地址不进入 TUN
-- 使用 MetaCubeX MRS 规则集让中国大陆域名和 IP 直连，其余公网流量走代理
-- 国内域名使用阿里/腾讯 DoH，其他域名使用经规则路由的境外 DoH
-- Zashboard Web UI：<http://127.0.0.1:9090/ui>
-- 多个订阅使用独立的 Mihomo `proxy-providers`，每 6 小时自动更新
-- 节点自动添加订阅名前缀，避免不同订阅出现同名节点
-- `mihomo-sub` 提供交互式菜单管理订阅，URL 使用隐藏输入
-- systemd 监听订阅文件，修改后自动验证、生成配置并重启 Mihomo
+- Mixed 端口：`127.0.0.1:7890`
+- Web UI：<http://127.0.0.1:9090/ui>
+- TUN 设备：`Mihomo`
+- 启用 `auto-route`、`auto-redirect`、严格路由和 DNS 劫持
+- RFC1918 私网与 IPv6 ULA 地址绕过 TUN
+- DNS 使用 fake-ip；国内域名使用阿里/腾讯 DoH
+- 中国大陆域名和 IP 通过 MetaCubeX MRS 规则集直连
+- 每个订阅生成独立 `proxy-provider`，每 6 小时更新一次
+- 节点名称自动添加订阅名前缀，避免重名
+- 配置生成前使用 Mihomo 校验；失败时保留原配置
 
-订阅信息保存在：
+订阅 URL 不进入 Git 或 Nix store，保存在：
 
 ```text
 /var/lib/mihomo-config/subscriptions.yaml
 ```
 
-运行交互式管理器：
+使用交互式管理器查看、添加、替换、删除或刷新订阅：
 
 ```bash
 mihomo-sub
 ```
 
-菜单支持查看、添加或替换、删除、刷新单个订阅和刷新全部订阅。订阅 URL
-保存在本机 `/var/lib/mihomo-config/subscriptions.yaml`，不会进入 Git 或 Nix store。
-
-也可以直接编辑底层文件：
+底层格式：
 
 ```yaml
 subscriptions:
   default:
-    url: https://example.com/subscription-a
-  kitty:
-    url: https://example.com/subscription-b
-  sanmao-200:
-    url: https://example.com/subscription-c
+    url: https://example.com/subscription
 ```
 
-添加订阅时增加一个映射，删除订阅时删除对应映射。订阅名只能包含字母、
-数字、点、下划线和连字符。保存后 `mihomo-config-regenerate.path` 会触发配置
-验证；只有生成成功才会替换 `/var/lib/mihomo-config/config.yaml` 并重启服务。
-原有 ClashTui `profiles` 目录和单订阅 `subscription.url` 会在首次切换时自动
-迁移，旧文件不会被删除。
+订阅名只能包含字母、数字、点、下划线和连字符，并且必须以字母或数字开头。文件变化会触发 `mihomo-config-regenerate.path`，生成成功后才替换运行配置并尝试重启 Mihomo。
 
-服务命令：
+常用排查命令：
 
 ```bash
 systemctl status mihomo
-systemctl restart mihomo
+systemctl status mihomo-config-regenerate
 journalctl -u mihomo -f
 ```
 
-## 壁纸
+### 壁纸
 
-壁纸文件直接存放在仓库：
+壁纸直接存放在：
 
 ```text
 assets/wallpapers/
 ```
 
-默认壁纸必须命名为：
+默认壁纸必须为 `assets/wallpapers/default.png`。随机选择会递归识别 `.png`、`.jpg`、`.jpeg` 和 `.webp`。
 
-```text
-assets/wallpapers/default.png
-```
+壁纸由 `awww-daemon` 管理：
 
-随机和定时切换会递归识别：
+- `Mod + Shift + w`：随机切换一次
+- `Mod + Ctrl + w`：每 120 秒随机切换
+- `Mod + Ctrl + Shift + w`：停止轮换并恢复默认壁纸
 
-- `.png`
-- `.jpg`
-- `.jpeg`
-- `.webp`
+Waybar 壁纸按钮也支持左键随机、右键启动/停止轮换、中键恢复默认壁纸。恢复休眠后，用户服务会重新应用默认壁纸。
 
-新增、删除或替换壁纸后需要重建系统，使文件进入新的 Nix store 路径：
+新增或替换仓库内壁纸后需要重建系统，使资源进入新的 Nix store 路径：
 
 ```bash
 just rebuild-switch
 ```
 
-壁纸由 `awww` daemon 管理，恢复休眠后会自动重新应用默认壁纸。
+## 自定义包与 Flake 输出
 
-## 自定义包与 Overlays
-
-`overlays/default.nix` 组合以下 overlays：
-
-| 包              | 用途                                                 |
-| --------------- | ---------------------------------------------------- |
-| `cc-switch-cli` | 固定上游源码提交，版本为 `5.9.2-unstable-2026-07-22` |
-| `motrix-next`   | 更新到 `3.9.6`，并修复 sidecar 在 NixOS 上的动态链接 |
-
-Vesktop 直接使用 nixpkgs 官方 `vesktop` 包，不再通过自定义 overlay 或二次打包安装。
-
-仓库自己的包位于 `pkgs/`：
+`pkgs/` 中的本地包：
 
 - `bili_tui`
+- `bun_1_3_14`
 - `fcitx5-pinyin-moegirl`
 - `fcitx5-pinyin-zhwiki`
 - `flake-stats-mcp`
+- `oh-my-pi-zh`
+
+`overlays/` 当前包含：
+
+- `motrix-next`：固定为 `3.9.6`，并修复其 sidecar 在 NixOS 上的动态链接
+- `mcp-nixos`：禁用一个会误判普通源码内容的上游测试
+
+Flake 对外提供以下包：
+
+```text
+packages.x86_64-linux.bili_tui
+packages.x86_64-linux.flake-stats-mcp
+packages.x86_64-linux.mcp-nixos
+packages.x86_64-linux.motrix-next
+packages.x86_64-linux.oh-my-pi-zh
+```
+
+例如：
+
+```bash
+nix build .#oh-my-pi-zh
+nix build .#mcp-nixos
+```
 
 ## 目录结构
 
 ```text
 .
-├── assets/wallpapers/       # 由配置直接引用的壁纸文件
-├── flake/modules/           # Flake 开发环境、格式化和 overlays 输出
+├── assets/wallpapers/       # 壁纸资源
+├── flake/modules/           # packages、overlays、devShell、formatter 输出
 ├── home/                    # Home Manager 模块
-│   ├── ai/                  # AI CLI、Codex 代理服务与 Context7 MCP 激活脚本
+│   ├── ai/                  # AI CLI、MCP 与 omp-provider
 │   ├── dev/                 # 开发工具链
 │   ├── editors/             # 编辑器
-│   ├── programs/            # 桌面与 CLI 应用
-│   ├── shell/               # Fish、Starship 和命令别名
-│   ├── wall/                # awww 服务与默认壁纸
+│   ├── profiles/            # 用户@主机配置组合
+│   ├── programs/            # 桌面和命令行应用
+│   ├── shell/               # Fish、Starship 与 Shell 工具
+│   ├── terminals/           # 终端配置
+│   ├── wall/                # awww 壁纸服务
 │   └── wm/sway/             # Sway 配置与快捷键
-├── hosts/nixos/             # 当前物理机配置和硬件配置
-├── lib/disko_layout/        # 普通与 LUKS 单盘布局
-├── lib/scripts/             # 安装、分区和重建脚本
+├── hosts/                   # NixOS 主机定义
+│   └── nixos/               # 当前物理机配置
+├── lib/
+│   ├── disko_layout/        # 普通与 LUKS 单盘布局
+│   ├── scripts/             # 分区、安装、重建脚本
+│   └── appearance.nix       # 公共配色与外观数据
 ├── overlays/                # nixpkgs overlays
 ├── pkgs/                    # 仓库自有包
-├── system/                  # NixOS 系统模块及统一聚合入口
+├── system/                  # NixOS 系统模块
 ├── flake.nix
 ├── justfile
 └── me.nix                   # 用户名、Git 信息和初始密码哈希
 ```
 
-配置入口遵循两条规则：
+模块组织约定：
 
-- `flake.nix` 只声明 inputs，并组合 `flake/modules/` 与 `hosts/`。
-- 各目录的 `default.nix` 只负责聚合同目录模块，具体配置放在职责明确的文件中。
+- `flake.nix` 声明 inputs，并组合 `flake/modules/` 与 `hosts/`
+- `hosts/default.nix` 创建 NixOS 主机并绑定对应 Home Manager profile
+- 各目录的 `default.nix` 主要负责聚合同目录模块
+- 主机无关系统配置放在 `system/`，用户配置放在 `home/`
 
 ## 日常维护
 
-仓库默认位于：
+仓库使用 `just` 管理常用命令：
 
-```text
-~/mynixos-config
-```
-
-仓库使用 `just` 统一管理常用维护命令：
-
-| 命令                  | 操作                                                    |
+| 命令                  | 作用                                                    |
 | --------------------- | ------------------------------------------------------- |
-| `just update`         | 更新所有 flake inputs，并通过 `nom` 显示更新状态        |
-| `just check`          | 检查 flake outputs，并通过 `nom` 显示构建状态           |
-| `just format`         | 格式化仓库                                              |
-| `just build [host]`   | 构建主机配置但不切换，默认主机为 `nixos`                |
-| `just show`           | 显示 flake outputs                                      |
-| `just develop`        | 通过 `nom` 进入默认开发环境                             |
-| `just generations`    | 显示 NixOS 系统世代                                     |
-| `just rebuild-switch` | 检查并格式化配置，选择主机，然后通过 `nom` 美化重建输出 |
-| `just clean`          | 删除用户和系统旧世代，并回收不再引用的 store 路径       |
+| `just`                | 列出全部 recipes                                        |
+| `just update`         | 更新所有 Flake inputs                                   |
+| `just check`          | 执行 `nix flake check --fallback`                       |
+| `just format`         | 使用 Flake formatter 格式化仓库                         |
+| `just build [host]`   | 构建指定 NixOS 主机，不创建 `result` 链接；默认 `nixos` |
+| `just show`           | 显示全部 Flake outputs                                  |
+| `just develop`        | 通过 `nom` 进入默认开发 Shell                           |
+| `just generations`    | 列出 NixOS 系统 generations                             |
+| `just rebuild-switch` | 先检查和格式化，再交互选择主机并切换配置                |
+| `just clean`          | 删除用户和系统旧 generations，并回收未引用 store 路径   |
+| `just disko`          | 交互选择磁盘布局并分区、格式化、挂载                    |
+| `just install`        | 从 `/mnt/etc/nixos/flakes` 安装所选主机                 |
 
-典型更新流程：
+常用流程：
 
 ```bash
 just update
 just rebuild-switch
 ```
 
-需要释放空间时：
-
-```bash
-just clean
-```
-
-> `just clean` 会不可逆地删除旧 generations，删除后无法回滚到这些系统版本。
-
-直接运行 `just` 可以查看全部 recipes。`just rebuild-switch` 会先执行 `just check` 和 `just format`，再交互选择主机，并通过 `nix-output-monitor` 美化重建输出：
-
-```bash
-just
-just rebuild-switch
-```
-
-其他检查命令：
+只验证、不切换：
 
 ```bash
 just check
-just format
 just build
 ```
 
-## Sway 快捷键
+> `just clean` 会不可逆地删除旧 generations，之后无法回滚到这些版本。
+
+## 常用 Sway 快捷键
 
 `Mod` 为 `Super`。
 
 ### 启动与系统
 
-| 按键                       | 功能             |
-| -------------------------- | ---------------- |
-| `Mod` + `Return`           | 打开 Kitty       |
-| `Mod` + `Shift` + `Return` | 打开浮动 Kitty   |
-| `Mod` + `z`                | Rofi 应用启动器  |
-| `Mod` + `v`                | Rofi 剪贴板历史  |
-| `Mod` + `Shift` + `p`      | Rofi 电源菜单    |
-| `Mod` + `Shift` + `b`      | Firefox          |
-| `Mod` + `Shift` + `t`      | Telegram         |
-| `Mod` + `Shift` + `q`      | QQ               |
-| `Mod` + `Shift` + `v`      | Vesktop          |
-| `Alt` + `Shift` + `q`      | 切换到 QQ 工作区 |
-| `Alt` + `Shift` + `t`      | 切换到 TG 工作区 |
-| `Alt` + `Shift` + `w`      | 切换到 WC 工作区 |
-| `Alt` + `Shift` + `b`      | 切换到 Ff 工作区 |
-| `Alt` + `Shift` + `v`      | 切换到 VT 工作区 |
-| `Alt` + `Shift` + `s`      | 启动 SPlayer     |
-| `Mod` + `Shift` + `x`      | 锁屏             |
-| `Mod` + `Shift` + `c`      | 重载 Sway        |
-| `Mod` + `Shift` + `e`      | 退出 Sway        |
-| `Mod` + `o`                | 切换 Waybar 显示 |
+| 按键                   | 功能                          |
+| ---------------------- | ----------------------------- |
+| `Mod + Return`         | 打开 Kitty                    |
+| `Mod + Shift + Return` | 打开浮动 Kitty                |
+| `Mod + z`              | Rofi 应用启动器               |
+| `Mod + v`              | 剪贴板历史                    |
+| `Mod + Shift + p`      | 电源菜单                      |
+| `Mod + Shift + b`      | Firefox                       |
+| `Mod + Shift + t`      | Telegram                      |
+| `Mod + Shift + q`      | QQ                            |
+| `Mod + Shift + v`      | Vesktop                       |
+| `Alt + Shift + s`      | SPlayer                       |
+| `Mod + Shift + d`      | 在浮动终端中启动 Bilibili TUI |
+| `Mod + Shift + x`      | 锁屏                          |
+| `Mod + Shift + c`      | 重载 Sway                     |
+| `Mod + Shift + e`      | 退出 Sway                     |
+| `Mod + o`              | 显示或隐藏 Waybar             |
 
 ### 窗口与工作区
 
-| 按键                                 | 功能                       |
-| ------------------------------------ | -------------------------- |
-| `Mod` + `h/j/k/l` 或方向键           | 移动焦点                   |
-| `Mod` + `Shift` + `h/j/k/l` 或方向键 | 移动窗口                   |
-| `Mod` + `q`                          | 关闭窗口                   |
-| `Mod` + `f`                          | 全屏切换                   |
-| `Mod` + `Shift` + `Space`            | 浮动/平铺切换              |
-| `Mod` + `Space`                      | 在浮动区和平铺区间切换焦点 |
-| `Mod` + `1` 到 `0`                   | 切换工作区 1 到 10         |
-| `Mod` + `Shift` + `1` 到 `0`         | 移动窗口到工作区           |
-| `Mod` + `Ctrl` + `1` 到 `0`          | 移动窗口并跟随到工作区     |
-| `Mod` + `/`                          | 当前与上一个工作区切换     |
-| `Mod` + `.` / `,`                    | 下一个/上一个工作区        |
-| `Mod` + `-` / `=`                    | 放入/取出 scratchpad       |
-| `Mod` + `r`                          | 进入窗口大小调整模式       |
-| `Mod` + `g`                          | 关闭窗口间隙               |
-| `Mod` + `Shift` + `g`                | 恢复窗口间隙               |
+| 按键                             | 功能                     |
+| -------------------------------- | ------------------------ |
+| `Mod + h/j/k/l` 或方向键         | 移动焦点                 |
+| `Mod + Shift + h/j/k/l` 或方向键 | 移动窗口                 |
+| `Mod + q`                        | 关闭窗口                 |
+| `Mod + f`                        | 全屏切换                 |
+| `Mod + Shift + Space`            | 浮动/平铺切换            |
+| `Mod + Space`                    | 在浮动区和平铺区切换焦点 |
+| `Mod + 1..0`                     | 切换工作区 1..10         |
+| `Mod + Shift + 1..0`             | 移动窗口到工作区         |
+| `Mod + Ctrl + 1..0`              | 移动窗口并跟随到工作区   |
+| `Mod + /`                        | 当前与上一个工作区切换   |
+| `Mod + .` / `Mod + ,`            | 下一个/上一个工作区      |
+| `Mod + -` / `Mod + =`            | 放入/取出 scratchpad     |
+| `Mod + r`                        | 进入窗口大小调整模式     |
 
-### 截图
+### 截图与录制
 
-| 按键        | 功能                                         |
-| ----------- | -------------------------------------------- |
-| `Print`     | 打开 Flameshot GUI                           |
-| `Mod` + `[` | Grimshot 交互截图，复制并保存到 `~/Pictures` |
-| `Mod` + `]` | Grimshot 交互截图，仅复制到剪贴板            |
-| `Mod` + `a` | Grimshot 交互截图，复制并保存到 `~/Pictures` |
+| 按键/位置           | 功能                                         |
+| ------------------- | -------------------------------------------- |
+| `Print`             | Flameshot GUI                                |
+| `Mod + [`           | Grimshot 交互截图，复制并保存到 `~/Pictures` |
+| `Mod + ]`           | Grimshot 交互截图，仅复制                    |
+| `Mod + a`           | Grimshot 交互截图，复制并保存到 `~/Pictures` |
+| Waybar 录制按钮左键 | 开始区域 GIF 录制；录制中再次点击停止        |
+| Waybar 录制按钮右键 | Flameshot GUI                                |
 
-截图不添加水印、阴影或边框。
+直接使用 `wf-recorder`：
 
-### 壁纸
+```bash
+wf-recorder -f recording.mkv
+wf-recorder -g "$(slurp)" --audio -f recording.mkv
+```
 
-| 按键                           | 功能                                 |
-| ------------------------------ | ------------------------------------ |
-| `Mod` + `Shift` + `w`          | 从 `assets/wallpapers/` 随机选择一次 |
-| `Mod` + `Ctrl` + `w`           | 启动每 120 秒随机切换                |
-| `Mod` + `Ctrl` + `Shift` + `w` | 停止轮换并恢复 `default.png`         |
+按 `Ctrl + C` 停止并保存。
 
 ## 全新安装
 
-### 1. 启动安装环境
+### 1. 进入安装环境
 
-从 NixOS Minimal ISO 启动，连接网络并克隆仓库：
+从 NixOS Minimal ISO 启动，联网后克隆仓库：
 
 ```bash
-git clone <你的仓库地址> mynixos-config
+git clone <仓库地址> mynixos-config
 cd mynixos-config
 nix develop --extra-experimental-features 'nix-command flakes'
 ```
@@ -403,9 +363,9 @@ nix develop --extra-experimental-features 'nix-command flakes'
 - `lib/disko_layout/single-device.nix`
 - `lib/disko_layout/single-device-luks.nix`
 
-不要直接复用当前机器的磁盘 UUID、设备路径或密码哈希。
+不要复用当前机器的磁盘 UUID、设备路径或密码哈希。
 
-### 3. 分区
+### 3. 分区与挂载
 
 ```bash
 just disko
@@ -413,30 +373,24 @@ just disko
 
 脚本会：
 
-1. 发现 flake 中的 NixOS 主机。
-2. 选择普通单盘或 LUKS 单盘布局。
-3. 允许检查和编辑布局。
-4. 要求输入 `YES` 后才擦除、格式化并挂载磁盘。
-5. 生成硬件配置并复制仓库到 `/mnt/etc/nixos/flakes`。
+1. 从 Flake 中发现 NixOS 主机
+2. 选择普通单盘或 LUKS 单盘布局
+3. 允许检查和编辑布局
+4. 要求输入 `YES` 后才执行擦除、格式化和挂载
+5. 生成目标主机的 `hardware-configuration.nix`
+6. 将仓库复制到 `/mnt/etc/nixos/flakes`
 
-> 该操作会清空目标磁盘。执行前必须确认布局中的设备路径。
+> 此操作会清空目标磁盘。执行前必须检查布局文件中的设备路径。
 
 ### 4. 安装
 
-系统 activation 会创建空的 Mihomo 订阅文件和仅包含 `DIRECT` 的初始配置，
-因此安装前不需要把订阅 URL 写入目标磁盘。直接安装系统：
-
 ```bash
 just install
 ```
 
-首次进入新系统后，使用 `mihomo-sub add NAME` 添加订阅。
+安装脚本从 `/mnt/etc/nixos/flakes` 发现主机，交互设置用户密码，将密码哈希写入目标仓库的 `me.nix`，然后执行 `nixos-install`。
 
-安装脚本会设置用户密码，并通过 `nix-output-monitor` 显示安装构建进度：
-
-```bash
-just install
-```
+Mihomo 会先生成不含代理订阅的有效初始配置，因此安装阶段不需要写入订阅 URL。
 
 安装完成后重启：
 
@@ -444,25 +398,27 @@ just install
 reboot
 ```
 
-### 5. 首次登录
-
-登录后将仓库放到 `~/mynixos-config`。后续修改统一使用：
+首次登录后使用以下命令添加代理订阅并应用后续改动：
 
 ```bash
+mihomo-sub
 just rebuild-switch
 ```
 
 ## 注意事项
 
-- 当前用户配置使用 `home-manager.useUserPackages = true`。修改 Home Manager 包后应执行完整的 `nixos-rebuild switch`，只运行独立 Home Manager activation 不会更新 `/etc/profiles/per-user/<user>/bin`。
-- `NIX_AUTO_RUN=1` 已启用，未安装的命令可能由 comma 临时运行。常用命令应显式加入系统或 Home Manager 包列表，避免意外使用 nix-index 中的旧版本。
-- `sudo` 和 `doas` 当前均对 wheel 用户配置为免密码，仅适合受控的个人机器。
-- `me.nix` 包含密码哈希和个人信息；公开仓库前应评估是否需要迁移到 sops-nix。
-- `nix.gc` 每周运行并删除两天前的旧引用；手动执行 `just clean` 会进行更彻底的旧世代清理。
+- `me.nix` 当前包含个人信息和密码哈希；公开仓库前应考虑迁移到 sops-nix 等秘密管理方案
+- `sudo` 和 `doas` 均允许 wheel 用户免密码提权，只适合受控的个人设备
+- Home Manager 使用 `useGlobalPkgs = true` 和 `useUserPackages = true`；包变更应通过完整的 NixOS rebuild 应用
+- `NIX_AUTO_RUN=1` 已启用，缺失命令可能由 nix-index/comma 临时运行；常用工具仍应显式声明
+- Nix 每周自动执行 GC，并删除两天前的旧引用
+- Flake 配置允许 unfree、broken 和 unsupported 包，并临时允许指定的不安全 Electron 版本；更新前应运行 `just check`
+- 当前硬件配置含本机 Btrfs、EFI 和 Swap UUID，不应复制到其他机器
 
 ## 参考
 
 - [NixOS](https://nixos.org/)
 - [Home Manager](https://github.com/nix-community/home-manager)
+- [flake-parts](https://flake.parts/)
 - [Disko](https://github.com/nix-community/disko)
 - [Ruixi-rebirth/flakes](https://github.com/Ruixi-rebirth/flakes)
