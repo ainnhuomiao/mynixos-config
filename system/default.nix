@@ -1,8 +1,9 @@
 {
   imports = [
     ./core
-    ./hardware
+    ./dae.nix
     ./mihomo.nix
+    ./hardware
     ./nix
     ./programs
     ./virtualisation.nix

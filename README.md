@@ -1,6 +1,6 @@
 # mynixos-config
 
-个人 NixOS Flake 配置，当前面向 `x86_64-linux` 主机 `nixos`。仓库同时管理 NixOS、Home Manager、Sway 桌面、开发环境、AI CLI、Mihomo TUN、自定义包与 overlays。
+个人 NixOS Flake 配置，当前面向 `x86_64-linux` 主机 `nixos`。仓库同时管理 NixOS、Home Manager、Sway 桌面、开发环境、AI CLI、dae + Mihomo 透明代理、自定义包与 overlays。
 
 > 这是与个人硬件、用户名和本地状态绑定的配置，不是开箱即用的通用模板。复用前必须检查 `me.nix`、`hosts/nixos/`、磁盘布局以及涉及个人凭据的配置。
 
@@ -17,7 +17,7 @@
 | 用户环境     | Home Manager，作为 NixOS 模块集成         |
 | Shell        | Fish + Starship                           |
 | 音频         | PipeWire（ALSA、PulseAudio、JACK）        |
-| 网络         | NetworkManager + Mihomo TUN               |
+| 网络         | NetworkManager + dae eBPF + Mihomo SOCKS  |
 | 引导         | GRUB EFI；可选 Lanzaboote，当前主机未启用 |
 | 文件系统     | Btrfs 子卷 + 独立 EFI 分区 + Swap         |
 | 容器         | Docker + Distrobox + Flatpak              |
@@ -47,8 +47,7 @@ flake.nix
 - Fcitx5 + Rime + 中文扩展词库，左 `Ctrl` + 左 `Shift` 切换输入法
 - PipeWire、Blueman、NetworkManager Applet、XDG Desktop Portal
 - 登录 TTY1 后由 Fish 自动启动 Sway
-- 15 分钟空闲后尝试挂起；检测到活跃音频流时避免自动挂起
-- 锁屏时截取当前屏幕并生成模糊背景
+- 未配置空闲超时自动挂起；手动挂起或休眠前由 `swayidle` 调用模糊截图锁屏
 
 ### 开发环境
 
@@ -105,50 +104,54 @@ Home Manager 激活时只合并 Context7 MCP 项，不接管各工具的完整�
 
 Context7 地址为 `https://mcp.context7.com/mcp`。如果 cc-switch 数据库存在，激活脚本还会同步其中的 Context7 记录和 Codex Live backup。
 
-### Mihomo TUN
+### 透明代理
 
-`system/mihomo.nix` 将 Mihomo 作为系统服务运行，并在本机动态生成配置：
-
-- Mixed 端口：`127.0.0.1:7890`
-- Web UI：<http://127.0.0.1:9090/ui>
-- TUN 设备：`Mihomo`
-- 启用 `auto-route`、`auto-redirect`、严格路由和 DNS 劫持
-- RFC1918 私网与 IPv6 ULA 地址绕过 TUN
-- DNS 使用 fake-ip；国内域名使用阿里/腾讯 DoH
-- 中国大陆域名和 IP 通过 MetaCubeX MRS 规则集直连
-- 每个订阅生成独立 `proxy-provider`，每 6 小时更新一次
-- 节点名称自动添加订阅名前缀，避免重名
-- 配置生成前使用 Mihomo 校验；失败时保留原配置
-
-订阅 URL 不进入 Git 或 Nix store，保存在：
+当前采用 **dae + Mihomo** 双层架构：
 
 ```text
-/var/lib/mihomo-config/subscriptions.yaml
+应用流量
+  └─ dae：eBPF 透明代理、DNS 与路由
+      ├─ 国内、私网、广播/多播 → DIRECT
+      ├─ 广告与指定 Bilibili 遥测域名 → BLOCK
+      ├─ auto.c3pool.org → 127.0.0.1:12347 → DAE-MINING
+      └─ 其他流量 → 127.0.0.1:12346 → DAE-PROXY
 ```
 
-使用交互式管理器查看、添加、替换、删除或刷新订阅：
+dae 配置位于 `system/dae.dae`，主要行为：
+
+- 自动选择出口网卡，透明代理端口为 `12345`，且不向防火墙开放该端口
+- DNS 优先 IPv4；`geosite:cn` 使用阿里 DoQ `223.5.5.5:853`，其余请求回退到 Google TCP DNS `8.8.8.8:53`
+- `proxy` 组固定使用 Mihomo SOCKS 上游 `127.0.0.1:12346`
+- `mining` 组固定使用 Mihomo SOCKS 上游 `127.0.0.1:12347`
+- `pname(mihomo) -> direct(must)` 防止 Mihomo 出站再次被 dae 捕获形成代理环路
+- NetworkManager、私网、中国域名和中国 IP 直连；未命中的流量回退到 `proxy`
+
+Mihomo 关闭 TUN，只负责订阅、节点健康检查和两个本地 SOCKS5 出口：
+
+| Listener | Mihomo 组    | 用途                   |
+| -------- | ------------ | ---------------------- |
+| `12346`  | `DAE-PROXY`  | dae 的普通境外流量出口 |
+| `12347`  | `DAE-MINING` | dae 的专用流量出口     |
+
+订阅 URL 仅保存在 `/var/lib/mihomo-config/subscriptions.yaml`，不会写入 Nix store。订阅变化会触发配置重新生成、`mihomo -t` 校验和服务重启；生成失败时保留原配置。使用以下命令管理订阅：
 
 ```bash
 mihomo-sub
 ```
 
-底层格式：
+Mihomo Zashboard 仅监听本机：
 
-```yaml
-subscriptions:
-  default:
-    url: https://example.com/subscription
+```text
+http://127.0.0.1:9090/ui/
 ```
 
-订阅名只能包含字母、数字、点、下划线和连字符，并且必须以字母或数字开头。文件变化会触发 `mihomo-config-regenerate.path`，生成成功后才替换运行配置并尝试重启 Mihomo。
+可在面板中分别选择 `DAE-PROXY` 和 `DAE-MINING` 的出口。当前没有启用 dae 自身的 WebUI；官方 `daed` 会同时接管 dae 后端和 eBPF 核心，不能与现有 `services.dae` 并行运行。
 
-常用排查命令：
+配置位置：
 
-```bash
-systemctl status mihomo
-systemctl status mihomo-config-regenerate
-journalctl -u mihomo -f
-```
+- `system/dae.nix`：dae 服务、Mihomo 启动依赖和反向路径检查
+- `system/dae.dae`：DNS、双 SOCKS 上游、分组与透明路由规则
+- `system/mihomo.nix`：订阅存储、配置生成器、两个 SOCKS listeners、Zashboard 和 `mihomo-sub`
 
 ### 壁纸
 
@@ -390,19 +393,10 @@ just install
 
 安装脚本从 `/mnt/etc/nixos/flakes` 发现主机，交互设置用户密码，将密码哈希写入目标仓库的 `me.nix`，然后执行 `nixos-install`。
 
-Mihomo 会先生成不含代理订阅的有效初始配置，因此安装阶段不需要写入订阅 URL。
-
 安装完成后重启：
 
 ```bash
 reboot
-```
-
-首次登录后使用以下命令添加代理订阅并应用后续改动：
-
-```bash
-mihomo-sub
-just rebuild-switch
 ```
 
 ## 注意事项

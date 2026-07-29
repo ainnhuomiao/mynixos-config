@@ -41,161 +41,104 @@ let
             trap 'rm -f "$tmp_file"' EXIT
 
             cat > "$tmp_file" <<'YAML'
-      mixed-port: 7890
       allow-lan: false
       bind-address: 127.0.0.1
       mode: rule
-      log-level: info
+      log-level: warning
       ipv6: false
       external-controller: 127.0.0.1:9090
       secret: ""
       profile:
         store-selected: true
-        store-fake-ip: true
-      tun:
-        enable: true
-        device: Mihomo
-        stack: mixed
-        auto-route: true
-        auto-redirect: true
-        auto-detect-interface: true
-        strict-route: true
-        dns-hijack:
-          - any:53
-          - tcp://any:53
-        route-exclude-address:
-          - 10.0.0.0/8
-          - 172.16.0.0/12
-          - 192.168.0.0/16
-          - fc00::/7
-      dns:
-        enable: true
-        ipv6: false
-        respect-rules: true
-        listen: 0.0.0.0:1053
-        enhanced-mode: fake-ip
-        fake-ip-range: 198.18.0.1/16
-        fake-ip-filter:
-          - "*.lan"
-          - "*.local"
-        default-nameserver:
-          - 223.5.5.5
-          - 119.29.29.29
-        nameserver:
-          - https://1.1.1.1/dns-query
-          - https://8.8.8.8/dns-query
-        nameserver-policy:
-          "rule-set:cn-domain":
-            - https://dns.alidns.com/dns-query
-            - https://doh.pub/dns-query
-        proxy-server-nameserver:
-          - https://dns.alidns.com/dns-query
-          - https://doh.pub/dns-query
-      rule-providers:
-        cn-domain:
-          type: http
-          behavior: domain
-          format: mrs
-          path: ${ruleProviderDirectory}/cn-domain.mrs
-          url: https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/cn.mrs
-          interval: 86400
-          proxy: DIRECT
-        cn-ip:
-          type: http
-          behavior: ipcidr
-          format: mrs
-          path: ${ruleProviderDirectory}/cn-ip.mrs
-          url: https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/cn.mrs
-          interval: 86400
-          proxy: DIRECT
+      listeners:
+        - name: dae-proxy
+          type: socks
+          listen: 127.0.0.1
+          port: 12346
+          udp: true
+          proxy: DAE-PROXY
+        - name: dae-mining
+          type: socks
+          listen: 127.0.0.1
+          port: 12347
+          udp: true
+          proxy: DAE-MINING
       proxy-providers: {}
       proxy-groups:
-        - name: 节点选择
+        - name: DAE-PROXY
+          type: select
+          proxies:
+            - DIRECT
+        - name: DAE-MINING
           type: select
           proxies:
             - DIRECT
       rules:
-        - DOMAIN-SUFFIX,lan,DIRECT
-        - DOMAIN-SUFFIX,local,DIRECT
-        - IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
-        - IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
-        - IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
-        - IP-CIDR6,fc00::/7,DIRECT,no-resolve
-        - RULE-SET,cn-domain,DIRECT
-        - RULE-SET,cn-ip,DIRECT,no-resolve
-        - MATCH,节点选择
+        - MATCH,DIRECT
       YAML
 
-            provider_count="$(yq eval '.subscriptions | length' "${subscriptionsFile}")"
-            if (( provider_count > 0 )); then
-              yq eval -i '
-                .["proxy-groups"][0].proxies = ["自动选择"] |
-                .["proxy-groups"] += [{
-                  "name": "自动选择",
-                  "type": "url-test",
-                  "use": [],
-                  "url": "https://www.gstatic.com/generate_204",
-                  "interval": 300,
-                  "tolerance": 50,
-                  "lazy": true
-                }]
-              ' "$tmp_file"
-            fi
+            while IFS= read -r name; do
+              [[ -n "$name" ]] || continue
+              if [[ ! "$name" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]]; then
+                echo "Invalid subscription name: $name" >&2
+                exit 1
+              fi
 
-      while IFS= read -r name; do
-        [[ -n "$name" ]] || continue
-        if [[ ! "$name" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]]; then
-          echo "Invalid subscription name: $name" >&2
-          exit 1
-        fi
-        url="$(SUBSCRIPTION_NAME="$name" yq eval -r '.subscriptions[strenv(SUBSCRIPTION_NAME)].url // ""' "${subscriptionsFile}")"
+              url="$(SUBSCRIPTION_NAME="$name" yq eval -r '.subscriptions[strenv(SUBSCRIPTION_NAME)].url // ""' "${subscriptionsFile}")"
               if [[ -z "$url" ]]; then
                 echo "Subscription URL is empty: $name" >&2
                 exit 1
-        fi
+              fi
 
-        provider_name="subscription-$name"
-        provider_group="订阅/$name"
-        provider_path="${providerDirectory}/$name.yaml"
-        provider_prefix="[$name] "
+              provider_name="subscription-$name"
+              provider_group="订阅/$name"
+              provider_path="${providerDirectory}/$name.yaml"
+              provider_prefix="[$name] "
 
-        PROVIDER_NAME="$provider_name" \
-              PROVIDER_URL="$url" \
-              PROVIDER_GROUP="$provider_group" \
-              PROVIDER_PATH="$provider_path" \
-              PROVIDER_PREFIX="$provider_prefix" \
+              PROVIDER_NAME="$provider_name" \
+                PROVIDER_URL="$url" \
+                PROVIDER_GROUP="$provider_group" \
+                PROVIDER_PATH="$provider_path" \
+                PROVIDER_PREFIX="$provider_prefix" \
                 yq eval -i '
                   .["proxy-providers"][strenv(PROVIDER_NAME)] = {
                     "type": "http",
                     "url": strenv(PROVIDER_URL),
                     "path": strenv(PROVIDER_PATH),
                     "interval": 21600,
-                    "header": {
-                      "User-Agent": ["mihomo"]
-                    },
+                    "header": {"User-Agent": ["mihomo"]},
+                    "exclude-filter": "(?i)剩余流量|下次重置|套餐到期|官网|Telegram|建议每天|如果很少节点|欢迎加入|IPv6",
                     "health-check": {
                       "enable": true,
-                      "url": "https://www.gstatic.com/generate_204",
-                      "interval": 600,
+                      "url": "https://cp.cloudflare.com/generate_204",
+                      "interval": 1800,
                       "timeout": 5000,
                       "lazy": true
                     },
-                    "override": {
-                      "additional-prefix": strenv(PROVIDER_PREFIX)
-                    }
+                    "override": {"additional-prefix": strenv(PROVIDER_PREFIX)}
                   } |
+                  .["proxy-groups"] += [{
+                    "name": strenv(PROVIDER_GROUP),
+                    "type": "url-test",
+                    "use": [strenv(PROVIDER_NAME)],
+                    "url": "https://cp.cloudflare.com/generate_204",
+                    "interval": 1800,
+                    "tolerance": 100,
+                    "lazy": true
+                  }] |
                   .["proxy-groups"][0].proxies += [strenv(PROVIDER_GROUP)] |
-            .["proxy-groups"] += [{
-              "name": strenv(PROVIDER_GROUP),
-              "type": "select",
-              "use": [strenv(PROVIDER_NAME)]
-            }] |
-            .["proxy-groups"][1].use += [strenv(PROVIDER_NAME)]
-          ' "$tmp_file"
+                  .["proxy-groups"][1].proxies += [strenv(PROVIDER_GROUP)]
+                ' "$tmp_file"
             done < <(yq eval -r '.subscriptions | keys | .[]' "${subscriptionsFile}")
 
-            if (( provider_count > 0 )); then
-              yq eval -i '.["proxy-groups"][0].proxies += ["DIRECT"]' "$tmp_file"
+            first_provider_group="$(yq eval -r '.["proxy-groups"] | map(select(.type == "url-test")) | .[0].name // ""' "$tmp_file")"
+            if [[ -n "$first_provider_group" ]]; then
+              PROVIDER_GROUP="$first_provider_group" yq eval -i '
+                .["proxy-groups"][0].proxies = [strenv(PROVIDER_GROUP), "DIRECT"] +
+                  (.["proxy-groups"][0].proxies | map(select(. != strenv(PROVIDER_GROUP) and . != "DIRECT"))) |
+                .["proxy-groups"][1].proxies = [strenv(PROVIDER_GROUP), "DIRECT"] +
+                  (.["proxy-groups"][1].proxies | map(select(. != strenv(PROVIDER_GROUP) and . != "DIRECT")))
+              ' "$tmp_file"
             fi
 
             yq eval '.' "$tmp_file" >/dev/null
@@ -267,6 +210,8 @@ let
       yq-go
     ];
     text = ''
+            controller_url="''${MIHOMO_CONTROLLER_URL:-http://127.0.0.1:9090}"
+
             validate_name() {
               local name="$1"
               [[ "$name" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]]
@@ -334,7 +279,7 @@ let
                 return
               fi
 
-              provider_data="$(curl --fail --silent http://127.0.0.1:9090/providers/proxies || true)"
+              provider_data="$(curl --fail --silent "$controller_url/providers/proxies" || true)"
               printf '\n%-24s %s\n' "订阅" "节点数"
               printf '%-24s %s\n' "------------------------" "------"
               for name in "''${subscriptions[@]}"; do
@@ -388,18 +333,53 @@ let
               replace_store "$temporary_file"
             }
 
-            refresh_subscription() {
-              choose_subscription || return 0
-              curl \
-                --fail \
+            refresh_provider() {
+              local name="$1"
+              local response_file http_code response_body
+
+              response_file="$(mktemp)"
+              if ! http_code="$(curl \
                 --silent \
                 --show-error \
+                --output "$response_file" \
+                --write-out '%{http_code}' \
                 --request PUT \
-                "http://127.0.0.1:9090/providers/proxies/subscription-$selected_subscription"
-              printf '已刷新：%s\n' "$selected_subscription"
+                --max-time 20 \
+                --retry 2 \
+                --retry-delay 1 \
+                --retry-max-time 45 \
+                "$controller_url/providers/proxies/subscription-$name")"; then
+                rm -f "$response_file"
+                printf '刷新失败：%s（无法连接 Mihomo 控制器或请求超时；继续使用现有缓存）\n' "$name" >&2
+                return 1
+              fi
+
+              if [[ ! "$http_code" =~ ^2[0-9][0-9]$ ]]; then
+                response_body="$(tr '\r\n' '  ' < "$response_file")"
+                response_body="''${response_body:0:300}"
+                rm -f "$response_file"
+                if [[ -n "$response_body" ]]; then
+                  printf '刷新失败：%s（HTTP %s：%s；继续使用现有缓存）\n' \
+                    "$name" "$http_code" "$response_body" >&2
+                else
+                  printf '刷新失败：%s（HTTP %s；继续使用现有缓存）\n' \
+                    "$name" "$http_code" >&2
+                fi
+                return 1
+              fi
+
+              rm -f "$response_file"
+              printf '已刷新：%s\n' "$name"
+            }
+
+            refresh_subscription() {
+              choose_subscription || return 0
+              refresh_provider "$selected_subscription" || true
             }
 
             refresh_all() {
+              local failed=()
+
               load_subscriptions
               if (( ''${#subscriptions[@]} == 0 )); then
                 echo "当前没有订阅"
@@ -407,14 +387,19 @@ let
               fi
 
               for name in "''${subscriptions[@]}"; do
-                curl \
-                  --fail \
-                  --silent \
-                  --show-error \
-                  --request PUT \
-                  "http://127.0.0.1:9090/providers/proxies/subscription-$name"
-                printf '已刷新：%s\n' "$name"
+                if ! refresh_provider "$name"; then
+                  failed+=("$name")
+                fi
               done
+
+              if (( ''${#failed[@]} > 0 )); then
+                printf '刷新完成：%d 个成功，%d 个失败（失败订阅继续使用现有缓存）：%s\n' \
+                  "$(( ''${#subscriptions[@]} - ''${#failed[@]} ))" \
+                  "''${#failed[@]}" \
+                  "''${failed[*]}" >&2
+              else
+                printf '全部 %d 个订阅刷新成功\n' "''${#subscriptions[@]}"
+              fi
             }
 
             if [[ ! -s "${subscriptionsFile}" ]]; then
@@ -450,7 +435,7 @@ in
 {
   services.mihomo = {
     enable = true;
-    tunMode = true;
+    tunMode = false;
     configFile = configFile;
     webui = zashboard;
   };
@@ -476,10 +461,7 @@ in
     });
   '';
 
-  networking.firewall = {
-    checkReversePath = "loose";
-    trustedInterfaces = [ "Mihomo" ];
-  };
+  networking.firewall.checkReversePath = "loose";
 
   environment.systemPackages = [ subscriptionManager ];
 

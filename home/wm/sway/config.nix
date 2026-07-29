@@ -26,15 +26,6 @@ let
       --text-clear-color ${n.nord0}
     rm /tmp/screen.png /tmp/screen_blur.png
   '';
-  suspendScript = pkgs.writeShellScript "suspend-script" ''
-    RUNNING_COUNT=$(${pkgs.pipewire}/bin/pw-cli i all | ${pkgs.ripgrep}/bin/rg "state: \"running\"" -c || true)
-    if [ -z "$RUNNING_COUNT" ]; then
-      RUNNING_COUNT=0
-    fi
-    if [ $RUNNING_COUNT -le 2 ]; then
-      ${pkgs.systemd}/bin/systemctl suspend
-    fi
-  '';
 in
 {
   imports = [ ../../programs/waybar/sway_waybar.nix ];
@@ -43,12 +34,6 @@ in
     events = {
       "before-sleep" = "${myswaylock}/bin/myswaylock";
     };
-    timeouts = [
-      {
-        timeout = 900;
-        command = suspendScript.outPath;
-      }
-    ];
   };
   wayland.windowManager.sway = {
     config = null;
@@ -257,23 +242,6 @@ in
       bindsym XF86AudioNext exec mpc -q next
       bindsym XF86AudioPrev exec mpc -q prev
 
-      #--------------------#
-      # Idle configuration #
-      #--------------------#
-      #exec swayidle -w \
-      #timeout 300 '~/.config/sway/swaylock.sh' \
-      #timeout 600 'swaymsg "output * dpms off"' resume 'swaymsg "output * dpms on"' \
-      #timeout 6 'systemctl suspend' \
-      #before-sleep '~/.config/sway/swaylock.sh'
-
-      #exec swayidle -w \
-      #timeout 900 'systemctl suspend' \
-      #before-sleep '${myswaylock}/bin/myswaylock'
-
-
-      # This will lock your screen after 300 seconds of inactivity, then turn off
-      # your displays after another 300 seconds, and turn your screens back on when
-      # resumed. It will also lock your screen before your computer goes to sleep.
 
       #---------------------#
       # Input configuration #
