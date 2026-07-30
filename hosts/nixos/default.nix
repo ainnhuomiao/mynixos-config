@@ -5,7 +5,7 @@
   networking.hostName = "nixos";
 
   boot = {
-    kernelPackages = pkgs.linuxPackages_latest;
+    kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-latest-x86_64-v3;
     kernelParams = [
       "quiet"
       "splash"

@@ -12,7 +12,7 @@
 | Nixpkgs      | `nixos-unstable-small`                    |
 | 平台         | `x86_64-linux`                            |
 | 主机         | `nixos`                                   |
-| 内核         | `linuxPackages_latest`                    |
+| 内核         | CachyOS latest `x86_64-v3`（pinned）      |
 | 桌面         | Sway + Waybar + Rofi                      |
 | 用户环境     | Home Manager，作为 NixOS 模块集成         |
 | Shell        | Fish + Starship                           |
@@ -35,6 +35,12 @@ flake.nix
 ```
 
 ## 主要功能
+
+### 内核
+
+当前主机使用 [`xddxdd/nix-cachyos-kernel`](https://github.com/xddxdd/nix-cachyos-kernel) `release` 分支提供的 CachyOS 内核。`hosts/default.nix` 注入 `overlays.pinned`，`hosts/nixos/default.nix` 选择 `linuxPackages-cachyos-latest-x86_64-v3`；这与上游 Hydra 的构建环境保持一致，可命中 `https://attic.xuyh0120.win/lantian` 二进制缓存，避免本机编译内核。
+
+当前 `flake.lock` 对应的运行内核为 `7.1.5-cachyos`。更新 input 后版本会随 `release` 分支变化；不要让 `nix-cachyos-kernel.inputs.nixpkgs` 跟随本仓库的 `nixpkgs`，否则可能造成补丁版本不匹配或缓存未命中。切换内核配置后必须重启，运行中的版本可用 `uname -r` 检查。
 
 ### 桌面与日常应用
 
@@ -407,6 +413,7 @@ reboot
 - `NIX_AUTO_RUN=1` 已启用，缺失命令可能由 nix-index/comma 临时运行；常用工具仍应显式声明
 - Nix 每周自动执行 GC，并删除两天前的旧引用
 - Flake 配置允许 unfree、broken 和 unsupported 包，并临时允许指定的不安全 Electron 版本；更新前应运行 `just check`
+- CachyOS 内核更新并执行 `just rebuild-switch` 后仍需重启；若新内核无法启动，可从 GRUB 选择旧 NixOS generation 回退
 - 当前硬件配置含本机 Btrfs、EFI 和 Swap UUID，不应复制到其他机器
 
 ## 参考

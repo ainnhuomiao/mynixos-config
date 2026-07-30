@@ -33,6 +33,9 @@
         modules = [
           ./nixos
           ../system
+          ({ ... }: {
+            nixpkgs.overlays = [ inputs.nix-cachyos-kernel.overlays.pinned ];
+          })
           inputs.lanzaboote.nixosModules.lanzaboote
           inputs.home-manager.nixosModules.home-manager
           (mkHomeManager "nixos")

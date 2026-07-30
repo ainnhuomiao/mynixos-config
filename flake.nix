@@ -40,6 +40,7 @@
       url = "github:nix-community/lanzaboote";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable-small";
     oh-my-pi-src = {
       url = "github:can1357/oh-my-pi/v17.1.7";
