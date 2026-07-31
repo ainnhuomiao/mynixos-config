@@ -55,6 +55,7 @@
       linux-wifi-hotspot
       scrcpy
       gource
+      vscode
       blender
       s-search
       gparted
