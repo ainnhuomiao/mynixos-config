@@ -3,12 +3,17 @@
   programs.vscode = {
     enable = true;
     package = pkgs.vscode;
+    mutableExtensionsDir = true;
     profiles.default = {
       extensions = [
         pkgs.vscode-extensions.catppuccin.catppuccin-vsc
+        pkgs.vscode-extensions.jnoortheen.nix-ide
+        pkgs.vscode-extensions.arrterian.nix-env-selector
+        pkgs.vscode-extensions.mkhl.direnv
+        pkgs.vscode-extensions.anthropic.claude-code
       ];
       userSettings = {
-        "workbench.colorTheme" = "Catppuccin Mocha";
+        "workbench.colorTheme" = "Catppuccin Frappé";
         "catppuccin.accentColor" = "mauve";
         "catppuccin.boldKeywords" = true;
         "catppuccin.italicComments" = true;
