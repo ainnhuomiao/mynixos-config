@@ -2,8 +2,6 @@
 
 set -euo pipefail
 
-PAMT=sudo
-
 # 1. Dynamically discover hosts from flake
 echo "🕵️ Discovering hosts..."
 # Extracting keys from nixosConfigurations using nix flake show --json and jq
@@ -34,5 +32,6 @@ fi
 selected_host="${hosts[$((choice - 1))]}"
 
 # 2. Rebuild the selected host
+# nh self-elevates with sudo when needed; nom output is built in
 echo "🚀 Rebuilding $selected_host..."
-$PAMT nixos-rebuild switch --flake ".#$selected_host" 2>&1 | nom
+nh os switch . -H "$selected_host"

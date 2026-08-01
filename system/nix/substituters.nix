@@ -1,4 +1,33 @@
 {
+  # selector4nix: local substituter proxy with latency-aware selection
+  # It prepends itself to the substituter list; upstream fallbacks stay intact.
+  services.selector4nix = {
+    enable = true;
+    enablePersistentCaching = true;
+    # "prepend": proxy first, original substituters as fallback (safe if proxy dies)
+    configureSubstituter = "prepend";
+
+    settings = {
+      server = {
+        ip = "127.0.0.1";
+        # port = 5496; # Default port
+      };
+
+      substituters = [
+        { url = "https://cache.nixos.org/"; }
+        { url = "https://ainnhuomiao.qianyuanqing.asia/ainnhuomiao"; }
+        { url = "https://ainnhuomiao.cachix.org"; }
+        { url = "https://nix-community.cachix.org"; }
+        { url = "https://attic.xuyh0120.win/lantian"; }
+        {
+          # USTC mirror of cache.nixos.org; higher priority = lower precedence
+          url = "https://mirrors.ustc.edu.cn/nix-channels/store/";
+          priority = 45;
+        }
+      ];
+    };
+  };
+
   nix.settings = {
     fallback = true;
     http-connections = 8;

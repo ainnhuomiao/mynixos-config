@@ -5,5 +5,9 @@
       enable = true;
       config.safe.directory = [ "*" ];
     };
+    nh = {
+      enable = true;
+      flake = "/home/huomiao/mynixos-config";
+    };
   };
 }

@@ -18,6 +18,7 @@
 | Shell        | Fish + Starship                           |
 | 音频         | PipeWire（ALSA、PulseAudio、JACK）        |
 | 网络         | NetworkManager + dae eBPF + Mihomo SOCKS  |
+| 二进制缓存   | selector4nix 代理 + USTC 镜像（备用）     |
 | 引导         | GRUB EFI；可选 Lanzaboote，当前主机未启用 |
 | 文件系统     | Btrfs 子卷 + 独立 EFI 分区 + Swap         |
 | 容器         | Docker + Distrobox + Flatpak              |
@@ -162,6 +163,21 @@ http://127.0.0.1:9090/ui/
 - `system/dae.dae`：DNS、双 SOCKS 上游、分组与透明路由规则
 - `system/mihomo.nix`：订阅存储、配置生成器、两个 SOCKS listeners、Zashboard 和 `mihomo-sub`
 
+### 二进制缓存代理
+
+本机通过 [`selector4nix`](https://github.com/StarryReverie/selector4nix) 代理全部 Nix substituter 查询：
+
+- 并行查询所有上游缓存，按延迟和优先级选择最快源；故障源自动跳过并按指数退避重试
+- NAR 从最优源流式转发，本机只持久缓存 `.narinfo` 查询结果（`/var/cache/selector4nix`）
+- 上游列表：`cache.nixos.org`、`ainnhuomiao` Attic、`ainnhuomiao.cachix.org`、`nix-community.cachix.org`、`lantian` Attic，以及 USTC 镜像（`priority 45`，备用）
+- `configureSubstituter = "prepend"`：代理 `http://127.0.0.1:5496/` 排在 substituters 首位，原始列表保留作 fallback；代理故障时 Nix 自动回退，不影响构建
+
+配置位置：`system/nix/substituters.nix`。查看日志：
+
+```bash
+journalctl -u selector4nix -f
+```
+
 ### 壁纸
 
 壁纸直接存放在：
@@ -258,22 +274,22 @@ nix build .#mcp-nixos
 
 ## 日常维护
 
-仓库使用 `just` 管理常用命令：
+仓库使用 `just` 管理常用命令（切换、清理与代际查看基于 [`nh`](https://github.com/nix-community/nh)，构建树可视化由 nh 内置的 nix-output-monitor 提供）：
 
-| 命令                  | 作用                                                    |
-| --------------------- | ------------------------------------------------------- |
-| `just`                | 列出全部 recipes                                        |
-| `just update`         | 更新所有 Flake inputs                                   |
-| `just check`          | 执行 `nix flake check --fallback`                       |
-| `just format`         | 使用 Flake formatter 格式化仓库                         |
-| `just build [host]`   | 构建指定 NixOS 主机，不创建 `result` 链接；默认 `nixos` |
-| `just show`           | 显示全部 Flake outputs                                  |
-| `just develop`        | 通过 `nom` 进入默认开发 Shell                           |
-| `just generations`    | 列出 NixOS 系统 generations                             |
-| `just rebuild-switch` | 先检查和格式化，再交互选择主机并切换配置                |
-| `just clean`          | 删除用户和系统旧 generations，并回收未引用 store 路径   |
-| `just disko`          | 交互选择磁盘布局并分区、格式化、挂载                    |
-| `just install`        | 从 `/mnt/etc/nixos/flakes` 安装所选主机                 |
+| 命令                  | 作用                                                                |
+| --------------------- | ------------------------------------------------------------------- |
+| `just`                | 列出全部 recipes                                                    |
+| `just update`         | 更新所有 Flake inputs                                               |
+| `just check`          | 执行 `nix flake check --fallback`                                   |
+| `just format`         | 使用 Flake formatter 格式化仓库                                     |
+| `just build [host]`   | 通过 `nh os build` 构建指定 NixOS 主机，不激活；默认 `nixos`        |
+| `just show`           | 显示全部 Flake outputs                                              |
+| `just develop`        | 通过 `nom` 进入默认开发 Shell                                       |
+| `just generations`    | 通过 `nh os info` 列出 NixOS 系统 generations                       |
+| `just rebuild-switch` | 先检查和格式化，再交互选择主机并通过 `nh os switch` 切换            |
+| `just clean`          | 通过 `nh clean` 清理旧 generations 与 gcroots，保留最近 3 代和 7 天 |
+| `just disko`          | 交互选择磁盘布局并分区、格式化、挂载                                |
+| `just install`        | 从 `/mnt/etc/nixos/flakes` 安装所选主机                             |
 
 常用流程：
 
@@ -289,7 +305,7 @@ just check
 just build
 ```
 
-> `just clean` 会不可逆地删除旧 generations，之后无法回滚到这些版本。
+> `just clean` 会不可逆地删除旧 generations 与 gcroots（含 `result` 链接和 direnv gcroots），之后无法回滚到这些版本。
 
 ## 常用 Sway 快捷键
 

@@ -17,9 +17,9 @@ check:
 format:
     nix fmt
 
-# Build a NixOS configuration without creating a result symlink
+# Build a NixOS configuration without activating it (nom output built in)
 build host="nixos":
-    nom build --no-link ".#nixosConfigurations.{{host}}.config.system.build.toplevel"
+    nh os build . -H {{host}}
 
 # Show all flake outputs
 show:
@@ -30,17 +30,20 @@ develop:
     nom develop
 
 # List NixOS system generations
+# nh os info shows generation list from the system profile
+# (replace the old `nixos-rebuild list-generations`)
 generations:
-    nixos-rebuild list-generations
+    nh os info
 
-# Validate, format, and switch with nix-output-monitor
+# Validate, format, and switch via nh (nom output built in)
 rebuild-switch: check format
     NIX_CONFIG="experimental-features = nix-command flakes" bash ./lib/scripts/rebuild.sh
 
-# Delete old user and system generations and collect unreferenced store paths
+# Delete old generations and gcroots, keeping 3 generations and 7 days of history
+# nh clean all extends nix-collect-garbage with gcroot cleanup
+# (replace the old `nix-collect-garbage --delete-old`)
 clean:
-    nix-collect-garbage --delete-old
-    sudo nix-collect-garbage --delete-old
+    nh clean all --keep 3 --keep-since 7d
 
 # Partition and mount a target disk
 disko:

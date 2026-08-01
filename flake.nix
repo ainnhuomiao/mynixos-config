@@ -59,6 +59,7 @@
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    selector4nix.url = "github:StarryReverie/selector4nix";
     treefmt-nix.url = "github:numtide/treefmt-nix";
     zen-browser = {
       url = "git+https://github.com/youwen5/zen-browser-flake";
