@@ -36,6 +36,11 @@ in
       prev.zlib
     ];
 
+    # pnpm build 的 Node.js 在小内存机器（如 1.9G VPS）上 V8 堆默认仅 ~1G，会 OOM。
+    env = (old.env or { }) // {
+      NODE_OPTIONS = "--max-old-space-size=4096";
+    };
+
     # motrix-next-engine 是通用 linux ELF，需要指向 nixpkgs 的 ld-linux 与 glibc。
     # autoPatchelfHook 会在 fixupPhase 自动扫描 $out 下的 ELF 并修好。
     dontAutoPatchelf = false;
