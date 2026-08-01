@@ -46,12 +46,15 @@ flake.nix
 
 - Sway Wayland 平铺窗口管理器，`Mod` 为 `Super`
 - Waybar 状态栏、Rofi 启动器、剪贴板菜单和电源菜单
-- Kitty、Firefox、Zen Browser、Google Chrome、Microsoft Edge、Telegram、QQ、Vesktop
-- Flameshot、Grimshot、Satty、wf-recorder、Kooha、OBS Studio
-- MPV、SPlayer、Go Musicfox、Bilibili 工具、Motrix Next
-- Nemo、Yazi、Zathura、Obsidian、Emanote
+- Kitty、Firefox、Zen Browser、Google Chrome、Microsoft Edge
+- 聊天：Telegram、QQ、Vesktop、WeChat、Discord、Feishu、腾讯会议、Element
+- Flameshot、Grimshot、Satty、wf-recorder、Kooha、OBS Studio、Kdenlive
+- MPV、SPlayer、Go Musicfox、Bilibili 工具、Motrix Next、Blender、scrcpy
+- Nemo、Yazi、Zathura、Obsidian、Emanote、imv/swayimg
+- Thunderbird、DBeaver
 - Fcitx5 + Rime + 中文扩展词库，左 `Ctrl` + 左 `Shift` 切换输入法
-- PipeWire、Blueman、NetworkManager Applet、XDG Desktop Portal
+- PipeWire、Blueman、NetworkManager Applet、XDG Desktop Portal、Mako 通知
+- btop 资源监视
 - 登录 TTY1 后由 Fish 自动启动 Sway
 - 未配置空闲超时自动挂起；手动挂起或休眠前由 `swayidle` 调用模糊截图锁屏
 
@@ -59,7 +62,7 @@ flake.nix
 
 Home Manager 配置包含：
 
-- 编辑器：Neovim、Helix
+- 编辑器：Neovim、Helix、VSCode（Catppuccin Frappé 主题；Nix IDE、Nix Env Selector、Direnv、Claude Code 扩展）
 - 版本控制：Git、GitHub CLI、Lazygit
 - C/C++：GCC、Clang、GDB、CMake、Meson、Ninja、Bear
 - Rust：`rust-overlay`
@@ -306,6 +309,11 @@ just build
 | `Mod + Shift + q`      | QQ                            |
 | `Mod + Shift + v`      | Vesktop                       |
 | `Alt + Shift + s`      | SPlayer                       |
+| `Alt + Shift + q`      | 切换到 QQ 工作区              |
+| `Alt + Shift + t`      | 切换到 Telegram 工作区        |
+| `Alt + Shift + w`      | 切换到 WeChat 工作区          |
+| `Alt + Shift + b`      | 切换到 Firefox 工作区         |
+| `Alt + Shift + v`      | 切换到 Vesktop 工作区         |
 | `Mod + Shift + d`      | 在浮动终端中启动 Bilibili TUI |
 | `Mod + Shift + x`      | 锁屏                          |
 | `Mod + Shift + c`      | 重载 Sway                     |
@@ -408,7 +416,7 @@ reboot
 ## 注意事项
 
 - `me.nix` 当前包含个人信息和密码哈希；公开仓库前应考虑迁移到 sops-nix 等秘密管理方案
-- `sudo` 和 `doas` 均允许 wheel 用户免密码提权，只适合受控的个人设备
+- `sudo` 与 `doas` 均免密码提权（`sudo` 仅对 `huomiao`，`doas` 对 `wheel` 组），只适合受控的个人设备
 - Home Manager 使用 `useGlobalPkgs = true` 和 `useUserPackages = true`；包变更应通过完整的 NixOS rebuild 应用
 - `NIX_AUTO_RUN=1` 已启用，缺失命令可能由 nix-index/comma 临时运行；常用工具仍应显式声明
 - Nix 每周自动执行 GC，并删除两天前的旧引用
