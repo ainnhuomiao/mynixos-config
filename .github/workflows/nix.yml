@@ -67,3 +67,14 @@ jobs:
           --no-link
           --print-build-logs
           .#nixosConfigurations.nixos.config.system.build.toplevel
+
+      - name: Push to self-hosted attic
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          ATTIC_TOKEN: ${{ secrets.ATTIC_TOKEN }}
+        run: |
+          nix profile install nixpkgs#attic-client
+          attic login vps https://ainnhuomiao.qianyuanqing.asia/ "$ATTIC_TOKEN"
+          attic push ainnhuomiao ${{ steps.cached-packages.outputs.paths }}
+          toplevel=$(nix build --no-link --print-out-paths .#nixosConfigurations.nixos.config.system.build.toplevel)
+          attic push ainnhuomiao "$toplevel"
