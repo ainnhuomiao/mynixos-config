@@ -42,11 +42,15 @@ jobs:
             --no-link \
             --print-build-logs \
             --print-out-paths \
+            --accept-flake-config \
             .#bili_tui \
+            .#fcitx5-pinyin-moegirl \
+            .#fcitx5-pinyin-zhwiki \
             .#flake-stats-mcp \
             .#mcp-nixos \
             .#motrix-next \
-            .#oh-my-pi-zh)
+            .#oh-my-pi-zh \
+            .#zen-browser)
           echo "paths=${paths//$'\n'/ }" >> "$GITHUB_OUTPUT"
 
       - name: Push cached packages
