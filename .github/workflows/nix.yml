@@ -18,7 +18,7 @@ jobs:
   build:
     name: Build NixOS x86_64-linux
     runs-on: ubuntu-24.04
-    timeout-minutes: 120
+    timeout-minutes: 360
 
     steps:
       - name: Check out repository
@@ -43,13 +43,28 @@ jobs:
             --print-build-logs \
             --print-out-paths \
             --accept-flake-config \
+            .#bilibili \
             .#bili_tui \
+            .#claude-code \
+            .#discord \
+            .#element-desktop \
             .#fcitx5-pinyin-moegirl \
             .#fcitx5-pinyin-zhwiki \
+            .#feishu \
             .#flake-stats-mcp \
+            .#github-copilot-cli \
+            .#google-chrome \
             .#mcp-nixos \
+            .#microsoft-edge \
             .#motrix-next \
+            .#nordic \
+            .#obsidian \
             .#oh-my-pi-zh \
+            .#qq \
+            .#thunderbird-bin \
+            .#vscode \
+            .#wechat \
+            .#wemeet \
             .#zen-browser)
           echo "paths=${paths//$'\n'/ }" >> "$GITHUB_OUTPUT"
 
