@@ -236,8 +236,8 @@ in
       bindsym XF86AudioLowerVolume exec pamixer -d 5
       bindsym XF86AudioMute exec pamixer -t
       bindsym XF86AudioMicMute exec pamixer --default-source -t
-      bindsym XF86MonBrightnessUp exec brightnessctl -d intel_backlight set +5%
-      bindsym XF86MonBrightnessDown exec brightnessctl -d intel_backlight set 5%-
+      bindsym XF86MonBrightnessUp exec brightnessctl set +5%
+      bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
       bindsym XF86AudioPlay exec mpc -q toggle
       bindsym XF86AudioNext exec mpc -q next
       bindsym XF86AudioPrev exec mpc -q prev
