@@ -6,6 +6,12 @@
       pkgs = import inputs.nixpkgs {
         inherit system;
         overlays = [ inputs.self.overlays.default ];
+        # 与系统配置一致：允许 unfree / broken / unsupported 包
+        config = {
+          allowUnfree = true;
+          allowBroken = true;
+          allowUnsupportedSystem = true;
+        };
       };
     in
     {
