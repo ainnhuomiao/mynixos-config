@@ -2,6 +2,14 @@
 
 个人 NixOS Flake 配置，当前面向 `x86_64-linux` 主机 `nixos`。仓库同时管理 NixOS、Home Manager、Sway 桌面、开发环境、AI CLI、dae + Mihomo 透明代理、自定义包与 overlays。
 
+[![CI](https://github.com/ainnhuomiao/mynixos-config/actions/workflows/nix.yml/badge.svg)](https://github.com/ainnhuomiao/mynixos-config/actions/workflows/nix.yml)
+![NixOS](https://img.shields.io/badge/NixOS-26.05-8caaee?style=flat-square&logo=nixos&logoColor=white)
+![Kernel](https://img.shields.io/badge/Kernel-CachyOS%20x86__64__v3-cba6f7?style=flat-square)
+![flake-parts](https://img.shields.io/badge/flake--parts-f8bd96?style=flat-square)
+
+![桌面环境](assets/screenshots/desktop.png)
+
+> [!NOTE]
 > 这是与个人硬件、用户名和本地状态绑定的配置，不是开箱即用的通用模板。复用前必须检查 `me.nix`、`hosts/nixos/`、磁盘布局以及涉及个人凭据的配置。
 
 ## 配置概览
@@ -305,6 +313,7 @@ just check
 just build
 ```
 
+> [!WARNING]
 > `just clean` 会不可逆地删除旧 generations 与 gcroots（含 `result` 链接和 direnv gcroots），之后无法回滚到这些版本。
 
 ## 常用 Sway 快捷键
@@ -413,6 +422,7 @@ just disko
 5. 生成目标主机的 `hardware-configuration.nix`
 6. 将仓库复制到 `/mnt/etc/nixos/flakes`
 
+> [!WARNING]
 > 此操作会清空目标磁盘。执行前必须检查布局文件中的设备路径。
 
 ### 4. 安装
