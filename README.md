@@ -1,5 +1,5 @@
 <h1 align="center">
-    <img src="assets/screenshots/desktop.png" alt="mynixos-config" width="500px" />
+    <img src="assets/cirno.png" alt="mynixos-config" width="500px" />
     <br>
     mynixos-config
     <br>
