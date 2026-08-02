@@ -1,13 +1,34 @@
-# mynixos-config
+<h1 align="center">
+    <img src="assets/screenshots/desktop.png" alt="mynixos-config" width="500px" />
+    <br>
+    mynixos-config
+    <br>
+    <a href="https://github.com/catppuccin/catppuccin">
+        <img src="assets/palette-frappe.png" alt="Catppuccin Frappé" width="600px" />
+    </a>
+</h1>
 
-个人 NixOS Flake 配置，当前面向 `x86_64-linux` 主机 `nixos`。仓库同时管理 NixOS、Home Manager、Sway 桌面、开发环境、AI CLI、dae + Mihomo 透明代理、自定义包与 overlays。
+<p align="center">
+    个人 NixOS Flake 配置，当前面向 <code>x86_64-linux</code> 主机 <code>nixos</code>。仓库同时管理 NixOS、Home Manager、Sway 桌面、开发环境、AI CLI、dae + Mihomo 透明代理、自定义包与 overlays。
+</p>
 
-[![CI](https://github.com/ainnhuomiao/mynixos-config/actions/workflows/nix.yml/badge.svg)](https://github.com/ainnhuomiao/mynixos-config/actions/workflows/nix.yml)
-![NixOS](https://img.shields.io/badge/NixOS-26.05-8caaee?style=flat-square&logo=nixos&logoColor=white)
-![Kernel](https://img.shields.io/badge/Kernel-CachyOS%20x86__64__v3-cba6f7?style=flat-square)
-![flake-parts](https://img.shields.io/badge/flake--parts-f8bd96?style=flat-square)
-
-![桌面环境](assets/screenshots/desktop.png)
+<div align="center">
+    <a href="https://github.com/ainnhuomiao/mynixos-config/actions/workflows/nix.yml">
+        <img src="https://img.shields.io/github/actions/workflow/status/ainnhuomiao/mynixos-config/nix.yml?style=for-the-badge&logo=githubactions&logoColor=white&label=CI&labelColor=303446" alt="CI" />
+    </a>
+    <a href="https://nixos.org">
+        <img src="https://img.shields.io/badge/NixOS-26.05-8caaee?style=for-the-badge&logo=nixos&logoColor=eff1f5&labelColor=303446" alt="NixOS 26.05" />
+    </a>
+    <a href="https://github.com/xddxdd/nix-cachyos-kernel">
+        <img src="https://img.shields.io/badge/Kernel-CachyOS%20x86__64__v3-ca9ee6?style=for-the-badge&logoColor=eff1f5&labelColor=303446" alt="CachyOS Kernel" />
+    </a>
+    <a href="https://flake.parts">
+        <img src="https://img.shields.io/badge/Built%20with-flake--parts-ef9f76?style=for-the-badge&logoColor=eff1f5&labelColor=303446" alt="flake-parts" />
+    </a>
+    <a href="https://github.com/ainnhuomiao/mynixos-config">
+        <img src="https://img.shields.io/github/repo-size/ainnhuomiao/mynixos-config?style=for-the-badge&logo=github&logoColor=babbf1&labelColor=303446&color=babbf1" alt="Repo Size" />
+    </a>
+</div>
 
 > [!NOTE]
 > 这是与个人硬件、用户名和本地状态绑定的配置，不是开箱即用的通用模板。复用前必须检查 `me.nix`、`hosts/nixos/`、磁盘布局以及涉及个人凭据的配置。
