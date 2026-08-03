@@ -39,6 +39,9 @@ in
 
   home = {
     sessionVariables = {
+      # 只让 wlroots 探测 Intel 卡:不打开 nvidia 的 DRM 节点,
+      # 才能保证 nvidia 模块可热卸载(关坞电源前 modprobe -r)
+      WLR_DRM_DEVICES = "/dev/dri/card0";
       QT_SCALE_FACTOR = "1";
       SDL_VIDEODRIVER = "wayland";
       _JAVA_AWT_WM_NONREPARENTING = "1";
