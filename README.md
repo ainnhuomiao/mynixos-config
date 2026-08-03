@@ -75,7 +75,7 @@ flake.nix
 
 ### 桌面与日常应用
 
-- Sway Wayland 平铺窗口管理器，`Mod` 为 `Super`
+- Sway Wayland 平铺窗口管理器（swayfx，支持毛玻璃背景模糊），`Mod` 为 `Super`
 - Waybar 状态栏、Rofi 启动器、剪贴板菜单和电源菜单
 - Kitty、Firefox、Zen Browser、Google Chrome、Microsoft Edge
 - 聊天：Telegram、QQ、Vesktop、WeChat、Discord、Feishu、腾讯会议、Element
@@ -256,6 +256,17 @@ Waybar 壁纸按钮也支持左键随机、右键启动/停止轮换、中键恢
 just rebuild-switch
 ```
 
+### 主题（Catppuccin）
+
+桌面配色基于 Catppuccin 四主题（Latte / Frappé / Macchiato / Mocha），统一作用于 Kitty 终端、Sway 窗口边框与 Waybar：
+
+- **Waybar 主题按钮（左侧）左键**：顺序切换 Latte → Frappé → Macchiato → Mocha
+- **Waybar 主题按钮右键**：开启/停止每 2 小时自动轮换（重启会话后需重新开启）
+
+切换即时生效：Sway 边框与 Waybar 热更新，运行中的 Kitty 通过远程控制 socket 实时换色。锁屏（swaylock）保持 Nord 配色。
+
+配色定义在 `lib/appearance.nix`（`catppuccin` 四套 16 色），切换逻辑在 `home/programs/catppuccin/`（主题文件生成、`theme-apply` / `theme-timer-toggle` 脚本、2 小时轮换 timer）。
+
 ## 自定义包与 Flake 输出
 
 `pkgs/` 中的本地包：
@@ -300,7 +311,7 @@ nix build .#mcp-nixos
 │   ├── dev/                 # 开发工具链
 │   ├── editors/             # 编辑器
 │   ├── profiles/            # 用户@主机配置组合
-│   ├── programs/            # 桌面和命令行应用
+│   ├── programs/            # 桌面和命令行应用(含 catppuccin/ 主题切换)
 │   ├── shell/               # Fish、Starship 与 Shell 工具
 │   ├── terminals/           # 终端配置
 │   ├── wall/                # awww 壁纸服务

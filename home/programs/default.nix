@@ -2,6 +2,7 @@
   imports = [
     ./bili_live
     ./bilibili
+    ./catppuccin
     ./chrome
     ./dbclient
     ./discord

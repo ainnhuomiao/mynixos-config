@@ -1,7 +1,13 @@
-{ pkgs, appearance, ... }:
+{
+  pkgs,
+  appearance,
+  config,
+  ...
+}:
 let
   n = appearance.palettes.nord;
   h = appearance.toHex;
+  cp = appearance.catppuccin.${appearance.catppuccinVariant};
   myswaylock = pkgs.writeShellScriptBin "myswaylock" ''
     ${pkgs.grim}/bin/grim /tmp/screen.png
     ${pkgs.ffmpeg}/bin/ffmpeg -y -loglevel error -i /tmp/screen.png -vf "gblur=sigma=8,colorlevels=rimin=0.1:gimin=0.1:bimin=0.1" -update 1 -frames:v 1 /tmp/screen_blur.png
@@ -42,6 +48,14 @@ in
       # mod key #
       #---------#
       set $mod Mod4
+
+      #-------------------#
+      # swayfx 毛玻璃效果 #
+      #-------------------#
+      blur enable
+      blur_radius 5
+      blur_passes 3
+      blur_noise 0.01
 
       #---------------#
       # waybar toggle #
@@ -186,12 +200,16 @@ in
       #----------------------------------------#
       # window colours: border background text #
       #----------------------------------------#
-      client.focused          ${h n.nord9} ${h n.nord9} #ffffff
-      client.unfocused        ${h n.nord0} #1f222d #888888
-      client.focused_inactive ${h n.nord0} #1f222d #888888
-      client.placeholder      ${h n.nord0} #1f222d #888888
-      client.urgent           ${h n.nord12} ${h n.nord12} #ffffff
-      client.background       #242424
+      # catppuccin ${appearance.catppuccinVariant} 窗口色
+      client.focused          ${h cp.color4} ${h cp.color4} #ffffff
+      client.unfocused        ${h cp.bg} ${h cp.color0} #888888
+      client.focused_inactive ${h cp.bg} ${h cp.color0} #888888
+      client.placeholder      ${h cp.bg} ${h cp.color0} #888888
+      client.urgent           ${h cp.color1} ${h cp.color1} #ffffff
+      client.background       ${h cp.bg}
+
+      # 当前主题(theme-apply 切换时覆盖), 缺失时用上面 mocha 默认值
+      include ${config.home.homeDirectory}/.config/catppuccin/current/sway-colors.conf
 
       #-----------------------------------#
       # Home row direction keys, like vim #

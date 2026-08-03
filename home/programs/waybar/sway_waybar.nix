@@ -2,11 +2,12 @@
   pkgs,
   inputs,
   appearance,
+  config,
   ...
 }:
 let
   sharedScripts = import ./share_scripts.nix { inherit pkgs; };
-  n = appearance.palettes.nord;
+  cp = appearance.catppuccin.${appearance.catppuccinVariant};
   h = appearance.toHex;
 in
 {
@@ -18,6 +19,9 @@ in
       targets = [ "sway-session.target" ];
     };
     style = ''
+      /* 当前主题变量(theme-apply 切换时覆盖, theme-init 保证存在) */
+      @import "${config.home.homeDirectory}/.config/catppuccin/current/waybar-colors.css";
+
       * {
         font-family: "${appearance.font.name}";
         font-size: 12pt;
@@ -29,8 +33,8 @@ in
 
       @keyframes blink_red {
         to {
-          background-color: ${h n.nord11};
-          color: ${h n.nord0};
+          background-color: @wall_red;
+          color: @wall_bg;
         }
       }
 
@@ -52,7 +56,7 @@ in
         margin-left: 5px;
         margin-right: 5px;
         margin-top: 5px;
-        background-color: ${h n.nord1};
+        background-color: @wall_bg_alt;
       }
 
       #workspaces {
@@ -65,37 +69,37 @@ in
         padding-bottom: 5px;
         padding-left: 6px;
         padding-right: 6px;
-        color: ${h n.nord4};
+        color: @wall_fg_dim;
       }
 
       #workspaces button.focused {
-        background-color: ${h n.nord7};
-        color: ${h n.nord0};
+        background-color: @wall_cyan;
+        color: @wall_bg;
       }
 
       #workspaces button.urgent {
-        color: ${h n.nord0};
+        color: @wall_bg;
       }
 
       #workspaces button:hover {
-        background-color: ${h n.nord15};
-        color: ${h n.nord0};
+        background-color: @wall_purple;
+        color: @wall_bg;
       }
 
       tooltip {
         /* background: rgb(250, 244, 252); */
-        background: ${h n.nord1};
+        background: @wall_bg_alt;
       }
 
       tooltip label {
-        color: ${h n.nord5};
+        color: @wall_fg;
       }
 
       #custom-launcher {
         font-size: 20px;
         padding-left: 8px;
         padding-right: 6px;
-        color: ${h n.nord8};
+        color: @wall_blue;
       }
 
       #mode,
@@ -105,6 +109,7 @@ in
       #cpu,
       #mpd,
       #custom-wall,
+      #custom-theme,
       #temperature,
       #backlight,
       #pulseaudio,
@@ -122,53 +127,53 @@ in
       /*     color: rgb(26, 24, 38); */
       /* } */
       #memory {
-        color: ${h n.nord7};
+        color: @wall_cyan;
       }
 
       #cpu {
-        color: ${h n.nord15};
+        color: @wall_purple;
       }
 
       #clock {
-        color: ${h n.nord5};
+        color: @wall_fg;
       }
 
       #custom-wall {
-        color: ${h n.nord15};
+        color: @wall_purple;
       }
 
       #temperature {
-        color: ${h n.nord9};
+        color: @wall_blue;
       }
 
       #backlight {
-        color: ${h n.nord14};
+        color: @wall_green;
       }
 
       #pulseaudio {
-        color: ${h n.nord13};
+        color: @wall_yellow;
       }
 
       #network {
-        color: ${h n.nord14};
+        color: @wall_green;
       }
 
       #network.disconnected {
-        color: ${h n.nord4};
+        color: @wall_fg_dim;
       }
 
       #battery.charging,
       #battery.full,
       #battery.discharging {
-        color: ${h n.nord12};
+        color: @wall_yellow;
       }
 
       #battery.critical:not(.charging) {
-        color: ${h n.nord4};
+        color: @wall_fg_dim;
       }
 
       #custom-powermenu {
-        color: ${h n.nord11};
+        color: @wall_red;
       }
 
       #tray {
@@ -177,12 +182,12 @@ in
       }
 
       #tray menu {
-        background: ${h n.nord1};
-        color: ${h n.nord4};
+        background: @wall_bg_alt;
+        color: @wall_fg_dim;
       }
 
       #mpd.paused {
-        color: ${h n.nord9};
+        color: @wall_blue;
         font-style: italic;
       }
 
@@ -191,7 +196,7 @@ in
       }
 
       #mpd {
-        color: ${h n.nord5};
+        color: @wall_fg;
 
         /* color: #c0caf5; */
       }
@@ -212,6 +217,7 @@ in
           "mpd"
           "custom/cava-internal"
           "custom/recgif"
+          "custom/theme"
         ];
         modules-center = [
           "clock"
@@ -226,6 +232,25 @@ in
           "custom/powermenu"
           "tray"
         ];
+        "custom/theme" = {
+          "format" = "{icon} {text}";
+          "format-icons" = {
+            "latte" = "󰾳";
+            "frappe" = "󰾲";
+            "macchiato" = "󰾱";
+            "mocha" = "󰾰";
+          };
+          "return-type" = "json";
+          "exec" = ''
+            s=$(cat ~/.cache/catppuccin-current 2>/dev/null || echo mocha)
+            echo "{\"text\":\"$s\",\"alt\":\"$s\"}"
+          '';
+          "interval" = 60;
+          "signal" = 5;
+          "on-click" = "theme-apply";
+          "on-click-right" = "theme-timer-toggle";
+          "tooltip" = false;
+        };
         "custom/launcher" = {
           "format" = " ";
           "on-click" = "~/.config/rofi/launcher.sh";
@@ -235,7 +260,7 @@ in
           "format" = "{icon}";
           "return-type" = "json";
           "format-icons" = {
-            "recording" = "<span foreground='${h n.nord11}'> </span>";
+            "recording" = "<span foreground='${h cp.color1}'> </span>";
             "stopped" = " ";
           };
           "exec" =
@@ -320,11 +345,11 @@ in
             "weeks-pos" = "right";
             "on-scroll" = 1;
             "format" = {
-              "months" = "<span color='${h n.nord13}'><b>{}</b></span>";
-              "days" = "<span color='${h n.nord15}'><b>{}</b></span>";
-              "weeks" = "<span color='${h n.nord7}'><b>W{}</b></span>";
-              "weekdays" = "<span color='${h n.nord13}'><b>{}</b></span>";
-              "today" = "<span color='${h n.nord11}'><b><u>{}</u></b></span>";
+              "months" = "<span color='${h cp.color3}'><b>{}</b></span>";
+              "days" = "<span color='${h cp.color5}'><b>{}</b></span>";
+              "weeks" = "<span color='${h cp.color6}'><b>W{}</b></span>";
+              "weekdays" = "<span color='${h cp.color3}'><b>{}</b></span>";
+              "today" = "<span color='${h cp.color1}'><b><u>{}</u></b></span>";
             };
           };
           "actions" = {
@@ -346,9 +371,9 @@ in
         };
         "mpd" = {
           "max-length" = 25;
-          "format" = "<span foreground='${h n.nord15}'></span> {title}";
+          "format" = "<span foreground='${h cp.color5}'></span> {title}";
           "format-paused" = " {title}";
-          "format-stopped" = "<span foreground='${h n.nord15}'></span>";
+          "format-stopped" = "<span foreground='${h cp.color5}'></span>";
           "format-disconnected" = "";
           "on-click" = "mpc --quiet toggle";
           "on-click-right" = "mpc update; mpc ls | mpc add";
@@ -387,7 +412,10 @@ in
   systemd.user.services.waybar = {
     Unit = {
       Wants = [ "pipewire-pulse.service" ];
-      After = [ "pipewire-pulse.service" ];
+      After = [
+        "pipewire-pulse.service"
+        "theme-init.service"
+      ];
     };
     Service = {
       Environment = [ "GDK_BACKEND=wayland" ];

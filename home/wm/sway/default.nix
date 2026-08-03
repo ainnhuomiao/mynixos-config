@@ -7,6 +7,10 @@ in
 
   wayland.windowManager.sway = {
     enable = true;
+    # swayfx: 支持背景模糊(毛玻璃),sway 的 drop-in 替代
+    package = pkgs.swayfx;
+    # swayfx 的 --validate 在无 GPU 的构建沙箱里无法创建 renderer,关闭构建期校验
+    checkConfig = false;
     # package = inputs.nixpkgs-wayland.packages.${pkgs.stdenv.hostPlatform.system}.sway-unwrapped;
     wrapperFeatures.gtk = true;
   };
