@@ -74,7 +74,17 @@
         notify-send "eGPU 已卸载" "驱动已卸载,可安全关闭坞电源" 2>/dev/null || true
       else
         echo "卸载失败:有程序仍在使用 GPU(通常是游戏未退出)" >&2
-        echo "请先退出游戏,再重新执行 nvidia-egpu-off" >&2
+        echo "--- 显存占用进程:" >&2
+        nvidia-smi --query-compute-apps=pid,process_name,used_gpu_memory --format=csv 2>/dev/null | tail -n +2 || true
+        echo "--- 打开 GPU 设备节点的进程:" >&2
+        for p in /proc/[0-9]*; do
+          for fd in "$p"/fd/*; do
+            case "$(readlink "$fd" 2>/dev/null)" in
+              /dev/dri/card1 | /dev/dri/renderD129) echo "$(basename "$p") $(cat "$p"/comm 2>/dev/null)" ;;
+            esac
+          done
+        done | sort -u || true
+        echo "退出上述程序后重新执行 nvidia-egpu-off" >&2
         exit 1
       fi
     '')
