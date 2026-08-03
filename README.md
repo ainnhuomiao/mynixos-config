@@ -96,18 +96,19 @@ flake.nix
 日常使用：
 
 ```bash
-# 玩游戏：打开坞电源，等几秒自动授权、自动绑定驱动
-nvidia-egpu steam            # Steam 启动选项也可填 nvidia-egpu %command%
+# 玩游戏：打开坞电源
+nvidia-egpu steam            # 自动检查/加载驱动，就绪后启动游戏
+                             # Steam 启动选项也可填 nvidia-egpu %command%
 
-# 玩完：退出游戏，卸载驱动后再关闭坞电源
-sudo modprobe -r nvidia_drm nvidia_modeset nvidia
+# 玩完：退出游戏
+nvidia-egpu-off              # 卸载驱动，提示“可安全关闭坞电源”后再关电
 ```
 
 要点：
 
 - `services.hardware.bolt` 负责雷电授权，坞已 `enroll --policy auto`，开电即自动授权
-- 全局 EGL 锁定 Mesa + `WLR_DRM_DEVICES=/dev/dri/card0`（wlroots 只探测 iGPU），保证合成器不占用 nvidia 模块，驱动可在游戏结束后干净卸载，断电前 `modprobe -r` 即安全
-- `nvidia-egpu` wrapper 同时覆盖 GL/GLX（PRIME 变量）与 Vulkan（`MESA_VK_DEVICE_SELECT=10de:2584` 强制选卡；595.84 的 `VK_LAYER_NV_optimus` 已不再过滤设备）
+- 全局 EGL 锁定 Mesa + `WLR_DRM_DEVICES=/dev/dri/card0`（wlroots 只探测 iGPU），保证合成器不占用 nvidia 模块，驱动可在游戏结束后干净卸载，`nvidia-egpu-off` 卸载成功后再断电即安全
+- `nvidia-egpu` wrapper 同时覆盖 GL/GLX（PRIME 变量）与 Vulkan（`MESA_VK_DEVICE_SELECT=10de:2584` 强制选卡；595.84 的 `VK_LAYER_NV_optimus` 已不再过滤设备），启动前自动检查/加载驱动并打印 GPU 状态
 - 驱动 595.84 + open 内核模块；坞通电时请勿合盖挂起
 
 配置位置：`system/hardware/egpu.nix`（驱动、授权与 wrapper）、`home/wm/sway/default.nix`（`WLR_DRM_DEVICES`）。
