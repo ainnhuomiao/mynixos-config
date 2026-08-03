@@ -42,6 +42,7 @@
 | 平台         | `x86_64-linux`                            |
 | 主机         | `nixos`                                   |
 | 内核         | CachyOS latest `x86_64-v3`（pinned）      |
+| 显卡         | 雷电显卡坞外接 RTX 3050（PRIME offload）  |
 | 桌面         | Sway + Waybar + Rofi                      |
 | 用户环境     | Home Manager，作为 NixOS 模块集成         |
 | Shell        | Fish + Starship                           |
@@ -87,6 +88,29 @@ flake.nix
 - btop 资源监视
 - 登录 TTY1 后由 Fish 自动启动 Sway
 - 未配置空闲超时自动挂起；手动挂起或休眠前由 `swayidle` 调用模糊截图锁屏
+
+### 雷电显卡坞（外接 RTX 3050）
+
+主机通过 Thunderbolt 4 连接 LT-LINK 显卡坞，外接 RTX 3050 6GB（GA107）。桌面与显示始终由 iGPU 承担，游戏通过 PRIME offload 在 N 卡上渲染，无需额外显示器，支持热切换（坞电源开/关不用重启）。
+
+日常使用：
+
+```bash
+# 玩游戏：打开坞电源，等几秒自动授权、自动绑定驱动
+nvidia-egpu steam            # Steam 启动选项也可填 nvidia-egpu %command%
+
+# 玩完：退出游戏，卸载驱动后再关闭坞电源
+sudo modprobe -r nvidia_drm nvidia_modeset nvidia
+```
+
+要点：
+
+- `services.hardware.bolt` 负责雷电授权，坞已 `enroll --policy auto`，开电即自动授权
+- 全局 EGL 锁定 Mesa + `WLR_DRM_DEVICES=/dev/dri/card0`（wlroots 只探测 iGPU），保证合成器不占用 nvidia 模块，驱动可在游戏结束后干净卸载，断电前 `modprobe -r` 即安全
+- `nvidia-egpu` wrapper 同时覆盖 GL/GLX（PRIME 变量）与 Vulkan（`MESA_VK_DEVICE_SELECT=10de:2584` 强制选卡；595.84 的 `VK_LAYER_NV_optimus` 已不再过滤设备）
+- 驱动 595.84 + open 内核模块；坞通电时请勿合盖挂起
+
+配置位置：`system/hardware/egpu.nix`（驱动、授权与 wrapper）、`home/wm/sway/default.nix`（`WLR_DRM_DEVICES`）。
 
 ### 开发环境
 
