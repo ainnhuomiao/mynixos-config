@@ -20,7 +20,13 @@
       url = "github:nix-community/bun2nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    emanote.url = "github:srid/emanote";
+    emanote = {
+      url = "github:srid/emanote";
+      # emanote 的 Haskell 依赖 fsnotify-0.4.1.0 要求 text < 2.1.2，
+      # 故锁在 nixpkgs-emanote（6b49552），顶层 nixpkgs 可自由更新
+      inputs.nixpkgs.follows = "nixpkgs-emanote";
+    };
+    nixpkgs-emanote.url = "github:nixos/nixpkgs/6b4955211758ba47fac850c040a27f23b9b4008f";
     flake-parts.url = "github:hercules-ci/flake-parts";
     flake-root.url = "github:srid/flake-root";
     flake-registry = {
