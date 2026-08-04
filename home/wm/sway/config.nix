@@ -136,10 +136,6 @@ in
       #-------------------------------------------------------#
       # Sticky floating windows(sticky enable|disable|toggle) #
       #-------------------------------------------------------#
-      for_window [app_id="danmufloat"]                  floating enable
-      for_window [app_id="danmufloat"]                  sticky enable
-      for_window [app_id="danmufloat"]                  resize set height 540
-      for_window [app_id="danmufloat"]                  resize set width 960
       for_window [app_id="ncmpcpp"]                  floating enable
       for_window [app_id="ncmpcpp"]                  sticky enable
       for_window [app_id="ncmpcpp"]                  resize set height 540
@@ -149,7 +145,6 @@ in
       # Program Opacity #
       #-----------------#
       for_window [app_id="telegram"]                    opacity 0.95
-      for_window [app_id="danmufloat"]                  opacity 0.80
 
       #------------------------------------------#
       # Placing software in a specific workspace #
@@ -286,14 +281,13 @@ in
       # bindsym $mod+m exec --no-startup-id              kitty --class="musicfox" --hold sh -c "musicfox"
       bindsym Alt+Shift+s exec --no-startup-id         splayer
       bindsym $mod+Shift+b exec --no-startup-id        firefox
-      bindsym $mod+Shift+d exec kitty --class="danmufloat" --hold sh -c "export TERM=xterm-256color && bili"
       bindsym $mod+Shift+x exec --no-startup-id        ${myswaylock}/bin/myswaylock
       bindsym $mod+Shift+t exec --no-startup-id        Telegram
       bindsym $mod+bracketleft  exec --no-startup-id   grimshot --notify copysave anything ~/Pictures/$(date "+%Y-%m-%d"T"%H_%M_%S").png
       bindsym $mod+bracketright exec --no-startup-id   grimshot --notify copy anything
       bindsym $mod+a exec --no-startup-id              grimshot --notify copysave anything ~/Pictures/$(date "+%Y-%m-%d"T"%H_%M_%S").png
       bindsym Print exec --no-startup-id               flameshot gui
-      bindsym $mod+Shift+q exec --no-startup-id        qq
+      bindsym $mod+Shift+q workspace QQ, exec --no-startup-id qq
       bindsym Alt+Shift+q workspace QQ
       bindsym Alt+Shift+t workspace TG
       bindsym Alt+Shift+w workspace WC
