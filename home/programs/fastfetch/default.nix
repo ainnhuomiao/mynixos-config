@@ -8,7 +8,12 @@ in
     enable = true;
     settings = {
       logo = {
-        type = "none";
+        type = "kitty-direct";
+        source = "${../../../assets/fastfetch-logo.png}";
+        width = 32;
+        padding = {
+          right = 2;
+        };
       };
       display = {
         separator = " ";

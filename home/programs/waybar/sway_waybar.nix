@@ -274,8 +274,7 @@ in
         "custom/wall" = {
           "on-click" = "${sharedScripts.wallpaper_random}/bin/wallpaper_random";
           "on-click-middle" = "${sharedScripts.default_wall}/bin/default_wall";
-          "on-click-right" =
-            "pkill -f '/bin/dynamic_wallpaper' || ${sharedScripts.dynamic_wallpaper}/bin/dynamic_wallpaper &";
+          "on-click-right" = "${sharedScripts.video_wallpaper}/bin/video_wallpaper";
           "format" = " 󰠖 ";
           "tooltip" = false;
         };

@@ -197,6 +197,16 @@ in
     in
     "rgba(${toString r},${toString g},${toString b},${alpha})";
 
+  # hex string → "r,g,b"  (kmscon palette 等十进制 RGB 消费者)
+  toRgb =
+    hex:
+    let
+      r = hexByteToInt (builtins.substring 0 2 hex);
+      g = hexByteToInt (builtins.substring 2 2 hex);
+      b = hexByteToInt (builtins.substring 4 2 hex);
+    in
+    "${toString r},${toString g},${toString b}";
+
   # hex string → "38;2;r;g;b"  (EZA_COLORS, any ANSI true-color consumer)
   toAnsi =
     hex:

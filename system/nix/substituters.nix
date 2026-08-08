@@ -30,7 +30,8 @@
 
   nix.settings = {
     fallback = true;
-    http-connections = 8;
+    http-connections = 16;
+    max-substitution-jobs = 32;
     substituters = [
       "https://ainnhuomiao.qianyuanqing.asia/ainnhuomiao"
       "https://ainnhuomiao.cachix.org"

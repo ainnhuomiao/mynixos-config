@@ -1,6 +1,7 @@
 {
   imports = [
     ./bili_live
+    ./axolotl
     ./bilibili
     ./catppuccin
     ./chrome
@@ -29,6 +30,7 @@
     ./notice
     ./obs-studio
     ./obsidian
+    ./qutebrowser
     ./resource_monitor
     ./search
     ./splayer

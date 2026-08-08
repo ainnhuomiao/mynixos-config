@@ -6,6 +6,7 @@
     ./hardware
     ./nix
     ./programs
+    ./remote.nix
     ./virtualisation.nix
   ];
 }

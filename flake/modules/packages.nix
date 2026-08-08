@@ -17,6 +17,7 @@
     {
       packages = {
         inherit (pkgs)
+          axolotl
           bilibili
           bili_tui
           claude-code

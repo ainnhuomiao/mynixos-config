@@ -113,6 +113,32 @@ nvidia-egpu-off              # 卸载驱动，提示“可安全关闭坞电源�
 
 配置位置：`system/hardware/egpu.nix`（驱动、授权与 wrapper）、`home/wm/sway/default.nix`（`WLR_DRM_DEVICES`）。
 
+### 外出远控（iPad + Moonlight）
+
+在家串流打游戏：**Sunshine**（服务端，KMS 抓屏 + NVENC/QSV 编码）→ **Moonlight**（iPad 客户端）→ **Tailscale**（异地组网，无需公网 IP/端口映射）。
+
+首次使用：
+
+```bash
+# 1. 登录 Tailscale(电脑与 iPad 用同一账号)
+sudo tailscale up
+```
+
+1. iPad App Store 安装 Tailscale 与 Moonlight，同一账号登录 Tailscale
+2. Moonlight 添加电脑，地址填 Tailscale IP（`tailscale ip -4` 查看，形如 100.x.x.x）
+3. 首次配对：iPad 上 Moonlight 显示 4 位 PIN，浏览器打开 `https://<电脑IP>:47990` 输入（可在家提前完成）
+4. 游戏用 `nvidia-egpu steam` 启动；编码器自动选择：坞通电走 NVENC，否则核显 QSV
+
+关键行为：
+
+- 合盖不睡眠不挂起（`services.logind.settings.Login.HandleLidSwitch=ignore`），Sway 无空闲超时，屏幕保持 active，KMS 抓屏不中断
+- dae 放行 `pname(tailscaled) -> direct`，Tailscale 控制面/DERP/打洞不经过代理
+- 防火墙已开 Sunshine 端口（47984-48010）供 Tailscale/局域网直连
+- 家宽上行带宽决定画质（1080p60 约需 10-20 Mbps）；P2P 打洞失败时走 DERP 中继，延迟会明显升高
+- 建议配蓝牙手柄；Moonlight 自带触屏虚拟手柄可应急
+
+配置位置：`system/remote.nix`（Sunshine / Tailscale / logind 合盖）、`system/dae.dae`（tailscaled 直连规则）。
+
 ### 开发环境
 
 Home Manager 配置包含：
@@ -237,18 +263,20 @@ journalctl -u selector4nix -f
 壁纸直接存放在：
 
 ```text
-assets/wallpapers/
+assets/wallpapers/   # 静态壁纸（.png/.jpg/.jpeg/.webp）
+assets/videos/       # 视频壁纸（.mp4/.webm/.mkv/.mov）
 ```
 
-默认壁纸必须为 `assets/wallpapers/default.png`。随机选择会递归识别 `.png`、`.jpg`、`.jpeg` 和 `.webp`。
+默认壁纸必须为 `assets/wallpapers/default.png`。随机选择会递归识别 `assets/wallpapers/` 下的图片。
 
-壁纸由 `awww-daemon` 管理：
+静态壁纸由 `awww-daemon` 管理：
 
 - `Mod + Shift + w`：随机切换一次
 - `Mod + Ctrl + w`：每 120 秒随机切换
 - `Mod + Ctrl + Shift + w`：停止轮换并恢复默认壁纸
+- `Mod + Ctrl + v`：视频/静态壁纸切换（mpvpaper 随机播放 `assets/videos/` 中的视频，单个视频循环不自动切换；`Mod + Ctrl + Shift + v` 手动切下一个，到末尾后绕回第一个；视频模式下自动关闭 swayfx blur 保证画面清晰，退出恢复）
 
-Waybar 壁纸按钮也支持左键随机、右键启动/停止轮换、中键恢复默认壁纸。恢复休眠后，用户服务会重新应用默认壁纸。
+Waybar 壁纸按钮：左键随机、右键视频/静态切换、中键恢复默认壁纸。恢复休眠后，用户服务会重新应用默认壁纸（视频壁纸先暂停再恢复播放）。
 
 新增或替换仓库内壁纸后需要重建系统，使资源进入新的 Nix store 路径：
 

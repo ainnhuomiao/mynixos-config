@@ -66,6 +66,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     selector4nix.url = "github:StarryReverie/selector4nix";
+    swayfx = {
+      url = "github:WillPower3309/swayfx/0.6";
+      # 0.6 起才有 animation_duration_ms(窗口开合动画),nixpkgs 仍钉 0.5.3
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     treefmt-nix.url = "github:numtide/treefmt-nix";
     zen-browser = {
       url = "git+https://github.com/youwen5/zen-browser-flake";
@@ -75,7 +80,7 @@
 
   nixConfig = {
     fallback = true;
-    http-connections = 8;
+    http-connections = 16;
     extra-substituters = [
       "https://ainnhuomiao.qianyuanqing.asia/ainnhuomiao"
       "https://ainnhuomiao.cachix.org"

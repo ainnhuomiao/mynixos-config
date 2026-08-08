@@ -44,6 +44,7 @@ group {
 routing {
   pname(mihomo) -> direct(must)
   pname(NetworkManager) -> direct
+  pname(tailscaled) -> direct # 外出远控模块(system/remote.nix):Tailscale 控制面/DERP/打洞全部直连,否则走代理无法 P2P
   dip(224.0.0.0/3, "ff00::/8", geoip:private) -> direct
 
   domain(full: auto.c3pool.org) -> mining

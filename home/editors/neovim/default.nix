@@ -1,98 +1,121 @@
 { pkgs, ... }:
 let
-  lazyvim-init = ''
-    -- bootstrap lazy.nvim, LazyVim and your plugins
-    require("config.lazy")
-  '';
+  nvim-init = ''
+    -- AstroNvim v6 + catppuccin Frappé
+    -- 首次启动时克隆 lazy.nvim 并安装 AstroNvim 及全部插件（与官方 README 的最小引导一致）
+    local lazypath = vim.env.LAZY or vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
 
-  lazyvim-lazy = ''
-    local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-    if not (vim.uv or vim.loop).fs_stat(lazypath) then
-      local repo = "https://github.com/folke/lazy.nvim.git"
-      vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", repo, lazypath })
+    if not (vim.env.LAZY or (vim.uv or vim.loop).fs_stat(lazypath)) then
+      -- stylua: ignore
+      vim.fn.system({ "git", "clone", "--filter=blob:none", "https://github.com/folke/lazy.nvim.git", "--branch=stable", lazypath })
     end
+
     vim.opt.rtp:prepend(lazypath)
 
+    require "lazy_setup"
+  '';
+
+  lazy-setup = ''
     require("lazy").setup({
-      spec = {
-        { "LazyVim/LazyVim", import = "lazyvim.plugins" },
-        { import = "plugins" },
+      {
+        "AstroNvim/AstroNvim",
+        version = "^6", -- 锁定 v6 大版本，移除则用 nightly
+        import = "astronvim.plugins",
+        opts = { -- AstroNvim 选项必须在 lazy.setup 前设置
+          mapleader = " ",
+          maplocalleader = " ",
+        },
       },
-      defaults = {
-        lazy = true,
-        version = "*",
-      },
-      install = { colorscheme = { "tokyonight", "catppuccin" } },
-      checker = { enabled = true },
-    })
-  '';
-
-  lazyvim-options = ''
-    vim.g.mapleader = " "
-    vim.g.maplocalleader = " "
-
-    vim.opt.clipboard = "unnamedplus"
-    vim.opt.mouse = "a"
-    vim.opt.number = true
-    vim.opt.relativenumber = true
-    vim.opt.cursorline = true
-    vim.opt.expandtab = true
-    vim.opt.shiftwidth = 2
-    vim.opt.tabstop = 2
-    vim.opt.softtabstop = 2
-    vim.opt.smartindent = true
-    vim.opt.wrap = false
-    vim.opt.swapfile = false
-    vim.opt.backup = false
-    vim.opt.undofile = true
-    vim.opt.undodir = vim.fn.stdpath("data") .. "/undo"
-    vim.opt.hlsearch = false
-    vim.opt.incsearch = true
-    vim.opt.termguicolors = true
-    vim.opt.scrolloff = 8
-    vim.opt.signcolumn = "yes"
-    vim.opt.updatetime = 50
-    vim.opt.timeoutlen = 300
-    vim.opt.splitright = true
-    vim.opt.splitbelow = true
-    vim.opt.inccommand = "split"
-
-    vim.filetype.add({
-      pattern = {
-        [".*nix/.*%.nix"] = "nix",
+      { import = "plugins" }, -- 用户插件: lua/plugins/*.lua
+    }, {
+      install = { colorscheme = { "astrotheme", "habamax" } },
+      performance = {
+        rtp = {
+          disabled_plugins = { "gzip", "netrwPlugin", "tarPlugin", "tohtml", "zipPlugin" },
+        },
       },
     })
   '';
 
-  lazyvim-keymaps = ''
-    vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
-
-    -- move lines
-    vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
-    vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
-
-    -- keep cursor centered
-    vim.keymap.set("n", "<C-d>", "<C-d>zz")
-    vim.keymap.set("n", "<C-u>", "<C-u>zz")
-    vim.keymap.set("n", "n", "nzzzv")
-    vim.keymap.set("n", "N", "Nzzzv")
-
-    -- better paste
-    vim.keymap.set("x", "<leader>p", '"_dP')
-  '';
-
-  nix-plugin = ''
+  astrocore = ''
     return {
-      "LazyVim/LazyVim",
+      "AstroNvim/astrocore",
+      ---@type AstroCoreOpts
       opts = {
-        colorscheme = "catppuccin",
+        filetypes = {
+          pattern = {
+            [".*nix/.*%.nix"] = "nix",
+          },
+        },
+        options = {
+          opt = {
+            clipboard = "unnamedplus",
+            mouse = "a",
+            number = true,
+            relativenumber = true,
+            cursorline = true,
+            expandtab = true,
+            shiftwidth = 2,
+            tabstop = 2,
+            softtabstop = 2,
+            smartindent = true,
+            wrap = false,
+            swapfile = false,
+            backup = false,
+            undofile = true,
+            hlsearch = false,
+            incsearch = true,
+            scrolloff = 8,
+            signcolumn = "yes",
+            updatetime = 50,
+            timeoutlen = 300,
+            splitright = true,
+            splitbelow = true,
+            inccommand = "split",
+          },
+        },
+        mappings = {
+          n = {
+            ["<Esc>"] = { "<cmd>nohlsearch<CR>", desc = "Clear search highlight" },
+            ["<C-d>"] = { "<C-d>zz", desc = "Half page down, centered" },
+            ["<C-u>"] = { "<C-u>zz", desc = "Half page up, centered" },
+            ["n"] = { "nzzzv", desc = "Next match, centered" },
+            ["N"] = { "Nzzzv", desc = "Prev match, centered" },
+          },
+          v = {
+            ["J"] = { ":m '>+1<CR>gv=gv", desc = "Move selection down" },
+            ["K"] = { ":m '<-2<CR>gv=gv", desc = "Move selection up" },
+          },
+          x = {
+            ["<leader>p"] = { '"_dP', desc = "Paste over without clobbering register" },
+          },
+        },
       },
     }
   '';
 
-  colorscheme-plugin = ''
+  catppuccin-plugin = ''
     return {
-      { "catppuccin/nvim", name = "catppuccin", priority = 1000 },
+      {
+        "catppuccin/nvim",
+        name = "catppuccin",
+        priority = 1000, -- 先于 astroui 加载
+        opts = {
+          flavour = "frappe",
+        },
+        -- 插件加载后立即强制应用。用 "catppuccin-frappe" 而非 "catppuccin"：
+        -- nvim 0.12 内置同名 catppuccin.vim(mocha) 会抢先应用，且 nvim 对同名 colorscheme 跳过重载
+        config = function(_, opts)
+          require("catppuccin").setup(opts)
+          vim.cmd.colorscheme("catppuccin-frappe")
+        end,
+      },
+      {
+        "AstroNvim/astroui",
+        opts = {
+          colorscheme = "catppuccin-frappe",
+        },
+      },
     }
   '';
 in
@@ -105,12 +128,10 @@ in
   ];
 
   xdg.configFile = {
-    "nvim/init.lua".text = lazyvim-init;
-    "nvim/lua/config/lazy.lua".text = lazyvim-lazy;
-    "nvim/lua/config/options.lua".text = lazyvim-options;
-    "nvim/lua/config/keymaps.lua".text = lazyvim-keymaps;
-    "nvim/lua/plugins/colorscheme.lua".text = colorscheme-plugin;
-    "nvim/lua/plugins/nix.lua".text = nix-plugin;
+    "nvim/init.lua".text = nvim-init;
+    "nvim/lua/lazy_setup.lua".text = lazy-setup;
+    "nvim/lua/plugins/astrocore.lua".text = astrocore;
+    "nvim/lua/plugins/catppuccin.lua".text = catppuccin-plugin;
   };
 
   programs.fish.shellAliases = {

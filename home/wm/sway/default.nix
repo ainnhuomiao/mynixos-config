@@ -19,6 +19,8 @@ in
     sharedScripts.wallpaper_random
     sharedScripts.dynamic_wallpaper
     sharedScripts.default_wall
+    sharedScripts.video_wallpaper
+    sharedScripts.video_wallpaper_next
   ]
   ++ (with pkgs; [
     swaylock

@@ -56,6 +56,8 @@ in
       blur_radius 5
       blur_passes 3
       blur_noise 0.01
+      # 窗口打开/关闭动画(0-5000ms,swayfx 特有)
+      animation_duration_ms 250
 
       #---------------#
       # waybar toggle #
@@ -161,6 +163,8 @@ in
       for_window [app_id="com.github.th_ch.youtube_music"] focus
       for_window [app_id="firefox"] move --no-auto-back-and-forth container to workspace Ff
       for_window [app_id="firefox"] focus
+      for_window [app_id="org.qutebrowser.qutebrowser"] move --no-auto-back-and-forth container to workspace Qb
+      for_window [app_id="org.qutebrowser.qutebrowser"] focus
       for_window [app_id="QQ"] move --no-auto-back-and-forth container to workspace QQ
       for_window [app_id="QQ"] focus
       for_window [app_id="(?i)^vesktop$"] move --no-auto-back-and-forth container to workspace VT
@@ -281,6 +285,7 @@ in
       # bindsym $mod+m exec --no-startup-id              kitty --class="musicfox" --hold sh -c "musicfox"
       bindsym Alt+Shift+s exec --no-startup-id         splayer
       bindsym $mod+Shift+b exec --no-startup-id        firefox
+      bindsym $mod+Shift+y exec --no-startup-id        qutebrowser
       bindsym $mod+Shift+x exec --no-startup-id        ${myswaylock}/bin/myswaylock
       bindsym $mod+Shift+t exec --no-startup-id        Telegram
       bindsym $mod+bracketleft  exec --no-startup-id   grimshot --notify copysave anything ~/Pictures/$(date "+%Y-%m-%d"T"%H_%M_%S").png
@@ -292,11 +297,14 @@ in
       bindsym Alt+Shift+t workspace TG
       bindsym Alt+Shift+w workspace WC
       bindsym Alt+Shift+b workspace Ff
+      bindsym Alt+Shift+y workspace Qb
 
       # wallpaper
       bindsym $mod+Shift+w exec --no-startup-id        wallpaper_random
       bindsym $mod+Ctrl+w exec --no-startup-id         dynamic_wallpaper
       bindsym $mod+Ctrl+Shift+w exec --no-startup-id   default_wall
+      bindsym $mod+Ctrl+v exec --no-startup-id         video_wallpaper
+      bindsym $mod+Ctrl+Shift+v exec --no-startup-id   video_wallpaper_next
 
 
       # Kill focused window
