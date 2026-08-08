@@ -36,6 +36,7 @@
           obsidian
           oh-my-pi-zh
           qq
+          swayfx
           thunderbird-bin
           vscode
           wechat
