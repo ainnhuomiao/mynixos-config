@@ -45,6 +45,8 @@ jobs:
             --accept-flake-config \
             .#bilibili \
             .#bili_tui \
+            .#caelestia-cli \
+            .#caelestia-shell \
             .#claude-code \
             .#discord \
             .#element-desktop \
@@ -62,6 +64,7 @@ jobs:
             .#oh-my-pi-zh \
             .#qq \
             .#swayfx \
+            .#steam \
             .#thunderbird-bin \
             .#vscode \
             .#wechat \

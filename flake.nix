@@ -20,6 +20,18 @@
       url = "github:nix-community/bun2nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    caelestia-shell = {
+      # 本地汉化副本已推送到 GitHub (ainnhuomiao/caelestia-shell-zh):
+      # hdcy/Caelestia_Shell_zh_CN 字典(647/659 词条) + 12 汉化补丁 + 2 bug 修复
+      # 上游 rev 817a220。重新生成: rm -rf caelestia-shell-zh && python3 ~/hanhua_drive.py
+      # (脚本会复制上游 -> 汉化 -> git 提交; 之后 git push + nix flake lock --update-input caelestia-shell)
+      url = "github:ainnhuomiao/caelestia-shell-zh";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    caelestia-cli = {
+      url = "github:caelestia-dots/cli";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     emanote = {
       url = "github:srid/emanote";
       # emanote 的 Haskell 依赖 fsnotify-0.4.1.0 要求 text < 2.1.2，

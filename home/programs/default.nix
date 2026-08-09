@@ -41,5 +41,6 @@
     ./zathura
     ./zen
     ./zoxide
+    ./xresources
   ];
 }

@@ -70,9 +70,10 @@ in
   # 由 console.colors 生成 vt.default_red/grn/blu 内核参数
   console.colors = ttyPalette;
 
-  # tty1 保留 getty（sway autologin 走它），kmscon 接管 VTs 2–6
+  # ly 登录管理器(tty1)选择 sway / Hyprland, 不再需要 getty autologin;
+  # kmscon 接管 VTs 2–6(中文 TTY)
   systemd.suppressedSystemUnits = lib.mkForce [ ];
-  systemd.targets.getty.wants = lib.mkForce [ "getty@tty1.service" ];
+  systemd.targets.getty.wants = lib.mkForce [ ];
 
   system.stateVersion = "26.05";
 }

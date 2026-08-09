@@ -3,6 +3,7 @@
   inputs,
   appearance,
   config,
+  lib,
   ...
 }:
 let
@@ -415,10 +416,20 @@ in
         "pipewire-pulse.service"
         "theme-init.service"
       ];
+      # hm 模块默认挂 tray.target (Hyprland 0.56 支持 StatusNotifier tray,
+      # 会激活 tray.target 并把 waybar 拉进 Hyprland 会话)。waybar 只属于 sway。
+      PartOf = lib.mkForce [ "sway-session.target" ];
     };
     Service = {
       Environment = [ "GDK_BACKEND=wayland" ];
       RestartSec = 2;
+      # hm 模块默认 Restart=on-failure + ConditionEnvironment=WAYLAND_DISPLAY:
+      # 会话结束时 waybar 随 wayland 断连崩溃, 而 user manager 里 WAYLAND_DISPLAY
+      # 是陈旧的 (dbus-update-activation-environment 残留) → 重启会成功连上
+      # Hyprland 会话 (2026-08-09 实测 waybar 泄漏进 Hyprland 驻留 21 分钟)。
+      # Restart=no: 会话结束时安静退出, 下次 sway-session.target 启动时全新拉起。
+      Restart = lib.mkForce "no";
     };
+    Install.WantedBy = lib.mkForce [ "sway-session.target" ];
   };
 }

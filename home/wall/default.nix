@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 let
   wallpaperDirectory = ../../assets/wallpapers;
   sharedScripts = import ../programs/waybar/share_scripts.nix { inherit pkgs; };
@@ -13,16 +13,20 @@ in
     swww = {
       Unit = {
         Description = "Efficient animated wallpaper daemon for wayland";
-        PartOf = [ "graphical-session.target" ];
+        # 壁纸服务只属于 sway 会话: graphical-session.target 常驻不停止,
+        # Hyprland 会话(hyprpaper 后端)会把 awww/mpvpaper 一并拉起,
+        # 与 hyprpaper 抢 layer-shell 背景层。模式同 waybar/swayidle。
+        PartOf = lib.mkForce [ "sway-session.target" ];
         After = [ "graphical-session.target" ];
       };
-      Install.WantedBy = [ "graphical-session.target" ];
+      Install.WantedBy = lib.mkForce [ "sway-session.target" ];
       Service = {
         Type = "simple";
         ExecStart = "${pkgs.awww}/bin/awww-daemon";
         ExecStop = "${pkgs.awww}/bin/awww kill";
-        Restart = "always";
-        RestartSec = 3;
+        # 同 swayidle: awww 是 wayland 客户端, 会话结束时随断连退出,
+        # Restart=always 会风暴重启并可能游离进 Hyprland 会话抢背景层。
+        Restart = "no";
       };
     };
 
@@ -30,7 +34,7 @@ in
     video-wall = {
       Unit = {
         Description = "mpvpaper video wallpaper";
-        PartOf = [ "graphical-session.target" ];
+        PartOf = lib.mkForce [ "sway-session.target" ];
         After = [ "graphical-session.target" ];
       };
       Service = {
@@ -44,10 +48,10 @@ in
     video-wall-resume = {
       Unit = {
         Description = "Pause/resume mpvpaper around suspend";
-        PartOf = [ "graphical-session.target" ];
+        PartOf = lib.mkForce [ "sway-session.target" ];
         After = [ "graphical-session.target" ];
       };
-      Install.WantedBy = [ "graphical-session.target" ];
+      Install.WantedBy = lib.mkForce [ "sway-session.target" ];
       Service = {
         Type = "simple";
         ExecStart = pkgs.writeShellScript "video-wall-resume" ''
@@ -83,9 +87,10 @@ in
     swww-resume-fix = {
       Unit = {
         Description = "Fix swww wallpaper after resume";
+        PartOf = lib.mkForce [ "sway-session.target" ];
         After = [ "graphical-session.target" ];
       };
-      Install.WantedBy = [ "graphical-session.target" ];
+      Install.WantedBy = lib.mkForce [ "sway-session.target" ];
       Service = {
         Type = "simple";
         ExecStart = pkgs.writeShellScript "swww-resume-fix" ''

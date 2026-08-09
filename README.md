@@ -35,24 +35,24 @@
 
 ## 配置概览
 
-| 项目         | 当前配置                                  |
-| ------------ | ----------------------------------------- |
-| Flake        | `flake-parts`                             |
-| Nixpkgs      | `nixos-unstable-small`                    |
-| 平台         | `x86_64-linux`                            |
-| 主机         | `nixos`                                   |
-| 内核         | CachyOS latest `x86_64-v3`（pinned）      |
-| 显卡         | 雷电显卡坞外接 RTX 3050（PRIME offload）  |
-| 桌面         | Sway + Waybar + Rofi                      |
-| 用户环境     | Home Manager，作为 NixOS 模块集成         |
-| Shell        | Fish + Starship                           |
-| 音频         | PipeWire（ALSA、PulseAudio、JACK）        |
-| 网络         | NetworkManager + dae eBPF + Mihomo SOCKS  |
-| 二进制缓存   | selector4nix 代理 + USTC 镜像（备用）     |
-| 引导         | GRUB EFI；可选 Lanzaboote，当前主机未启用 |
-| 文件系统     | Btrfs 子卷 + 独立 EFI 分区 + Swap         |
-| 容器         | Docker + Distrobox + Flatpak              |
-| 系统状态版本 | NixOS `26.05`，Home Manager `25.11`       |
+| 项目         | 当前配置                                                             |
+| ------------ | -------------------------------------------------------------------- |
+| Flake        | `flake-parts`                                                        |
+| Nixpkgs      | `nixos-unstable-small`                                               |
+| 平台         | `x86_64-linux`                                                       |
+| 主机         | `nixos`                                                              |
+| 内核         | CachyOS latest `x86_64-v3`（pinned）                                 |
+| 显卡         | 雷电显卡坞外接 RTX 3050（PRIME offload）                             |
+| 桌面         | swayfx + Hyprland 双 WM（ly 登录选择）                               |
+| 用户环境     | Home Manager，作为 NixOS 模块集成                                    |
+| Shell        | Fish + Starship                                                      |
+| 音频         | PipeWire（ALSA、PulseAudio、JACK）                                   |
+| 网络         | NetworkManager + dae eBPF + Mihomo SOCKS                             |
+| 二进制缓存   | GitHub Actions → Attic（VPS）+ selector4nix 代理 + USTC 镜像（备用） |
+| 引导         | GRUB EFI；可选 Lanzaboote，当前主机未启用                            |
+| 文件系统     | Btrfs 子卷 + 独立 EFI 分区 + Swap                                    |
+| 容器         | Docker + Distrobox + Flatpak                                         |
+| 系统状态版本 | NixOS `26.05`，Home Manager `25.11`                                  |
 
 当前配置入口为：
 
@@ -71,12 +71,17 @@ flake.nix
 
 当前主机使用 [`xddxdd/nix-cachyos-kernel`](https://github.com/xddxdd/nix-cachyos-kernel) `release` 分支提供的 CachyOS 内核。`hosts/default.nix` 注入 `overlays.pinned`，`hosts/nixos/default.nix` 选择 `linuxPackages-cachyos-latest-x86_64-v3`；这与上游 Hydra 的构建环境保持一致，可命中 `https://attic.xuyh0120.win/lantian` 二进制缓存，避免本机编译内核。
 
-当前 `flake.lock` 对应的运行内核为 `7.1.5-cachyos`。更新 input 后版本会随 `release` 分支变化；不要让 `nix-cachyos-kernel.inputs.nixpkgs` 跟随本仓库的 `nixpkgs`，否则可能造成补丁版本不匹配或缓存未命中。切换内核配置后必须重启，运行中的版本可用 `uname -r` 检查。
+当前 `flake.lock` 对应的运行内核为 `7.1.6-cachyos`。更新 input 后版本会随 `release` 分支变化；不要让 `nix-cachyos-kernel.inputs.nixpkgs` 跟随本仓库的 `nixpkgs`，否则可能造成补丁版本不匹配或缓存未命中。切换内核配置后必须重启，运行中的版本可用 `uname -r` 检查。
 
 ### 桌面与日常应用
 
-- Sway Wayland 平铺窗口管理器（swayfx，支持毛玻璃背景模糊），`Mod` 为 `Super`
-- Waybar 状态栏、Rofi 启动器、剪贴板菜单和电源菜单
+双 WM 平行会话，登录管理器 **ly** 在 TTY1 选择启动哪个（会话 wrapper 经 login shell 加载 Home Manager 环境变量）：
+
+- **swayfx**（wlroots，支持毛玻璃模糊与窗口动画，`Mod` 为 `Super`）：Waybar、Rofi、Mako 通知
+- **Hyprland 0.56+**（Lua 配置）：[`caelestia-shell`](https://github.com/caelestia-dots/shell) 桌面 shell（替代 waybar/mako，含启动器/控制中心/锁屏）
+
+两套 WM 键位对齐（Hyprland 为 106 条 Lua 绑定 + caelestia 全局快捷键）；sway 专属服务（waybar/swayidle/壁纸）通过 `sway-session.target` 隔离，不会串入 Hyprland 会话。
+
 - Kitty、Firefox、Zen Browser、Google Chrome、Microsoft Edge
 - 聊天：Telegram、QQ、Vesktop、WeChat、Discord、Feishu、腾讯会议、Element
 - Flameshot、Grimshot、Satty、wf-recorder、Kooha、OBS Studio、Kdenlive
@@ -86,8 +91,8 @@ flake.nix
 - Fcitx5 + Rime + 中文扩展词库，左 `Ctrl` + 左 `Shift` 切换输入法
 - PipeWire、Blueman、NetworkManager Applet、XDG Desktop Portal、Mako 通知
 - btop 资源监视
-- 登录 TTY1 后由 Fish 自动启动 Sway
-- 未配置空闲超时自动挂起；手动挂起或休眠前由 `swayidle` 调用模糊截图锁屏
+- ly 登录管理器（TTY1 选择 sway / Hyprland，kmscon 接管其他虚拟终端显示中文）
+- 锁屏与待机：sway 会话由 `swayidle` 在挂起前调用模糊截图 swaylock；Hyprland 会话由 `swayidle` 在空闲 600 秒或挂起前调用 `caelestia shell lock lock`（两会话各一个 idle 管理器，互不干扰）
 
 ### 雷电显卡坞（外接 RTX 3050）
 
@@ -269,7 +274,7 @@ assets/videos/       # 视频壁纸（.mp4/.webm/.mkv/.mov）
 
 默认壁纸必须为 `assets/wallpapers/default.png`。随机选择会递归识别 `assets/wallpapers/` 下的图片。
 
-静态壁纸由 `awww-daemon` 管理：
+静态壁纸由 `awww-daemon` 管理（sway 会话；Hyprland 会话使用 hyprpaper，`Mod + Shift + W` 随机壁纸）：
 
 - `Mod + Shift + w`：随机切换一次
 - `Mod + Ctrl + w`：每 120 秒随机切换
@@ -299,11 +304,13 @@ just rebuild-switch
 
 `pkgs/` 中的本地包：
 
+- `axolotl`
 - `bili_tui`
 - `bun_1_3_14`
 - `fcitx5-pinyin-moegirl`
 - `fcitx5-pinyin-zhwiki`
 - `flake-stats-mcp`
+- `nordic`
 - `oh-my-pi-zh`
 
 `overlays/` 当前包含：
@@ -311,21 +318,29 @@ just rebuild-switch
 - `motrix-next`：固定为 `3.9.6`，并修复其 sidecar 在 NixOS 上的动态链接
 - `mcp-nixos`：禁用一个会误判普通源码内容的上游测试
 
-Flake 对外提供以下包：
+Flake 对外提供 27 个包（`packages.x86_64-linux.*`）：
 
 ```text
-packages.x86_64-linux.bili_tui
-packages.x86_64-linux.flake-stats-mcp
-packages.x86_64-linux.mcp-nixos
-packages.x86_64-linux.motrix-next
-packages.x86_64-linux.oh-my-pi-zh
+axolotl             bili_tui            bilibili
+caelestia-cli       caelestia-shell     claude-code
+discord             element-desktop     fcitx5-pinyin-moegirl
+fcitx5-pinyin-zhwiki feishu              flake-stats-mcp
+github-copilot-cli  google-chrome       mcp-nixos
+microsoft-edge      motrix-next         nordic
+obsidian            oh-my-pi-zh         qq
+steam               swayfx              thunderbird-bin
+vscode              wechat              wemeet
+zen-browser
 ```
+
+其中 `caelestia-shell` 来自仓库自维护的汉化副本 [`ainnhuomiao/caelestia-shell-zh`](https://github.com/ainnhuomiao/caelestia-shell-zh)（上游 817a220 + hdcy 字典/补丁），`zen-browser` 来自 `zen-browser-flake`，其余为 nixpkgs 包。这 27 个包全部由 GitHub Actions 构建并推送到自建 Attic 缓存（见下文“CI 与更新流程”）。
 
 例如：
 
 ```bash
 nix build .#oh-my-pi-zh
 nix build .#mcp-nixos
+nix build .#caelestia-shell
 ```
 
 ## 目录结构
@@ -342,8 +357,8 @@ nix build .#mcp-nixos
 │   ├── programs/            # 桌面和命令行应用(含 catppuccin/ 主题切换)
 │   ├── shell/               # Fish、Starship 与 Shell 工具
 │   ├── terminals/           # 终端配置
-│   ├── wall/                # awww 壁纸服务
-│   └── wm/sway/             # Sway 配置与快捷键
+│   ├── wall/                # awww/mpvpaper 壁纸服务
+│   └── wm/                  # swayfx 与 hyprland 两套 WM 配置
 ├── hosts/                   # NixOS 主机定义
 │   └── nixos/               # 当前物理机配置
 ├── lib/
@@ -401,9 +416,39 @@ just build
 > [!WARNING]
 > `just clean` 会不可逆地删除旧 generations 与 gcroots（含 `result` 链接和 direnv gcroots），之后无法回滚到这些版本。
 
+## CI 缓存与更新流程
+
+推送到 `main` 后，GitHub Actions（`.github/workflows/nix.yml`）会构建上述 27 个 flake 包并推送到自建 Attic 缓存（`ainnhuomiao.qianyuanqing.asia`），工作站重建时优先命中缓存。因此**更新依赖后必须推送 `flake.lock`**，CI 才会为新路径重新构建。
+
+### 日常更新（配置 / nixpkgs）
+
+```bash
+just update          # 升级所有 flake inputs（含 nixpkgs）
+just rebuild-switch  # 检查、格式化、构建并切换
+# 本地验证无误后推 main，CI 自动构建 27 个包进 Attic
+```
+
+### 上游 caelestia-shell 更新（重新汉化）
+
+汉化副本仓库为 [`ainnhuomiao/caelestia-shell-zh`](https://github.com/ainnhuomiao/caelestia-shell-zh)，由 `~/hanhua_drive.py` 生成（脚本会自动 git 提交并推送）。
+
+```bash
+# 1. 更新上游副本 ~/caelestia-shell-src 到新版本
+# 2. 重新生成汉化并推送（脚本自动完成 git init → 提交 → 绑定 origin → push）
+rm -rf ~/caelestia-shell-zh && python3 ~/hanhua_drive.py
+# 3. 本仓库输入指向新的汉化 commit
+nix flake lock --update-input caelestia-shell
+# 4. 验证并切换
+just rebuild-switch
+# 5. 推 main → CI 构建新汉化版进 Attic
+```
+
+> [!WARNING]
+> 顺序铁律：**先推汉化仓库，再推本仓库**。CI 按 flake.lock 拉取汉化仓库的指定 commit，若该 commit 尚未推送，构建会失败。
+
 ## 常用 Sway 快捷键
 
-`Mod` 为 `Super`。
+`Mod` 为 `Super`。Hyprland 会话的键位与 sway 对齐（106 条 Lua 绑定），caelestia 全局快捷键（如 `Mod + Space` 启动器）由 Hyprland 绑定并需 release 触发。
 
 ### 启动与系统
 

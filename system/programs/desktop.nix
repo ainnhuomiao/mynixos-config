@@ -19,10 +19,17 @@
   security.pam.services.swaylock = { };
   xdg.portal = {
     enable = true;
-    config.sway = {
-      default = [ "gtk" ];
-      "org.freedesktop.impl.portal.ScreenCast" = [ "wlr" ];
-      "org.freedesktop.impl.portal.Screenshot" = [ "wlr" ];
+    config = {
+      sway = {
+        default = [ "gtk" ];
+        "org.freedesktop.impl.portal.ScreenCast" = [ "wlr" ];
+        "org.freedesktop.impl.portal.Screenshot" = [ "wlr" ];
+      };
+      hyprland = {
+        default = [ "gtk" ];
+        "org.freedesktop.impl.portal.ScreenCast" = [ "hyprland" ];
+        "org.freedesktop.impl.portal.Screenshot" = [ "hyprland" ];
+      };
     };
     wlr = {
       enable = true;
@@ -31,6 +38,7 @@
     configPackages = [ pkgs.gnome-session ];
     extraPortals = [
       pkgs.xdg-desktop-portal-gtk
+      pkgs.xdg-desktop-portal-hyprland
     ];
   };
 
@@ -60,13 +68,14 @@
       s-search
       gparted
       brightnessctl
+      # XWayland 高清渲染 (Xft.dpi 加载工具)
+      xorg.xrdb
     ];
     variables.NIXOS_OZONE_WL = "1";
   };
 
   services = {
     dbus.packages = [ pkgs.gcr ];
-    getty.autologinUser = me.userName;
     pipewire.audio.enable = true;
     gvfs.enable = true;
     pipewire = {
@@ -78,6 +87,7 @@
     };
   };
 
+  # ly 登录管理器已拆分为独立模块 ./ly.nix
   systemd = {
     user.services.polkit-gnome-authentication-agent-1 = {
       description = "polkit-gnome-authentication-agent-1";

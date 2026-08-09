@@ -1,4 +1,9 @@
-{ pkgs, inputs, ... }:
+{
+  pkgs,
+  inputs,
+  lib,
+  ...
+}:
 let
   sharedScripts = import ../../programs/waybar/share_scripts.nix { inherit pkgs; };
 in
@@ -41,6 +46,17 @@ in
 
   systemd.user = {
     targets.sway-session.Unit.Wants = [ "xdg-desktop-autostart.target" ];
+    # swayidle 只属于 sway 会话: hm 模块默认挂 graphical-session.target,
+    # Hyprland 会话激活它会导致双 swayidle (Hyprland 用 exec-once 自己的)
+    services.swayidle = {
+      Unit.PartOf = lib.mkForce [ "sway-session.target" ];
+      Install.WantedBy = lib.mkForce [ "sway-session.target" ];
+      # hm 模块默认 Restart=always: 会话结束时 swayidle 随 wayland 断连以
+      # exit 253 退出, 触发 6 连重启风暴直到 start-limit-hit (每次切换必现),
+      # 若重启落在 Hyprland 会话窗口还会游离进 Hyprland 造成双重锁屏。
+      # Restart=no: 会话结束时安静退出, 下次 sway-session.target 启动时全新拉起。
+      Service.Restart = lib.mkForce "no";
+    };
   };
 
   home = {
@@ -48,7 +64,11 @@ in
       # 只让 wlroots 探测 Intel 卡:不打开 nvidia 的 DRM 节点,
       # 才能保证 nvidia 模块可热卸载(关坞电源前 modprobe -r)
       WLR_DRM_DEVICES = "/dev/dri/card0";
-      QT_SCALE_FACTOR = "1";
+      # auto: 让 Qt 应用感知合成器 scale (1.25), 强制 1 会导致模糊
+      QT_SCALE_FACTOR = "auto";
+      # 无 --ozone-platform 参数的 Electron 应用 (vscode/obsidian/feishu/vesktop)
+      # 在 sway 下也走 Wayland 原生 (XWayland 非整数 scale 模糊)
+      ELECTRON_OZONE_PLATFORM_HINT = "wayland";
       SDL_VIDEODRIVER = "wayland";
       _JAVA_AWT_WM_NONREPARENTING = "1";
       QT_QPA_PLATFORM = "wayland;xcb";

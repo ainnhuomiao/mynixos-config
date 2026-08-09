@@ -37,11 +37,16 @@
           oh-my-pi-zh
           qq
           swayfx
+          steam
           thunderbird-bin
           vscode
           wechat
           wemeet
           ;
+        # caelestia-shell/cli 来自 flake input, nixpkgs 没有, 需一并缓存
+        # (with-cli 与系统 home 配置一致, 闭包含 quickshell/qml-plugin/extras/m3shapes)
+        caelestia-shell = inputs.caelestia-shell.packages.${system}.with-cli;
+        caelestia-cli = inputs.caelestia-cli.packages.${system}.default;
         # zen-browser 来自 flake input，nixpkgs 没有，需一并缓存
         zen-browser = inputs.zen-browser.packages.${system}.default;
       };
