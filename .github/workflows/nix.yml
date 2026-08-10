@@ -62,6 +62,7 @@ jobs:
             .#nordic \
             .#obsidian \
             .#oh-my-pi-zh \
+            .#orca-ide \
             .#qq \
             .#swayfx \
             .#steam \

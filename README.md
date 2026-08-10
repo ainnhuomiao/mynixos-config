@@ -312,13 +312,14 @@ just rebuild-switch
 - `flake-stats-mcp`
 - `nordic`
 - `oh-my-pi-zh`
+- `orca-ide`
 
 `overlays/` 当前包含：
 
 - `motrix-next`：固定为 `3.9.6`，并修复其 sidecar 在 NixOS 上的动态链接
 - `mcp-nixos`：禁用一个会误判普通源码内容的上游测试
 
-Flake 对外提供 27 个包（`packages.x86_64-linux.*`）：
+Flake 对外提供 28 个包（`packages.x86_64-linux.*`）：
 
 ```text
 axolotl             bili_tui            bilibili
@@ -327,13 +328,13 @@ discord             element-desktop     fcitx5-pinyin-moegirl
 fcitx5-pinyin-zhwiki feishu              flake-stats-mcp
 github-copilot-cli  google-chrome       mcp-nixos
 microsoft-edge      motrix-next         nordic
-obsidian            oh-my-pi-zh         qq
-steam               swayfx              thunderbird-bin
+obsidian            oh-my-pi-zh         orca-ide
+qq                  steam               swayfx              thunderbird-bin
 vscode              wechat              wemeet
 zen-browser
 ```
 
-其中 `caelestia-shell` 来自仓库自维护的汉化副本 [`ainnhuomiao/caelestia-shell-zh`](https://github.com/ainnhuomiao/caelestia-shell-zh)（上游 817a220 + hdcy 字典/补丁），`zen-browser` 来自 `zen-browser-flake`，其余为 nixpkgs 包。这 27 个包全部由 GitHub Actions 构建并推送到自建 Attic 缓存（见下文“CI 与更新流程”）。
+其中 `caelestia-shell` 来自仓库自维护的汉化副本 [`ainnhuomiao/caelestia-shell-zh`](https://github.com/ainnhuomiao/caelestia-shell-zh)（上游 817a220 + hdcy 字典/补丁），`zen-browser` 来自 `zen-browser-flake`，其余为 nixpkgs 包。这 28 个包全部由 GitHub Actions 构建并推送到自建 Attic 缓存（见下文“CI 与更新流程”）。
 
 例如：
 

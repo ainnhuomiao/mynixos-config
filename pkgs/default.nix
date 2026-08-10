@@ -13,6 +13,7 @@
       src = inputs.oh-my-pi-src;
       patchSrc = inputs.oh-my-pi-zh-src;
     };
+    orca-ide = final.callPackage ./orca-ide { };
     # swayfx 0.6(窗口开合动画),nixpkgs 仍钉 0.5.3;复用 nixpkgs 的 sway wrapper
     swayfx = prev.sway.override {
       sway-unwrapped = inputs.swayfx.packages.${final.system}.swayfx-unwrapped-git;

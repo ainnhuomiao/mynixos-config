@@ -21,11 +21,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     caelestia-shell = {
-      # 本地汉化副本已推送到 GitHub (ainnhuomiao/caelestia-shell-zh):
-      # hdcy/Caelestia_Shell_zh_CN 字典(647/659 词条) + 12 汉化补丁 + 2 bug 修复
-      # 上游 rev 817a220。重新生成: rm -rf caelestia-shell-zh && python3 ~/hanhua_drive.py
-      # (脚本会复制上游 -> 汉化 -> git 提交; 之后 git push + nix flake lock --update-input caelestia-shell)
-      url = "github:ainnhuomiao/caelestia-shell-zh";
+      # 汉化不打独立仓库: lib/caelestia-zh.nix 对 with-cli 包应用 patches/caelestia-zh_CN.patch
+      # (hdcy/Caelestia_Shell_zh_CN 字典 647/659 词条 + 12 补丁 + 2 bugfix, 基于 rev 817a220)
+      # 上游更新后重新生成: python3 ~/hanhua_drive.py (自动 clone 最新 main -> 生成 patch)
+      url = "github:caelestia-dots/shell";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     caelestia-cli = {

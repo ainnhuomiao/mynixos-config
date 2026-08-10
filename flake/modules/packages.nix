@@ -35,6 +35,7 @@
           nordic
           obsidian
           oh-my-pi-zh
+          orca-ide
           qq
           swayfx
           steam
@@ -45,7 +46,8 @@
           ;
         # caelestia-shell/cli 来自 flake input, nixpkgs 没有, 需一并缓存
         # (with-cli 与系统 home 配置一致, 闭包含 quickshell/qml-plugin/extras/m3shapes)
-        caelestia-shell = inputs.caelestia-shell.packages.${system}.with-cli;
+        # 汉化: 应用 lib/caelestia-zh.nix 的 zh_CN patch (hdcy 字典)
+        caelestia-shell = import ../../lib/caelestia-zh.nix { inherit inputs system; };
         caelestia-cli = inputs.caelestia-cli.packages.${system}.default;
         # zen-browser 来自 flake input，nixpkgs 没有，需一并缓存
         zen-browser = inputs.zen-browser.packages.${system}.default;

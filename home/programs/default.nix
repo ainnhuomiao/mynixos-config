@@ -30,6 +30,7 @@
     ./notice
     ./obs-studio
     ./obsidian
+    ./orca-ide
     ./qutebrowser
     ./resource_monitor
     ./search
