@@ -29,6 +29,7 @@
           flake-stats-mcp
           github-copilot-cli
           google-chrome
+          hmcl
           mcp-nixos
           microsoft-edge
           motrix-next

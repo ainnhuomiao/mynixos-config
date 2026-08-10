@@ -17,6 +17,7 @@
     ./gpg
     ./gtk
     ./helix
+    ./hmcl
     ./im
     ./imgview
     ./kooha
