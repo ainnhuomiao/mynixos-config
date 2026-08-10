@@ -2,7 +2,6 @@
   pkgs,
   inputs,
   appearance,
-  config,
   lib,
   ...
 }:
@@ -20,8 +19,17 @@ in
       targets = [ "sway-session.target" ];
     };
     style = ''
-      /* 当前主题变量(theme-apply 切换时覆盖, theme-init 保证存在) */
-      @import "${config.home.homeDirectory}/.config/catppuccin/current/waybar-colors.css";
+      /* catppuccin ${appearance.catppuccinVariant} (固定主题, 切换: lib/appearance.nix 的 catppuccinVariant) */
+      @define-color wall_bg     ${h cp.bg};
+      @define-color wall_bg_alt ${h cp.color0};
+      @define-color wall_fg     ${h cp.fg};
+      @define-color wall_fg_dim ${h cp.color7};
+      @define-color wall_red    ${h cp.color1};
+      @define-color wall_green  ${h cp.color2};
+      @define-color wall_yellow ${h cp.color3};
+      @define-color wall_blue   ${h cp.color4};
+      @define-color wall_purple ${h cp.color5};
+      @define-color wall_cyan   ${h cp.color6};
 
       * {
         font-family: "${appearance.font.name}";
@@ -110,7 +118,6 @@ in
       #cpu,
       #mpd,
       #custom-wall,
-      #custom-theme,
       #temperature,
       #backlight,
       #pulseaudio,
@@ -218,7 +225,6 @@ in
           "mpd"
           "custom/cava-internal"
           "custom/recgif"
-          "custom/theme"
         ];
         modules-center = [
           "clock"
@@ -233,25 +239,6 @@ in
           "custom/powermenu"
           "tray"
         ];
-        "custom/theme" = {
-          "format" = "{icon} {text}";
-          "format-icons" = {
-            "latte" = "󰾳";
-            "frappe" = "󰾲";
-            "macchiato" = "󰾱";
-            "mocha" = "󰾰";
-          };
-          "return-type" = "json";
-          "exec" = ''
-            s=$(cat ~/.cache/catppuccin-current 2>/dev/null || echo mocha)
-            echo "{\"text\":\"$s\",\"alt\":\"$s\"}"
-          '';
-          "interval" = 60;
-          "signal" = 5;
-          "on-click" = "theme-apply";
-          "on-click-right" = "theme-timer-toggle";
-          "tooltip" = false;
-        };
         "custom/launcher" = {
           "format" = " ";
           "on-click" = "~/.config/rofi/launcher.sh";
@@ -414,7 +401,6 @@ in
       Wants = [ "pipewire-pulse.service" ];
       After = [
         "pipewire-pulse.service"
-        "theme-init.service"
       ];
       # hm 模块默认挂 tray.target (Hyprland 0.56 支持 StatusNotifier tray,
       # 会激活 tray.target 并把 waybar 拉进 Hyprland 会话)。waybar 只属于 sway。

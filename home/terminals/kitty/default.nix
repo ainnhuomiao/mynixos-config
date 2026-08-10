@@ -1,4 +1,4 @@
-{ appearance, config, ... }:
+{ appearance, ... }:
 let
   cp = appearance.catppuccin.${appearance.catppuccinVariant};
   h = appearance.toHex;
@@ -17,9 +17,6 @@ in
       confirm_os_window_close = 0;
       background_opacity = "0.85";
       dynamic_background_opacity = true;
-      allow_remote_control = true;
-      # 固定监听 socket, 供 theme-apply 热改运行中终端颜色
-      listen_on = "unix:$XDG_RUNTIME_DIR/kitty-listen.sock";
     };
     extraConfig = ''
       # catppuccin ${appearance.catppuccinVariant} (切换: lib/appearance.nix 的 catppuccinVariant)
@@ -46,9 +43,6 @@ in
       color13 ${h cp.color13}
       color14 ${h cp.color14}
       color15 ${h cp.color15}
-
-      # 当前主题(theme-apply 切换时覆盖), 缺失时用上面 mocha 默认值
-      include ${config.home.homeDirectory}/.config/catppuccin/current/kitty-colors.conf
     '';
   };
 }

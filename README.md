@@ -291,14 +291,9 @@ just rebuild-switch
 
 ### 主题（Catppuccin）
 
-桌面配色基于 Catppuccin 四主题（Latte / Frappé / Macchiato / Mocha），统一作用于 Kitty 终端、Sway 窗口边框与 Waybar：
+桌面配色固定为 Catppuccin **Mocha**，统一作用于 Kitty 终端、Sway 窗口边框与 Waybar，不随壁纸变化、无运行时切换。锁屏（swaylock）保持 Nord 配色。
 
-- **Waybar 主题按钮（左侧）左键**：顺序切换 Latte → Frappé → Macchiato → Mocha
-- **Waybar 主题按钮右键**：开启/停止每 2 小时自动轮换（重启会话后需重新开启）
-
-切换即时生效：Sway 边框与 Waybar 热更新，运行中的 Kitty 通过远程控制 socket 实时换色。锁屏（swaylock）保持 Nord 配色。
-
-配色定义在 `lib/appearance.nix`（`catppuccin` 四套 16 色），切换逻辑在 `home/programs/catppuccin/`（主题文件生成、`theme-apply` / `theme-timer-toggle` 脚本、2 小时轮换 timer）。
+配色定义在 `lib/appearance.nix`（`catppuccin` 四套 16 色 + `catppuccinVariant` 一行切换，改完重新 `just rebuild-switch` 生效）。
 
 ## 自定义包与 Flake 输出
 

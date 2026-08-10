@@ -1,7 +1,6 @@
 {
   pkgs,
   appearance,
-  config,
   ...
 }:
 let
@@ -211,9 +210,6 @@ in
       client.placeholder      ${h cp.bg} ${h cp.color0} #888888
       client.urgent           ${h cp.color1} ${h cp.color1} #ffffff
       client.background       ${h cp.bg}
-
-      # 当前主题(theme-apply 切换时覆盖), 缺失时用上面 mocha 默认值
-      include ${config.home.homeDirectory}/.config/catppuccin/current/sway-colors.conf
 
       #-----------------------------------#
       # Home row direction keys, like vim #
