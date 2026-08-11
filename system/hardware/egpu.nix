@@ -2,6 +2,21 @@
   pkgs,
   ...
 }:
+let
+  # 防 eGPU 掉线(Xid 79):把 PCIe 链路设备钉在 D0(禁 D3hot/ASPM L1)。
+  # 注意:不能用内核参数 pcie_aspm=off/pcie_port_pm=off —— 实测会阻止 GPU 初始化
+  # (设备配置空间全 FF),只能在运行时设置。
+  egpu-pm-on = pkgs.writeShellScript "egpu-pm-on" ''
+    # 将 $1(DEVPATH,如 /devices/pci0000:00/.../0000:04:00.0)及其所有父级桥
+    # 的 runtime PM 设为 on,并禁用 ASPM 省电
+    d="$1"
+    while [ -n "$d" ] && [ "$d" != "/devices" ] && [ "$d" != "/" ]; do
+      echo on >"/sys$d/power/control" 2>/dev/null || true
+      d="''${d%/*}"
+    done
+    echo performance >/sys/module/pcie_aspm/parameters/policy 2>/dev/null || true
+  '';
+in
 {
   # === 雷电显卡坞:外接 RTX 3050 (GA107),Sway 下 PRIME offload ===
   # 用法:游戏入口直接交给 `nvidia-egpu`(Steam 启动选项 / HMCL Java 路径 / 手动),
@@ -9,6 +24,33 @@
   services = {
     # Thunderbolt 授权守护进程(雷电显卡坞热插拔必需)
     hardware.bolt.enable = true;
+
+    # 拔插坞/GPU 重新枚举时,自动把新设备及其父桥钉在 D0(防 D3hot 唤醒失败掉线)
+    udev.extraRules = ''
+      ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{device}=="0x2584", RUN+="${egpu-pm-on} $env{DEVPATH}"
+      ACTION=="add", SUBSYSTEM=="thunderbolt", KERNEL=="domain*", RUN+="${egpu-pm-on} /devices"
+    '';
+  };
+
+  # 启动后兜底:ASPM 设 performance,TB 链路设备 power/control=on
+  systemd.services.egpu-power-fix = {
+    description = "Pin Thunderbolt eGPU chain to D0 (prevent Xid 79 disconnects)";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "systemd-udevd.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = [
+        (pkgs.writeShellScript "egpu-power-fix" ''
+          set -e
+          ${egpu-pm-on} /devices
+          for d in 0000:00:07.0 0000:03:01.0 0000:03:04.0 0000:04:00.0 0000:04:00.1; do
+            echo on >"/sys/bus/pci/devices/$d/power/control" 2>/dev/null || true
+          done
+          echo on >/sys/bus/thunderbolt/devices/domain0/power/control 2>/dev/null || true
+        '')
+      ];
+    };
   };
 
   services.xserver.videoDrivers = [
