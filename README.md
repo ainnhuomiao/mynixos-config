@@ -98,13 +98,15 @@ flake.nix
 
 主机通过 Thunderbolt 4 连接 LT-LINK 显卡坞，外接 RTX 3050 6GB（GA107）。桌面与显示始终由 iGPU 承担，游戏通过 PRIME offload 在 N 卡上渲染，无需额外显示器，支持热切换（坞电源开/关不用重启）。
 
-日常使用：
+日常使用（游戏入口自动检测，无需手动敲命令）：
+
+- **Steam**：游戏属性 → 启动选项填一次 `nvidia-egpu %command%`
+- **HMCL**（Minecraft）：设置 → Java 路径填 `/run/current-system/sw/bin/nvidia-egpu`，点启动即自动走 eGPU
+- 手动：`nvidia-egpu steam` 亦可
+
+`nvidia-egpu` 自动检测：GPU 健康 → 带 PRIME offload 环境运行；GPU 不可用（未通电/楔死）→ 自动清掉 nvidia 环境变量回退核显，游戏照常能玩（会有通知提示）。
 
 ```bash
-# 玩游戏：打开坞电源
-nvidia-egpu steam            # 自动检查/加载驱动，就绪后启动游戏
-                             # Steam 启动选项也可填 nvidia-egpu %command%
-
 # 玩完：退出游戏
 nvidia-egpu-off              # 卸载驱动，提示“可安全关闭坞电源”后再关电
 ```
@@ -113,7 +115,7 @@ nvidia-egpu-off              # 卸载驱动，提示“可安全关闭坞电源�
 
 - `services.hardware.bolt` 负责雷电授权，坞已 `enroll --policy auto`，开电即自动授权
 - 全局 EGL 锁定 Mesa + `WLR_DRM_DEVICES=/dev/dri/card0`（wlroots 只探测 iGPU），保证合成器不占用 nvidia 模块，驱动可在游戏结束后干净卸载，`nvidia-egpu-off` 卸载成功后再断电即安全
-- `nvidia-egpu` wrapper 同时覆盖 GL/GLX（PRIME 变量）与 Vulkan（`MESA_VK_DEVICE_SELECT=10de:2584` 强制选卡；595.84 的 `VK_LAYER_NV_optimus` 已不再过滤设备），启动前自动检查/加载驱动并打印 GPU 状态
+- `nvidia-egpu` wrapper 同时覆盖 GL/GLX（PRIME 变量）与 Vulkan（`MESA_VK_DEVICE_SELECT=10de:2584` 强制选卡；595.84 的 `VK_LAYER_NV_optimus` 已不再过滤设备），启动前自动检查/加载驱动；GPU 楔死时（`nvidia-smi -L` 仍 exit 0 但打印 “No devices found.”）不会放行坏 GPU
 - 驱动 595.84 + open 内核模块；坞通电时请勿合盖挂起
 
 配置位置：`system/hardware/egpu.nix`（驱动、授权与 wrapper）、`home/wm/sway/default.nix`（`WLR_DRM_DEVICES`）。

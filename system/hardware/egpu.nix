@@ -4,7 +4,8 @@
 }:
 {
   # === 雷电显卡坞:外接 RTX 3050 (GA107),Sway 下 PRIME offload ===
-  # 用法:坞通电后 `nvidia-egpu steam` 渲染,显示器仍走 iGPU
+  # 用法:游戏入口直接交给 `nvidia-egpu`(Steam 启动选项 / HMCL Java 路径 / 手动),
+  # 自动检测:GPU 健康→offload 渲染;不可用→回退核显,显示器仍走 iGPU
   services = {
     # Thunderbolt 授权守护进程(雷电显卡坞热插拔必需)
     hardware.bolt.enable = true;
@@ -32,12 +33,14 @@
   environment.sessionVariables.__EGL_VENDOR_LIBRARY_FILENAMES = "/run/opengl-driver/share/glvnd/egl_vendor.d/50_mesa.json";
 
   environment.systemPackages = with pkgs; [
-    # 游戏用完整 offload wrapper:GL/GLX 走 PRIME 变量,EGL 切回 nvidia vendor,
-    # Vulkan 用 Mesa device-select layer 强制选卡(595.84 的 VK_LAYER_NV_optimus 已不过滤设备);
-    # 启动前自动检查/加载驱动,就绪后才启动游戏
+    # 自动 eGPU 启动器:包住游戏进程,GPU 健康 → 带完整 PRIME offload 环境;
+    # GPU 不可用(未通电/楔死)→ 清掉 nvidia 环境变量回退核显,游戏照常能跑。
+    # 接入口:Steam 启动选项 `nvidia-egpu %command%`、HMCL 的 Java 路径指向本脚本、或手动敲
     (pkgs.writeShellScriptBin "nvidia-egpu" ''
+      # 用法:nvidia-egpu <command...>
       set -euo pipefail
       export PATH="$PATH:/run/current-system/sw/bin"
+      [ $# -gt 0 ] || { echo "usage: nvidia-egpu <command...>" >&2; exit 1; }
       # 坑:nvidia-smi -L 在 GPU 楔死(驱动 full-chip reset 后)时仍 exit 0、只打印
       # "No devices found.",所以必须检查输出以 "GPU " 开头,否则会在坏 GPU 上照常启动游戏
       if ! nvidia-smi -L 2>/dev/null | grep -q '^GPU '; then
@@ -51,17 +54,19 @@
       if nvidia-smi -L 2>/dev/null | grep -q '^GPU '; then
         nvidia-smi -L
         notify-send "eGPU 已就绪" "$(nvidia-smi -L | head -1)" 2>/dev/null || true
+        export __NV_PRIME_RENDER_OFFLOAD=1
+        export __NV_PRIME_RENDER_OFFLOAD_PROVIDER=NVIDIA-G0
+        export __GLX_VENDOR_LIBRARY_NAME=nvidia
+        export __EGL_VENDOR_LIBRARY_FILENAMES=/run/opengl-driver/share/glvnd/egl_vendor.d/10_nvidia.json
+        export MESA_VK_DEVICE_SELECT=10de:2584
+        export MESA_VK_DEVICE_SELECT_FORCE_DEFAULT_DEVICE=true
       else
-        echo "未检测到可用的 RTX 3050:请确认坞电源已开启且已授权(boltctl list);" >&2
-        echo "若坞已通电,多半是 GPU 楔死(可查 journalctl -k | grep NVRM),请关坞电源 10 秒再开" >&2
-        exit 1
+        # eGPU 不可用:必须清掉 nvidia 环境变量再跑,否则游戏会像坏 GPU 时一样建不了 GL 上下文
+        echo "eGPU 不可用($(nvidia-smi -L 2>&1 | head -1)),回退核显渲染: $*" >&2
+        notify-send "eGPU 不可用" "回退核显渲染" 2>/dev/null || true
+        unset __NV_PRIME_RENDER_OFFLOAD __NV_PRIME_RENDER_OFFLOAD_PROVIDER __GLX_VENDOR_LIBRARY_NAME
+        unset __EGL_VENDOR_LIBRARY_FILENAMES MESA_VK_DEVICE_SELECT MESA_VK_DEVICE_SELECT_FORCE_DEFAULT_DEVICE
       fi
-      export __NV_PRIME_RENDER_OFFLOAD=1
-      export __NV_PRIME_RENDER_OFFLOAD_PROVIDER=NVIDIA-G0
-      export __GLX_VENDOR_LIBRARY_NAME=nvidia
-      export __EGL_VENDOR_LIBRARY_FILENAMES=/run/opengl-driver/share/glvnd/egl_vendor.d/10_nvidia.json
-      export MESA_VK_DEVICE_SELECT=10de:2584
-      export MESA_VK_DEVICE_SELECT_FORCE_DEFAULT_DEVICE=true
       exec "$@"
     '')
     # 卸载驱动并验证:成功才提示可安全关闭坞电源
