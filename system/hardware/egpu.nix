@@ -38,19 +38,22 @@
     (pkgs.writeShellScriptBin "nvidia-egpu" ''
       set -euo pipefail
       export PATH="$PATH:/run/current-system/sw/bin"
-      if ! nvidia-smi -L >/dev/null 2>&1; then
+      # 坑:nvidia-smi -L 在 GPU 楔死(驱动 full-chip reset 后)时仍 exit 0、只打印
+      # "No devices found.",所以必须检查输出以 "GPU " 开头,否则会在坏 GPU 上照常启动游戏
+      if ! nvidia-smi -L 2>/dev/null | grep -q '^GPU '; then
         echo "NVIDIA 驱动未加载,尝试加载..."
         sudo modprobe nvidia_drm || true
         for _ in 1 2 3 4 5; do
-          nvidia-smi -L >/dev/null 2>&1 && break
+          nvidia-smi -L 2>/dev/null | grep -q '^GPU ' && break
           sleep 1
         done
       fi
-      if nvidia-smi -L >/dev/null 2>&1; then
+      if nvidia-smi -L 2>/dev/null | grep -q '^GPU '; then
         nvidia-smi -L
         notify-send "eGPU 已就绪" "$(nvidia-smi -L | head -1)" 2>/dev/null || true
       else
-        echo "未检测到 RTX 3050:请确认坞电源已开启且已授权(boltctl list)" >&2
+        echo "未检测到可用的 RTX 3050:请确认坞电源已开启且已授权(boltctl list);" >&2
+        echo "若坞已通电,多半是 GPU 楔死(可查 journalctl -k | grep NVRM),请关坞电源 10 秒再开" >&2
         exit 1
       fi
       export __NV_PRIME_RENDER_OFFLOAD=1
