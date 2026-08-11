@@ -11,7 +11,10 @@
   # (日志:pcieport ... Unable to change power state from D3hot to D0, device inaccessible)。
   # Windows 对外接 GPU 链路不做激进电源管理,故只在 Linux 复现。
   # 代价:空闲功耗略增,笔记本续航略降。
-  boot.kernelParams = [ "pcie_aspm=off" "pcie_port_pm=off" ];
+  boot.kernelParams = [
+    "pcie_aspm=off"
+    "pcie_port_pm=off"
+  ];
 
   services = {
     # Thunderbolt 授权守护进程(雷电显卡坞热插拔必需)
