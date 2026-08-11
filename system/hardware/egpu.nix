@@ -6,6 +6,13 @@
   # === 雷电显卡坞:外接 RTX 3050 (GA107),Sway 下 PRIME offload ===
   # 用法:游戏入口直接交给 `nvidia-egpu`(Steam 启动选项 / HMCL Java 路径 / 手动),
   # 自动检测:GPU 健康→offload 渲染;不可用→回退核显,显示器仍走 iGPU
+  # 修复 eGPU 掉线(Xid 79,GPU has fallen off the bus):根因是 Linux PCIe 电源管理把
+  # 雷电链路设备放进 D3hot/ASPM L1 低功耗态,唤醒失败 → ERR_FATAL + DPC 隔离 → GPU 掉线
+  # (日志:pcieport ... Unable to change power state from D3hot to D0, device inaccessible)。
+  # Windows 对外接 GPU 链路不做激进电源管理,故只在 Linux 复现。
+  # 代价:空闲功耗略增,笔记本续航略降。
+  boot.kernelParams = [ "pcie_aspm=off" "pcie_port_pm=off" ];
+
   services = {
     # Thunderbolt 授权守护进程(雷电显卡坞热插拔必需)
     hardware.bolt.enable = true;
