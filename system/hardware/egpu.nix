@@ -27,7 +27,10 @@ in
 
     # 拔插坞/GPU 重新枚举时,自动把新设备及其父桥钉在 D0(防 D3hot 唤醒失败掉线)
     udev.extraRules = ''
+      # GPU 出现时钉住整条父链;桥/根端口单独匹配,覆盖 GPU 未枚举的窗口期
       ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{device}=="0x2584", RUN+="${egpu-pm-on} $env{DEVPATH}"
+      ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x8086", ATTR{device}=="0x15d3", RUN+="${egpu-pm-on} $env{DEVPATH}"
+      ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x8086", ATTR{device}=="0xa76e", RUN+="${egpu-pm-on} $env{DEVPATH}"
       ACTION=="add", SUBSYSTEM=="thunderbolt", KERNEL=="domain*", RUN+="${egpu-pm-on} /devices"
     '';
   };
