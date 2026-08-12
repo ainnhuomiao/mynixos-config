@@ -8,11 +8,19 @@ let
   # (设备配置空间全 FF),只能在运行时设置。
   egpu-pm-on = pkgs.writeShellScript "egpu-pm-on" ''
     # 将 $1(DEVPATH,如 /devices/pci0000:00/.../0000:04:00.0)及其所有父级桥
-    # 的 runtime PM 设为 on,并禁用 ASPM 省电
+    # 的 runtime PM 设为 on,并禁用 ASPM 省电。
+    # 坑:设备枚举瞬间 sysfs 可能还没就绪,写入会失败 —— 必须重试到成功,
+    # 否则桥保持 auto 会进 D3hot,唤醒失败就 Xid 79 掉线(实测崩溃)
     d="$1"
-    while [ -n "$d" ] && [ "$d" != "/devices" ] && [ "$d" != "/" ]; do
-      echo on >"/sys$d/power/control" 2>/dev/null || true
-      d="''${d%/*}"
+    for _ in 1 2 3 4 5; do
+      ok=1
+      p="$d"
+      while [ -n "$p" ] && [ "$p" != "/devices" ] && [ "$p" != "/" ]; do
+        echo on >"/sys$p/power/control" 2>/dev/null || ok=0
+        p="''${p%/*}"
+      done
+      [ "$ok" -eq 1 ] && break
+      sleep 1
     done
     echo performance >/sys/module/pcie_aspm/parameters/policy 2>/dev/null || true
   '';
@@ -53,6 +61,18 @@ in
           echo on >/sys/bus/thunderbolt/devices/domain0/power/control 2>/dev/null || true
         '')
       ];
+    };
+  };
+
+  # 轮询兜底:设备枚举时序不可控(udev add 时 sysfs 可能未就绪),
+  # 每 30 秒重钉一次,保证任何时序下链路设备都被钉在 D0
+  systemd.timers.egpu-power-fix = {
+    description = "Periodically re-pin Thunderbolt eGPU chain to D0";
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnBootSec = "5s";
+      OnUnitActiveSec = "30s";
+      AccuracySec = "1s";
     };
   };
 
