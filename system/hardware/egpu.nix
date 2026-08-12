@@ -64,14 +64,16 @@ in
     };
   };
 
-  # 轮询兜底:设备枚举时序不可控(udev add 时 sysfs 可能未就绪),
-  # 每 30 秒重钉一次,保证任何时序下链路设备都被钉在 D0
+  # 轮询兜底:设备枚举时序不可控(udev add 时 ATTR 读不到/sysfs 未就绪,
+  # 实测一次触发后设备才枚举),用固定节奏每 30 秒重钉一次 ——
+  # OnCalendar 与 unit 状态无关必定周期触发(OnUnitActiveSec 在服务
+  # RemainAfterExit 常驻时不会重排,实测只跑了一次)
   systemd.timers.egpu-power-fix = {
     description = "Periodically re-pin Thunderbolt eGPU chain to D0";
     wantedBy = [ "timers.target" ];
     timerConfig = {
       OnBootSec = "5s";
-      OnUnitActiveSec = "30s";
+      OnCalendar = "*-*-* *:*:00/30";
       AccuracySec = "1s";
     };
   };
