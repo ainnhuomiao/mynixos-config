@@ -50,7 +50,8 @@ in
     after = [ "systemd-udevd.service" ];
     serviceConfig = {
       Type = "oneshot";
-      RemainAfterExit = true;
+      # 不能加 RemainAfterExit=true:unit 常驻 active 时 timer 不重排下次触发
+      # (实测 NEXT 永远 "-",只触发一次)—— 必须每次跑完回到 inactive
       ExecStart = [
         (pkgs.writeShellScript "egpu-power-fix" ''
           set -e
