@@ -62,7 +62,9 @@ in
   ];
   hardware.nvidia = {
     modesetting.enable = true; # Wayland 必需(nvidia-drm.modeset=1)
-    open = true; # Ampere,open 内核模块
+    # closed 内核模块:eGPU 上 open 模块 + GSP 固件有已知不稳定
+    # (TLB invalidation failed / GSP RPC failed 崩溃,日志实证两次),closed 不依赖 GSP 更稳
+    open = false;
     prime = {
       # Sway 下 offload.enable 仅生成惰性 X11 配置(bus ID 不会被读取),
       # 保留是因为 enableOffloadCmd 断言依赖它
