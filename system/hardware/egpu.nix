@@ -22,10 +22,20 @@ let
       [ "$ok" -eq 1 ] && break
       sleep 1
     done
+    # TB 设备禁 autosuspend(默认 15 秒空闲睡眠,游戏传输间歇会触发 → 链路超时)
+    for t in /sys/bus/thunderbolt/devices/[0-9]*/power; do
+      echo on >"$t/control" 2>/dev/null || true
+      echo -1 >"$t/autosuspend_delay_ms" 2>/dev/null || true
+    done
     echo performance >/sys/module/pcie_aspm/parameters/policy 2>/dev/null || true
   '';
 in
 {
+  # 禁 Thunderbolt 高速通道低功耗(CL0s/CL1):游戏传输间歇链路睡眠后唤不醒 →
+  # PCIe Data Link Layer Timeout → ERR_FATAL → Xid 79 掉线(Windows 不启用故稳定)。
+  # 注意:这是模块参数,只影响 TB 链路低功耗,与 pcie_aspm 不同(那个实测会弄死设备初始化)
+  boot.kernelParams = [ "thunderbolt.clx=0" ];
+
   # === 雷电显卡坞:外接 RTX 3050 (GA107),Sway 下 PRIME offload ===
   # 用法:游戏入口直接交给 `nvidia-egpu`(Steam 启动选项 / HMCL Java 路径 / 手动),
   # 自动检测:GPU 健康→offload 渲染;不可用→回退核显,显示器仍走 iGPU
