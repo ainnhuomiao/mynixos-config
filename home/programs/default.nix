@@ -6,6 +6,7 @@
     ./chrome
     ./dbclient
     ./discord
+    ./dsh
     ./edge
     ./emailclient
     ./emanote
@@ -15,6 +16,7 @@
     ./flameshot
     ./git
     ./gpg
+    ./gdu
     ./gtk
     ./helix
     ./hmcl
@@ -28,6 +30,7 @@
     ./music
     ./nix-index
     ./notice
+    ./nvtop
     ./obs-studio
     ./obsidian
     ./orca-ide

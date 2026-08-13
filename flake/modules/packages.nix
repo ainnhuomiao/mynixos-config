@@ -22,6 +22,7 @@
           bili_tui
           claude-code
           discord
+          dsh
           element-desktop
           fcitx5-pinyin-moegirl
           fcitx5-pinyin-zhwiki
