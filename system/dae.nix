@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ ... }:
 {
   services.dae = {
     enable = true;
@@ -16,5 +16,6 @@
     restartTriggers = [ ./dae.dae ];
   };
 
-  networking.firewall.checkReversePath = lib.mkForce "loose";
+  # dae 透明代理(TUN)需要放宽反向路径过滤;mihomo TUN 同理,统一在此设置
+  networking.firewall.checkReversePath = "loose";
 }

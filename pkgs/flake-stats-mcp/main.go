@@ -35,7 +35,13 @@ type Tool struct {
 // --- 业务逻辑：统计 Flake 信息 ---
 
 func getFlakeSummary() (string, error) {
-	hostsDir := "hosts"
+	// MCP client 可能从任意 cwd 启动,允许用 FLAKE_ROOT 指定仓库根目录;默认用当前目录
+	root := os.Getenv("FLAKE_ROOT")
+	if root == "" {
+		root = "."
+	}
+
+	hostsDir := filepath.Join(root, "hosts")
 	entries, err := os.ReadDir(hostsDir)
 	if err != nil {
 		return "", fmt.Errorf("无法读取 hosts 目录: %v", err)
@@ -43,18 +49,24 @@ func getFlakeSummary() (string, error) {
 
 	var hosts []string
 	for _, entry := range entries {
-		if entry.IsDir() && entry.Name() != "default.nix" {
+		if entry.IsDir() {
 			hosts = append(hosts, entry.Name())
 		}
 	}
 
 	nixFilesCount := 0
-	err = filepath.Walk(".", func(path string, info os.FileInfo, err error) error {
-		if err == nil && !info.IsDir() && strings.HasSuffix(path, ".nix") {
+	err = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() && strings.HasSuffix(path, ".nix") {
 			nixFilesCount++
 		}
 		return nil
 	})
+	if err != nil {
+		return "", fmt.Errorf("遍历项目目录失败: %v", err)
+	}
 
 	return fmt.Sprintf("NixOS Flake 概览:\n- 检测到主机配置: %s\n- 项目中 Nix 文件总数: %d\n- 状态: 运行正常",
 		strings.Join(hosts, ", "), nixFilesCount), nil

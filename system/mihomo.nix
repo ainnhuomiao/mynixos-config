@@ -461,8 +461,6 @@ in
     });
   '';
 
-  networking.firewall.checkReversePath = "loose";
-
   environment.systemPackages = [ subscriptionManager ];
 
   systemd.tmpfiles.rules = [

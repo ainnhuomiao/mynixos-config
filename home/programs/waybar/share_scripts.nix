@@ -15,7 +15,7 @@ let
   ensureStatic = ''
     ${pkgs.procps}/bin/pkill -f '/bin/dynamic_wallpaper' || true
     ${pkgs.systemd}/bin/systemctl --user stop video-wall
-    ${pkgs.systemd}/bin/systemctl --user start swww.service
+    ${pkgs.systemd}/bin/systemctl --user start awww.service
     ${pkgs.sway}/bin/swaymsg blur enable >/dev/null 2>&1 || true
   '';
 in
@@ -33,7 +33,7 @@ in
     # 注意:这里不能复用 ensureStatic——它的 pkill 会匹配到本脚本自身的 bash 进程
     # (cmdline 为 bash .../bin/dynamic_wallpaper),导致启动即自杀
     ${pkgs.systemd}/bin/systemctl --user stop video-wall || true
-    ${pkgs.systemd}/bin/systemctl --user start swww.service
+    ${pkgs.systemd}/bin/systemctl --user start awww.service
     ${pkgs.sway}/bin/swaymsg blur enable >/dev/null 2>&1 || true
     while true; do
       ${selectWallpaper}
@@ -50,7 +50,7 @@ in
     if ${pkgs.systemd}/bin/systemctl --user is-active --quiet video-wall; then
       # 视频模式 → 恢复静态
       ${pkgs.systemd}/bin/systemctl --user stop video-wall
-      ${pkgs.systemd}/bin/systemctl --user start swww.service
+      ${pkgs.systemd}/bin/systemctl --user start awww.service
       ${pkgs.sway}/bin/swaymsg blur enable >/dev/null 2>&1 || true
       ${pkgs.libnotify}/bin/notify-send "Wallpaper" "已切换为静态壁纸"
     else
@@ -58,7 +58,7 @@ in
       ${pkgs.procps}/bin/pkill -f '/bin/dynamic_wallpaper' || true
       # sway 在无 bg 配置时兜底拉起的裸 swaybg,与 mpvpaper 抢 background layer
       ${pkgs.procps}/bin/pkill -f '/bin/swaybg' || true
-      ${pkgs.systemd}/bin/systemctl --user stop swww.service
+      ${pkgs.systemd}/bin/systemctl --user stop awww.service
       ${pkgs.sway}/bin/swaymsg blur disable >/dev/null 2>&1 || true
       ${pkgs.systemd}/bin/systemctl --user start video-wall
       ${pkgs.libnotify}/bin/notify-send "Wallpaper" "已切换为视频壁纸"

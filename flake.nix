@@ -48,7 +48,11 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    herdr.url = "github:ogulcancelik/herdr";
+    herdr = {
+      url = "github:ogulcancelik/herdr";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.rust-overlay.follows = "rust-overlay";
+    };
     hyprpicker = {
       url = "github:hyprwm/hyprpicker";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -57,7 +61,16 @@
       url = "github:nix-community/lanzaboote";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
+    # AI 编码 Agent 工具集（每日自动更新），通过 shared-nixpkgs overlay
+    # 挂载到 pkgs.llm-agents.*，不覆盖 nixpkgs 同名包
+    llm-agents = {
+      url = "github:numtide/llm-agents.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    nix-cachyos-kernel = {
+      url = "github:xddxdd/nix-cachyos-kernel/release";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable-small";
     oh-my-pi-src = {
       url = "github:can1357/oh-my-pi/v17.1.7";
@@ -67,7 +80,10 @@
       url = "github:LiuQingHuaYang/oh-my-pi-zh/v17.1.7";
       flake = false;
     };
-    nur.url = "github:nix-community/NUR";
+    nur = {
+      url = "github:nix-community/NUR";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     nix-index-database = {
       url = "github:Mic92/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -76,13 +92,19 @@
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    selector4nix.url = "github:StarryReverie/selector4nix";
+    selector4nix = {
+      url = "github:StarryReverie/selector4nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     swayfx = {
       url = "github:WillPower3309/swayfx/0.6";
       # 0.6 起才有 animation_duration_ms(窗口开合动画),nixpkgs 仍钉 0.5.3
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    treefmt-nix.url = "github:numtide/treefmt-nix";
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     zen-browser = {
       url = "git+https://github.com/youwen5/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -97,12 +119,16 @@
       "https://ainnhuomiao.cachix.org"
       "https://nix-community.cachix.org"
       "https://attic.xuyh0120.win/lantian"
+      # llm-agents 的二进制缓存；shared-nixpkgs overlay 下仅在 nixpkgs
+      # revision 与上游一致时命中，其余回退源码构建
+      "https://cache.numtide.com"
     ];
     extra-trusted-public-keys = [
       "ainnhuomiao:rSRSxFzka/Hu1R27mYg8TIE34+X9Vq4RA+orXAUr7U4="
       "ainnhuomiao.cachix.org-1:scMAjHS0YtCSBV0d6bbFWHDGD3BkPKuWbcfeWpqw5ck="
       "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
       "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc="
+      "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
     ];
     trusted-users = [
       "root"

@@ -1,4 +1,4 @@
-# fix eval waring: https://github.com/nix-community/disko/blob/master/docs/table-to-gpt.md
+# fix eval warning: https://github.com/nix-community/disko/blob/master/docs/table-to-gpt.md
 {
   disko.devices = {
     disk = {

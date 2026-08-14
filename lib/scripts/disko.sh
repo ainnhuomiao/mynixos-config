@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
 # --- Configuration & Styling ---
 FLAKE_ROOT="${FLAKE_ROOT:-$(pwd)}"

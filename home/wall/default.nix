@@ -10,7 +10,7 @@ in
   ];
 
   systemd.user.services = {
-    swww = {
+    awww = {
       Unit = {
         Description = "Efficient animated wallpaper daemon for wayland";
         # 壁纸服务只属于 sway 会话: graphical-session.target 常驻不停止,
@@ -72,10 +72,10 @@ in
     default_wall = {
       Unit = {
         Description = "default wallpaper";
-        BindsTo = [ "swww.service" ];
-        After = [ "swww.service" ];
+        BindsTo = [ "awww.service" ];
+        After = [ "awww.service" ];
       };
-      Install.WantedBy = [ "swww.service" ];
+      Install.WantedBy = [ "awww.service" ];
       Service = {
         ExecStartPre = "${pkgs.coreutils}/bin/sleep 1";
         ExecStart = ''${pkgs.awww}/bin/awww img "${wallpaperDirectory}/default.png" --transition-type random'';
@@ -84,16 +84,16 @@ in
       };
     };
 
-    swww-resume-fix = {
+    awww-resume-fix = {
       Unit = {
-        Description = "Fix swww wallpaper after resume";
+        Description = "Fix awww wallpaper after resume";
         PartOf = lib.mkForce [ "sway-session.target" ];
         After = [ "graphical-session.target" ];
       };
       Install.WantedBy = lib.mkForce [ "sway-session.target" ];
       Service = {
         Type = "simple";
-        ExecStart = pkgs.writeShellScript "swww-resume-fix" ''
+        ExecStart = pkgs.writeShellScript "awww-resume-fix" ''
           ${pkgs.dbus}/bin/dbus-monitor --system "type='signal',interface='org.freedesktop.login1.Manager',member='PrepareForSleep'" | \
           while read -r line; do
               if [[ "$line" == *"boolean false"* ]]; then

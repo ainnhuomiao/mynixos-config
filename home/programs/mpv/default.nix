@@ -20,7 +20,6 @@ let
             {
               buildInputs = [ pkgs.unzip ];
               preferLocalBuild = true;
-              allowSubstitutes = false;
             }
             ''
               mkdir -p $out

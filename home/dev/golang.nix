@@ -14,14 +14,14 @@ let
     in
     {
       options.programs.go = {
-        go111MODULE = mkOption {
+        go111Module = mkOption {
           type = with types; nullOr str;
           default = null;
           example = "on";
-          description = "Whether to enable go111MODULE";
+          description = "GO111MODULE 环境变量的值(如 \"on\" 或 \"off\")";
         };
 
-        goMODCACHE = mkOption {
+        goModCache = mkOption {
           type = with types; nullOr str;
           default = null;
           example = "go/pkg/mod";
@@ -47,12 +47,12 @@ let
       config = {
         home.sessionVariables = (
           mkMerge [
-            (mkIf (cfg.go111MODULE != null) {
-              GO111MODULE = cfg.go111MODULE;
+            (mkIf (cfg.go111Module != null) {
+              GO111MODULE = cfg.go111Module;
             })
 
-            (mkIf (cfg.goMODCACHE != null) {
-              GOMODCACHE = "${config.home.homeDirectory}/${cfg.goMODCACHE}";
+            (mkIf (cfg.goModCache != null) {
+              GOMODCACHE = "${config.home.homeDirectory}/${cfg.goModCache}";
             })
 
           ]
@@ -84,8 +84,8 @@ in
   programs.go = {
     enable = true;
     env.GOPATH = "${config.home.homeDirectory}/Codelearning/go";
-    goMODCACHE = "Codelearning/go/pkg/mod";
-    go111MODULE = "on";
+    goModCache = "Codelearning/go/pkg/mod";
+    go111Module = "on";
     withMyGo = false;
     enableFishIntegration = true;
     enableBashIntegration = true;

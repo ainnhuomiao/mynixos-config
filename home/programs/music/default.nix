@@ -48,7 +48,7 @@ in
     method = raw
     data_format = ascii
     ascii_max_range = 7
-  ''; # ../waybar/{share_scripts.nix}.config_internal
+  ''; # 由 ../waybar/share_scripts.nix 的 cava-internal 脚本读取(sed 把 0-7 映射为方块字符)
   services = {
     mpd = {
       enable = true;

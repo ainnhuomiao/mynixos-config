@@ -9,6 +9,8 @@ buildGoModule {
 
   src = ./.;
 
+  # 纯 stdlib 无第三方依赖:当前 nixpkgs 的 buildGoModule 对空 vendor 目录
+  # 要求 vendorHash = null(无需下载依赖,也不需 hash 校验,离线可复现)
   vendorHash = null;
 
   meta = with lib; {

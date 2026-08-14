@@ -37,17 +37,6 @@ confirmations=(reboot shutdown logout)
 dryrun=false
 showsymbols=true
 
-function check_valid {
-  option="$1"
-  shift 1
-  for entry in "${@}"; do
-    if [ -z "${actions[$entry]+x}" ]; then
-      echo "Invalid choice in $1: $entry" >&2
-      exit 1
-    fi
-  done
-}
-
 # Define the messages after parsing the CLI options so that it is possible to
 # configure them in the future.
 
