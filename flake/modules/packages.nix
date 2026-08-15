@@ -23,6 +23,11 @@
           claude-code
           discord
           dsh
+          dsh-at-file
+          dsh-modlens
+          dsh-plugin-hub
+          dsh-turn-rewind
+          dsh-web-search-tavily
           element-desktop
           fcitx5-pinyin-moegirl
           fcitx5-pinyin-zhwiki
