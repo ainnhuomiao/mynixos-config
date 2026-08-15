@@ -35,24 +35,24 @@
 
 ## 配置概览
 
-| 项目         | 当前配置                                                             |
-| ------------ | -------------------------------------------------------------------- |
-| Flake        | `flake-parts`                                                        |
-| Nixpkgs      | `nixos-unstable-small`                                               |
-| 平台         | `x86_64-linux`                                                       |
-| 主机         | `nixos`                                                              |
-| 内核         | CachyOS latest `x86_64-v3`（pinned）                                 |
-| 显卡         | 雷电显卡坞外接 RTX 3050（PRIME offload）                             |
-| 桌面         | swayfx + Hyprland 双 WM（ly 登录选择）                               |
-| 用户环境     | Home Manager，作为 NixOS 模块集成                                    |
-| Shell        | Fish + Starship                                                      |
-| 音频         | PipeWire（ALSA、PulseAudio、JACK）                                   |
-| 网络         | NetworkManager + dae eBPF + Mihomo SOCKS                             |
+| 项目         | 当前配置                                                                      |
+| ------------ | ----------------------------------------------------------------------------- |
+| Flake        | `flake-parts`                                                                 |
+| Nixpkgs      | `nixos-unstable-small`                                                        |
+| 平台         | `x86_64-linux`                                                                |
+| 主机         | `nixos`                                                                       |
+| 内核         | CachyOS latest `x86_64-v3`（pinned）                                          |
+| 显卡         | 雷电显卡坞外接 RTX 3050（PRIME offload）                                      |
+| 桌面         | swayfx + Hyprland 双 WM（ly 登录选择）                                        |
+| 用户环境     | Home Manager，作为 NixOS 模块集成                                             |
+| Shell        | Fish + Starship                                                               |
+| 音频         | PipeWire（ALSA、PulseAudio、JACK）                                            |
+| 网络         | NetworkManager + dae eBPF + Mihomo SOCKS                                      |
 | 二进制缓存   | GitHub Actions → Attic（VPS）+ Cachix + selector4nix 代理 + USTC 镜像（备用） |
-| 引导         | GRUB EFI                                                            |
-| 文件系统     | Btrfs 子卷 + 独立 EFI 分区 + Swap                                    |
-| 容器         | Docker + Distrobox + Flatpak                                         |
-| 系统状态版本 | NixOS `26.05`，Home Manager `25.11`                                  |
+| 引导         | GRUB EFI                                                                      |
+| 文件系统     | Btrfs 子卷 + 独立 EFI 分区 + Swap                                             |
+| 容器         | Docker + Distrobox + Flatpak                                                  |
+| 系统状态版本 | NixOS `26.05`，Home Manager `25.11`                                           |
 
 当前配置入口为：
 
