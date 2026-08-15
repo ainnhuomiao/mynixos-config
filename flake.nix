@@ -57,16 +57,6 @@
       url = "github:hyprwm/hyprpicker";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    lanzaboote = {
-      url = "github:nix-community/lanzaboote";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    # AI 编码 Agent 工具集（每日自动更新），通过 shared-nixpkgs overlay
-    # 挂载到 pkgs.llm-agents.*，不覆盖 nixpkgs 同名包
-    llm-agents = {
-      url = "github:numtide/llm-agents.nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     nix-cachyos-kernel = {
       url = "github:xddxdd/nix-cachyos-kernel/release";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -79,10 +69,6 @@
     oh-my-pi-zh-src = {
       url = "github:LiuQingHuaYang/oh-my-pi-zh/v17.1.7";
       flake = false;
-    };
-    nur = {
-      url = "github:nix-community/NUR";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
     nix-index-database = {
       url = "github:Mic92/nix-index-database";
@@ -119,16 +105,12 @@
       "https://ainnhuomiao.cachix.org"
       "https://nix-community.cachix.org"
       "https://attic.xuyh0120.win/lantian"
-      # llm-agents 的二进制缓存；shared-nixpkgs overlay 下仅在 nixpkgs
-      # revision 与上游一致时命中，其余回退源码构建
-      "https://cache.numtide.com"
     ];
     extra-trusted-public-keys = [
       "ainnhuomiao:rSRSxFzka/Hu1R27mYg8TIE34+X9Vq4RA+orXAUr7U4="
       "ainnhuomiao.cachix.org-1:scMAjHS0YtCSBV0d6bbFWHDGD3BkPKuWbcfeWpqw5ck="
       "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
       "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc="
-      "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
     ];
     trusted-users = [
       "root"

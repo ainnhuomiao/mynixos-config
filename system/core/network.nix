@@ -1,13 +1,7 @@
 {
-  # services.resolved.enable = true;
   networking = {
-    # nameservers = [
-    #   "8.8.8.8"
-    #   "8.8.4.4"
-    # ];
     networkmanager = {
       enable = true;
-      # dns = "systemd-resolved";
     };
     firewall.allowedTCPPorts = [
       22 # sshd

@@ -1,4 +1,7 @@
-{ pkgs, ... }:
+{
+  pkgs,
+  ...
+}:
 let
   nvim-init = ''
     -- AstroNvim v6 + catppuccin Frappé
@@ -120,11 +123,8 @@ let
   '';
 in
 {
-  home.packages = with pkgs; [
-    neovim
-    ripgrep
-    fd
-    lazygit
+  home.packages = [
+    pkgs.neovim
   ];
 
   xdg.configFile = {

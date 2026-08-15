@@ -2,7 +2,6 @@
   config,
   lib,
   pkgs,
-  inputs,
   me,
   ...
 }:
@@ -26,11 +25,6 @@ let
           default = null;
           example = "go/pkg/mod";
           description = "The Go mod cache path";
-        };
-
-        withMyGo = mkOption {
-          type = types.bool;
-          default = true;
         };
 
         extraPackages = mkOption {
@@ -63,17 +57,7 @@ let
         programs.bash.initExtra = mkIf cfg.enableBashIntegration ''
           export PATH=$GOPATH/bin:$PATH
         '';
-        home.packages = (
-          (
-            if cfg.withMyGo then
-              [
-                inputs.mygo.packages.${pkgs.stdenv.hostPlatform.system}.default
-              ]
-            else
-              [ ]
-          )
-          ++ cfg.extraPackages
-        );
+        home.packages = cfg.extraPackages;
 
       };
     };
@@ -86,7 +70,6 @@ in
     env.GOPATH = "${config.home.homeDirectory}/Codelearning/go";
     goModCache = "Codelearning/go/pkg/mod";
     go111Module = "on";
-    withMyGo = false;
     enableFishIntegration = true;
     enableBashIntegration = true;
     extraPackages = with pkgs; [

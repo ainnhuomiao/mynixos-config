@@ -16,6 +16,4 @@
   wayland.windowManager.sway = lib.mkIf config.wayland.windowManager.sway.enable {
     extraOptions = [ "--unsupported-gpu" ];
   };
-
-  programs.git.signing.signByDefault = lib.mkForce false;
 }

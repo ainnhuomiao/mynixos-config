@@ -190,7 +190,6 @@ in
       # 由 sway 启动 fcitx5(而非 fcitx5-daemon.service): 避免 daemon 在
       # sway 的 wayland socket 就绪前启动导致输入法热键失效 (ly 登录时代出现)
       exec_always --no-startup-id fcitx5 -d
-      #exec_always  --no-startup-id  mako &
 
       #------------------------------#
       # Make capslock work as escape #

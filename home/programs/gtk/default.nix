@@ -1,6 +1,5 @@
 {
   pkgs,
-  config,
   appearance,
   ...
 }:
@@ -39,7 +38,6 @@
       gtk-xft-hintstyle = "hintslight";
       gtk-xft-rgba = "rgb";
     };
-    gtk4.theme = config.gtk.theme;
     gtk2.extraConfig = ''
       gtk-xft-antialias=1
       gtk-xft-hinting=1

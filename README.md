@@ -48,8 +48,8 @@
 | Shell        | Fish + Starship                                                      |
 | 音频         | PipeWire（ALSA、PulseAudio、JACK）                                   |
 | 网络         | NetworkManager + dae eBPF + Mihomo SOCKS                             |
-| 二进制缓存   | GitHub Actions → Attic（VPS）+ selector4nix 代理 + USTC 镜像（备用） |
-| 引导         | GRUB EFI；可选 Lanzaboote，当前主机未启用                            |
+| 二进制缓存   | GitHub Actions → Attic（VPS）+ Cachix + selector4nix 代理 + USTC 镜像（备用） |
+| 引导         | GRUB EFI                                                            |
 | 文件系统     | Btrfs 子卷 + 独立 EFI 分区 + Swap                                    |
 | 容器         | Docker + Distrobox + Flatpak                                         |
 | 系统状态版本 | NixOS `26.05`，Home Manager `25.11`                                  |
@@ -80,7 +80,7 @@ flake.nix
 - **swayfx**（wlroots，支持毛玻璃模糊与窗口动画，`Mod` 为 `Super`）：Waybar、Rofi、Mako 通知
 - **Hyprland 0.56+**（Lua 配置）：[`caelestia-shell`](https://github.com/caelestia-dots/shell) 桌面 shell（替代 waybar/mako，含启动器/控制中心/锁屏）
 
-两套 WM 键位对齐（Hyprland 为 106 条 Lua 绑定 + caelestia 全局快捷键）；sway 专属服务（waybar/swayidle/壁纸）通过 `sway-session.target` 隔离，不会串入 Hyprland 会话。
+两套 WM 键位对齐（Hyprland 为 92 条 Lua 绑定 + caelestia 全局快捷键）；sway 专属服务（waybar/swayidle/壁纸）通过 `sway-session.target` 隔离，不会串入 Hyprland 会话。
 
 - Kitty、Firefox、Zen Browser、Google Chrome、Microsoft Edge
 - 聊天：Telegram、QQ、Vesktop、WeChat、Discord、Feishu、腾讯会议、Element
@@ -303,7 +303,13 @@ just rebuild-switch
 
 - `axolotl`
 - `bili_tui`
-- `bun_1_3_14`
+- `bun_1_3_14`（仅 oh-my-pi-zh 构建期依赖，不导出为 flake 包）
+- `dsh`
+- `dsh-at-file`
+- `dsh-modlens`
+- `dsh-plugin-hub`
+- `dsh-turn-rewind`
+- `dsh-web-search-tavily`
 - `fcitx5-pinyin-moegirl`
 - `fcitx5-pinyin-zhwiki`
 - `flake-stats-mcp`
@@ -316,22 +322,24 @@ just rebuild-switch
 - `motrix-next`：固定为 `3.9.6`，并修复其 sidecar 在 NixOS 上的动态链接
 - `mcp-nixos`：禁用一个会误判普通源码内容的上游测试
 
-Flake 对外提供 28 个包（`packages.x86_64-linux.*`）：
+Flake 对外提供 36 个包（`packages.x86_64-linux.*`）：
 
 ```text
 axolotl             bili_tui            bilibili
 caelestia-cli       caelestia-shell     claude-code
-discord             element-desktop     fcitx5-pinyin-moegirl
-fcitx5-pinyin-zhwiki feishu              flake-stats-mcp
-github-copilot-cli  google-chrome       mcp-nixos
-microsoft-edge      motrix-next         nordic
-obsidian            oh-my-pi-zh         orca-ide
-qq                  steam               swayfx              thunderbird-bin
-vscode              wechat              wemeet
-zen-browser
+discord             dsh                 dsh-at-file
+dsh-modlens         dsh-plugin-hub      dsh-turn-rewind
+dsh-web-search-tavily element-desktop   fcitx5-pinyin-moegirl
+fcitx5-pinyin-zhwiki feishu             flake-stats-mcp
+github-copilot-cli  google-chrome       hmcl
+mcp-nixos           microsoft-edge      motrix-next
+nordic              obsidian            oh-my-pi-zh
+orca-ide            qq                  steam
+swayfx              thunderbird-bin     vscode
+wechat              wemeet              zen-browser
 ```
 
-其中 `caelestia-shell` 来自仓库自维护的汉化副本 [`ainnhuomiao/caelestia-shell-zh`](https://github.com/ainnhuomiao/caelestia-shell-zh)（上游 817a220 + hdcy 字典/补丁），`zen-browser` 来自 `zen-browser-flake`，其余为 nixpkgs 包。这 28 个包全部由 GitHub Actions 构建并推送到自建 Attic 缓存（见下文“CI 与更新流程”）。
+其中 `caelestia-shell` 为上游 `github:caelestia-dots/shell` 加上本仓库内 `patches/caelestia-zh_CN.patch.gz` 的汉化补丁（由 `~/hanhua_drive.py` 基于 hdcy 字典生成，见下文“上游 caelestia-shell 更新”），`zen-browser` 来自 `zen-browser-flake`，其余为 nixpkgs 包。这 36 个包全部由 GitHub Actions 构建并推送到自建 Attic 缓存（见下文“CI 与更新流程”）。
 
 例如：
 
@@ -352,7 +360,7 @@ nix build .#caelestia-shell
 │   ├── dev/                 # 开发工具链
 │   ├── editors/             # 编辑器
 │   ├── profiles/            # 用户@主机配置组合
-│   ├── programs/            # 桌面和命令行应用(含 catppuccin/ 主题切换)
+│   ├── programs/            # 桌面和命令行应用
 │   ├── shell/               # Fish、Starship 与 Shell 工具
 │   ├── terminals/           # 终端配置
 │   ├── wall/                # awww/mpvpaper 壁纸服务
@@ -416,37 +424,33 @@ just build
 
 ## CI 缓存与更新流程
 
-推送到 `main` 后，GitHub Actions（`.github/workflows/nix.yml`）会构建上述 27 个 flake 包并推送到自建 Attic 缓存（`ainnhuomiao.qianyuanqing.asia`），工作站重建时优先命中缓存。因此**更新依赖后必须推送 `flake.lock`**，CI 才会为新路径重新构建。
+推送到 `main` 后，GitHub Actions（`.github/workflows/nix.yml`）会构建上述 36 个 flake 包并推送到自建 Attic 缓存（`ainnhuomiao.qianyuanqing.asia`），工作站重建时优先命中缓存。因此**更新依赖后必须推送 `flake.lock`**，CI 才会为新路径重新构建。
 
 ### 日常更新（配置 / nixpkgs）
 
 ```bash
 just update          # 升级所有 flake inputs（含 nixpkgs）
 just rebuild-switch  # 检查、格式化、构建并切换
-# 本地验证无误后推 main，CI 自动构建 27 个包进 Attic
+# 本地验证无误后推 main，CI 自动构建 36 个包进 Attic
 ```
 
 ### 上游 caelestia-shell 更新（重新汉化）
 
-汉化副本仓库为 [`ainnhuomiao/caelestia-shell-zh`](https://github.com/ainnhuomiao/caelestia-shell-zh)，由 `~/hanhua_drive.py` 生成（脚本会自动 git 提交并推送）。
+汉化不走独立 fork：flake input 保持上游 `github:caelestia-dots/shell`，本仓库的 `lib/caelestia-zh.nix` 对 `with-cli` 包应用 `patches/caelestia-zh_CN.patch.gz`（hdcy/Caelestia_Shell_zh_CN 字典 + 补丁，由 `~/hanhua_drive.py` 重新生成）。
 
 ```bash
-# 1. 更新上游副本 ~/caelestia-shell-src 到新版本
-# 2. 重新生成汉化并推送（脚本自动完成 git init → 提交 → 绑定 origin → push）
-rm -rf ~/caelestia-shell-zh && python3 ~/hanhua_drive.py
-# 3. 本仓库输入指向新的汉化 commit
+# 1. 拉取上游最新 main 并重新生成汉化补丁（脚本自动完成 clone → 生成 patch）
+python3 ~/hanhua_drive.py
+# 2. 更新上游输入到新 commit
 nix flake lock --update-input caelestia-shell
-# 4. 验证并切换
+# 3. 验证并切换
 just rebuild-switch
-# 5. 推 main → CI 构建新汉化版进 Attic
+# 4. 推 main → CI 构建新汉化版进 Attic
 ```
-
-> [!WARNING]
-> 顺序铁律：**先推汉化仓库，再推本仓库**。CI 按 flake.lock 拉取汉化仓库的指定 commit，若该 commit 尚未推送，构建会失败。
 
 ## 常用 Sway 快捷键
 
-`Mod` 为 `Super`。Hyprland 会话的键位与 sway 对齐（106 条 Lua 绑定），caelestia 全局快捷键（如 `Mod + Space` 启动器）由 Hyprland 绑定并需 release 触发。
+`Mod` 为 `Super`。Hyprland 会话的键位与 sway 对齐（92 条 Lua 绑定），caelestia 全局快捷键（如 `Mod + Z` 启动器）由 Hyprland 绑定并需 release 触发。
 
 ### 启动与系统
 

@@ -1,6 +1,5 @@
 {
   pkgs,
-  inputs,
   appearance,
   lib,
   ...
@@ -13,7 +12,6 @@ in
 {
   programs.waybar = {
     enable = true;
-    # package = inputs.nixpkgs-wayland.packages.${pkgs.stdenv.hostPlatform.system}.waybar;
     systemd = {
       enable = true;
       targets = [ "sway-session.target" ];
@@ -35,6 +33,7 @@ in
         font-family: "${appearance.font.name}";
         font-size: 12pt;
         font-weight: bold;
+        color: @wall_fg;
         border-radius: 0px;
         transition-property: background-color;
         transition-duration: 0.5s;
@@ -148,6 +147,10 @@ in
 
       #custom-wall {
         color: @wall_purple;
+      }
+
+      #custom-recgif {
+        color: @wall_fg;
       }
 
       #temperature {

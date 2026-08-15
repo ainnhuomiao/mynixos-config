@@ -1,27 +1,27 @@
 { lib, appearance, ... }:
 
 let
-  mocha = appearance.catppuccin.mocha;
+  # 跟随 lib/appearance.nix 的 catppuccinVariant（当前 mocha），与 home 侧一致
+  cp = appearance.catppuccin.${appearance.catppuccinVariant};
   # catppuccin/tty 的 16 色映射（themes/mocha.txt，tty.tera 顺序）：
   # color0 用 base 作内核控制台默认背景，color7 用 subtext1 作默认前景。
-  # 颜色值全部取自本项目 lib/appearance.nix 的 catppuccin.mocha。
   ttyPalette = [
-    mocha.bg # 0: base
-    mocha.color1 # 1: red
-    mocha.color2 # 2: green
-    mocha.color3 # 3: yellow
-    mocha.color4 # 4: blue
-    mocha.color5 # 5: pink
-    mocha.color6 # 6: teal
-    mocha.color7 # 7: subtext1
-    mocha.color8 # 8: surface1
-    mocha.color1 # 9: bright red
-    mocha.color2 # 10: bright green
-    mocha.color3 # 11: bright yellow
-    mocha.color4 # 12: bright blue
-    mocha.color5 # 13: bright pink
-    mocha.color6 # 14: bright teal
-    mocha.color15 # 15: subtext0
+    cp.bg # 0: base
+    cp.color1 # 1: red
+    cp.color2 # 2: green
+    cp.color3 # 3: yellow
+    cp.color4 # 4: blue
+    cp.color5 # 5: pink
+    cp.color6 # 6: teal
+    cp.color7 # 7: subtext1
+    cp.color8 # 8: surface1
+    cp.color1 # 9: bright red
+    cp.color2 # 10: bright green
+    cp.color3 # 11: bright yellow
+    cp.color4 # 12: bright blue
+    cp.color5 # 13: bright pink
+    cp.color6 # 14: bright teal
+    cp.color15 # 15: subtext0
   ];
   kmsconPaletteNames = [
     "palette-black"
@@ -52,10 +52,10 @@ in
       config = {
         font-name = "Maple Mono NF CN, Noto Sans Mono CJK SC";
         font-size = 14;
-        # Catppuccin Mocha 配色（kmscon.conf palette=custom + palette-* 键）
+        # Catppuccin ${appearance.catppuccinVariant} 配色（kmscon.conf palette=custom + palette-* 键）
         palette = "custom";
-        palette-foreground = appearance.toRgb mocha.fg;
-        palette-background = appearance.toRgb mocha.bg;
+        palette-foreground = appearance.toRgb cp.fg;
+        palette-background = appearance.toRgb cp.bg;
       }
       // builtins.listToAttrs (
         lib.zipListsWith (name: color: {
@@ -66,7 +66,7 @@ in
     };
   };
 
-  # 内核控制台（启动早期 + tty1 getty）用同一 Mocha 16 色调色板，
+  # 内核控制台（启动早期 + tty1 getty）用同一 16 色调色板，
   # 由 console.colors 生成 vt.default_red/grn/blu 内核参数
   console.colors = ttyPalette;
 

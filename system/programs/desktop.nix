@@ -76,7 +76,6 @@
 
   services = {
     dbus.packages = [ pkgs.gcr ];
-    pipewire.audio.enable = true;
     gvfs.enable = true;
     pipewire = {
       enable = true;
