@@ -40,6 +40,8 @@ in
       opencode
       cc-switch
       inputs.herdr.packages.${system}.default
+      inputs.llm-agents.packages.${system}.reasonix
+      inputs.llm-agents.packages.${system}.antigravity-cli
       oh-my-pi-zh
       omp-provider
     ]

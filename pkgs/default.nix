@@ -3,10 +3,14 @@
   overlay = final: prev: {
     axolotl = final.callPackage ./axolotl { };
     bili_tui = final.callPackage ./bili_tui { };
-    dsh = final.callPackage ./dsh { };
+    cloudflare-speedtest = final.callPackage ./cloudflare-speedtest { };
+    # dsh 改由 numtide/llm-agents.nix flake input 提供 (同为 rc.6 buildNpmPackage 配方,
+    # 上游每日自动提版; 本地配方 pkgs/dsh 已删)
+    dsh = inputs.llm-agents.packages.${final.system}.dsh;
     dsh-at-file = final.callPackage ./dsh-at-file { };
     dsh-modlens = final.callPackage ./dsh-modlens { };
     dsh-plugin-hub = final.callPackage ./dsh-plugin-hub { };
+    dsh-tui = final.callPackage ./dsh-tui { };
     dsh-turn-rewind = final.callPackage ./dsh-turn-rewind { };
     dsh-web-search-tavily = final.callPackage ./dsh-web-search-tavily { };
     bun_1_3_14 = final.callPackage ./bun-1-3-14 { };
