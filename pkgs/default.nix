@@ -3,7 +3,6 @@
   overlay = final: prev: {
     axolotl = final.callPackage ./axolotl { };
     bili_tui = final.callPackage ./bili_tui { };
-    cloudflare-speedtest = final.callPackage ./cloudflare-speedtest { };
     # dsh 改由 numtide/llm-agents.nix flake input 提供 (同为 rc.6 buildNpmPackage 配方,
     # 上游每日自动提版; 本地配方 pkgs/dsh 已删)
     dsh = inputs.llm-agents.packages.${final.system}.dsh;

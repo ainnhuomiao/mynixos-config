@@ -21,7 +21,6 @@
           bilibili
           bili_tui
           claude-code
-          cloudflare-speedtest
           discord
           dsh
           dsh-at-file

@@ -48,7 +48,6 @@ jobs:
             .#caelestia-cli \
             .#caelestia-shell \
             .#claude-code \
-            .#cloudflare-speedtest \
             .#discord \
             .#dsh \
             .#dsh-at-file \

@@ -3,7 +3,6 @@
     ./bili_live
     ./axolotl
     ./bilibili
-    ./cfst
     ./chrome
     ./dbclient
     ./discord
