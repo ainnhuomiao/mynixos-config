@@ -39,6 +39,7 @@
     ./search
     ./splayer
     ./ssh
+    ./v2rayn
     ./video_editor
     ./yazi
     ./yt-dlp

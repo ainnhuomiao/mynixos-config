@@ -26,6 +26,7 @@
           dsh-at-file
           dsh-modlens
           dsh-plugin-hub
+          dsh-tui
           dsh-turn-rewind
           dsh-web-search-tavily
           element-desktop
@@ -47,6 +48,7 @@
           swayfx
           steam
           thunderbird-bin
+          v2rayn
           vscode
           wechat
           wemeet
@@ -58,6 +60,10 @@
         caelestia-cli = inputs.caelestia-cli.packages.${system}.default;
         # zen-browser 来自 flake input，nixpkgs 没有，需一并缓存
         zen-browser = inputs.zen-browser.packages.${system}.default;
+        # reasonix/antigravity-cli 来自 numtide/llm-agents.nix input（dsh 同源，
+        # 经 pkgs 的 overlay 以 pkgs.dsh 暴露，见 pkgs/default.nix）
+        reasonix = inputs.llm-agents.packages.${system}.reasonix;
+        antigravity-cli = inputs.llm-agents.packages.${system}.antigravity-cli;
       };
     };
 }
