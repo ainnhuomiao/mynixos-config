@@ -26,7 +26,6 @@
           dsh-at-file
           dsh-modlens
           dsh-plugin-hub
-          dsh-tui
           dsh-turn-rewind
           dsh-web-search-tavily
           element-desktop
