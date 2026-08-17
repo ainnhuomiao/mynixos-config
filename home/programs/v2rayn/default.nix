@@ -19,6 +19,18 @@ let
       V2RAYN_BIN="${v2rayN}/bin/v2rayN"
       FLAG="''${XDG_RUNTIME_DIR:-/tmp}/v2rayN-managed-services"
 
+      # TUN 模式能力自愈: v2rayN 替换/重下内核文件后 file capability 会丢,
+      # 每次启动前补上 cap_net_admin,cap_net_raw(需 sudo 免密, 否则静默跳过,
+      # TUN 不可用但普通代理模式不受影响)
+      for core in \
+        "$HOME/.local/share/v2rayN/bin/sing_box/sing-box" \
+        "$HOME/.local/share/v2rayN/bin/xray/xray"
+      do
+        if [ -f "$core" ]; then
+          sudo -n setcap cap_net_admin,cap_net_raw+ep "$core" 2>/dev/null || true
+        fi
+      done
+
       # wrapper 被外部信号终止时, 先杀掉后台 v2rayN 子进程再恢复服务,
       # 避免 v2rayN 变孤儿与 dae TUN 同时接管(正常退出时 kill 静默失败)
       CHILD_PID=""
@@ -33,7 +45,13 @@ let
 
       restore_transparent_proxy() {
         if [ -n "$CHILD_PID" ]; then
+          # v2rayN 会再拉起 core 子进程(含 sudo -S 起的 root 级 sing-box/xray),
+          # 直接 kill 只会杀应用本体; 按 v2rayN bin 路径精确清掉所有 core,
+          # 避免孤儿 core 继续占端口/TUN(sudo 免密环境, -n 静默跳过)
           kill "$CHILD_PID" 2>/dev/null || true
+          sudo -n pkill -TERM -f "$HOME/.local/share/v2rayN/bin/" 2>/dev/null || true
+          sleep 1
+          sudo -n pkill -KILL -f "$HOME/.local/share/v2rayN/bin/" 2>/dev/null || true
           wait "$CHILD_PID" 2>/dev/null || true
         fi
         if [ -f "$FLAG" ]; then
