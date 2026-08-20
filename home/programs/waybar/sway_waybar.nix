@@ -414,6 +414,10 @@ in
       Wants = [ "pipewire-pulse.service" ];
       After = [
         "pipewire-pulse.service"
+        # 视频壁纸先起:登录/激活时与 mpvpaper 同刻抢 layer-shell 会触发
+        # "Timed out waiting for initial .configure", bar 注册后不映射到屏幕
+        # (2026-08-20 更新后 waybar 消失事件)。
+        "video-wall.service"
       ];
       # hm 模块默认挂 tray.target (Hyprland 0.56 支持 StatusNotifier tray,
       # 会激活 tray.target 并把 waybar 拉进 Hyprland 会话)。waybar 只属于 sway。
@@ -421,6 +425,21 @@ in
     };
     Service = {
       Environment = [ "GDK_BACKEND=wayland" ];
+      # 会话启动忙期(合成器加载配置 + 客户端批量连接)后首个 layer configure
+      # 可能 >4s 才回复 → waybar 超时后 surface 永不映射。ExecStartPre 等
+      # mpvpaper 的 IPC socket 就绪(视频壁纸真正占层)后再起, 错开竞争。
+      ExecStartPre = [
+        (pkgs.writeShellScript "waybar-wait-mpvpaper" ''
+          for i in $(seq 1 30); do
+            if [ -S /tmp/mpvpaper.sock ]; then
+              exit 0
+            fi
+            sleep 0.2
+          done
+          # 30*0.2s=6s 未就绪也继续启动 (mpvpaper 可能没在跑, 不阻塞 waybar)
+          exit 0
+        '')
+      ];
       RestartSec = 2;
       # hm 模块默认 Restart=on-failure + ConditionEnvironment=WAYLAND_DISPLAY:
       # 会话结束时 waybar 随 wayland 断连崩溃, 而 user manager 里 WAYLAND_DISPLAY
