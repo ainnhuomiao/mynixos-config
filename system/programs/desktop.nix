@@ -42,6 +42,15 @@
     ];
   };
 
+  # xdg-desktop-portal 在登录早期会被 fake graphical-session 拉起, 彼时
+  # XDG_CURRENT_DESKTOP 尚未经 dbus-update-activation-environment 导入
+  # user manager → portal 进程缺该变量 → 匹配不到 sway-portals.conf →
+  # 不导出 Screenshot/ScreenCast 接口 → flameshot 等截图应用 30s 超时无窗口。
+  # 条件失败后 portal 会延后到首次被调用时(此时会话环境已就绪)再启动。
+  systemd.user.services."xdg-desktop-portal".unitConfig.ConditionEnvironment = [
+    "XDG_CURRENT_DESKTOP"
+  ];
+
   environment = {
     systemPackages = with pkgs; [
       libnotify

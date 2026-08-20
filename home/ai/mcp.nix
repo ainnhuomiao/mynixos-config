@@ -135,6 +135,31 @@ in
         ${pkgs.coreutils}/bin/chmod --reference="$copilot_config" "$copilot_tmp"
         ${pkgs.coreutils}/bin/mv "$copilot_tmp" "$copilot_config"
       fi
+
+      antigravity_config_dir="$HOME/.gemini/config"
+      antigravity_config="$antigravity_config_dir/mcp_config.json"
+      ${pkgs.coreutils}/bin/mkdir -p "$antigravity_config_dir"
+      if [[ ! -s "$antigravity_config" ]]; then
+        ${pkgs.coreutils}/bin/printf '{}\n' > "$antigravity_config"
+      fi
+      antigravity_tmp="$(${pkgs.coreutils}/bin/mktemp \
+        "$antigravity_config_dir/mcp_config.json.XXXXXX")"
+      ${pkgs.jq}/bin/jq \
+        --arg context7_url "${context7Url}" \
+        --arg mcp_nixos "${pkgs.mcp-nixos}/bin/mcp-nixos" \
+        --arg flake_stats_mcp "${pkgs.flake-stats-mcp}/bin/flake-stats-mcp" \
+        '.mcpServers.context7 = { serverUrl: $context7_url }
+         | .mcpServers["mcp-nixos"] = {
+             command: $mcp_nixos,
+             args: []
+           }
+         | .mcpServers["flake-stats-mcp"] = {
+             command: $flake_stats_mcp,
+             args: []
+           }' \
+        "$antigravity_config" > "$antigravity_tmp"
+      ${pkgs.coreutils}/bin/chmod --reference="$antigravity_config" "$antigravity_tmp"
+      ${pkgs.coreutils}/bin/mv "$antigravity_tmp" "$antigravity_config"
     fi
   '';
 }

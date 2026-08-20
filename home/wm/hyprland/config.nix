@@ -300,9 +300,9 @@ let
     hl.bind(mainMod .. " + SHIFT + V", hl.dsp.exec_cmd("vesktop"))
 
     -- 截图
-    hl.bind(mainMod .. " + bracketleft",  hl.dsp.exec_cmd('grimshot --notify copysave anything ~/Pictures/$(date "+%Y-%m-%d"T"%H_%M_%S").png'))
+    hl.bind(mainMod .. " + bracketleft",  hl.dsp.exec_cmd('grimshot --notify savecopy anything ~/Pictures/$(date "+%Y-%m-%d"T"%H_%M_%S").png'))
     hl.bind(mainMod .. " + bracketright", hl.dsp.exec_cmd("grimshot --notify copy anything"))
-    hl.bind(mainMod .. " + A",            hl.dsp.exec_cmd('grimshot --notify copysave anything ~/Pictures/$(date "+%Y-%m-%d"T"%H_%M_%S").png'))
+    hl.bind(mainMod .. " + A",            hl.dsp.exec_cmd('grimshot --notify savecopy anything ~/Pictures/$(date "+%Y-%m-%d"T"%H_%M_%S").png'))
     hl.bind("print",                      hl.dsp.exec_cmd("flameshot gui"))
 
     -- 壁纸 (hypr 版; dynamic/video 壁纸为 sway 专属, 未移植)

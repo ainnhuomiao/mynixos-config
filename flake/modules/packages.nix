@@ -18,6 +18,7 @@
       packages = {
         inherit (pkgs)
           axolotl
+          agy-hud
           bilibili
           bili_tui
           claude-code

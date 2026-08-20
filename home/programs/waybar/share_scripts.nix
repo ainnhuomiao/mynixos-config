@@ -81,6 +81,8 @@ in
     # no-config:用户 mpv 配置的 vo=gpu + profile=gpu-hq 与 mpvpaper 的 libmpv 渲染冲突,
     # 实测 4K60 视频丢帧 400+/播放速度 ~0.1x;no-config 后接近实时、丢帧个位数
     # loop-file=inf:当前视频无限循环不自动切;loop=inf:playlist-next 到尾后绕回第一个
+    # 登录自动启动时也会撞上 sway 兜底拉起的裸 swaybg,先清掉再占 background layer
+    ${pkgs.procps}/bin/pkill -f '/bin/swaybg' || true
     exec ${pkgs.mpvpaper}/bin/mpvpaper \
       -o "no-config no-audio --shuffle --loop=inf --loop-file=inf --hwdec=vaapi --input-ipc-server=/tmp/mpvpaper.sock --playlist=/tmp/mpvpaper-playlist.m3u" \
       ALL

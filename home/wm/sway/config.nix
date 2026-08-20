@@ -288,9 +288,9 @@ in
       bindsym $mod+Shift+y exec --no-startup-id        qutebrowser
       bindsym $mod+Shift+x exec --no-startup-id        ${myswaylock}/bin/myswaylock
       bindsym $mod+Shift+t exec --no-startup-id        Telegram
-      bindsym $mod+bracketleft  exec --no-startup-id   grimshot --notify copysave anything ~/Pictures/$(date "+%Y-%m-%d"T"%H_%M_%S").png
+      bindsym $mod+bracketleft  exec --no-startup-id   grimshot --notify savecopy anything ~/Pictures/$(date "+%Y-%m-%d"T"%H_%M_%S").png
       bindsym $mod+bracketright exec --no-startup-id   grimshot --notify copy anything
-      bindsym $mod+a exec --no-startup-id              grimshot --notify copysave anything ~/Pictures/$(date "+%Y-%m-%d"T"%H_%M_%S").png
+      bindsym $mod+a exec --no-startup-id              grimshot --notify savecopy anything ~/Pictures/$(date "+%Y-%m-%d"T"%H_%M_%S").png
       bindsym Print exec --no-startup-id               flameshot gui
       bindsym $mod+Shift+q workspace QQ, exec --no-startup-id qq
       bindsym Alt+Shift+q workspace QQ

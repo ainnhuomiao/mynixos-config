@@ -80,8 +80,18 @@ in
         color: @wall_fg_dim;
       }
 
+      #workspaces button label {
+        color: inherit;
+      }
+
       #workspaces button.focused {
         background-color: @wall_cyan;
+        color: @wall_bg;
+      }
+
+      #workspaces button.focused label,
+      #workspaces button.urgent label,
+      #workspaces button:hover label {
         color: @wall_bg;
       }
 

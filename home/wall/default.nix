@@ -19,7 +19,8 @@ in
         PartOf = lib.mkForce [ "sway-session.target" ];
         After = [ "graphical-session.target" ];
       };
-      Install.WantedBy = lib.mkForce [ "sway-session.target" ];
+      # 默认壁纸是视频(video-wall 随会话启动),awww 只在切换到静态时
+      # 由 wallpaper_* / video_wallpaper 脚本按需 start,不再随登录自启。
       Service = {
         Type = "simple";
         ExecStart = "${pkgs.awww}/bin/awww-daemon";
@@ -30,13 +31,15 @@ in
       };
     };
 
-    # mpvpaper 视频壁纸,由 video_wallpaper 切换脚本按需启动
+    # mpvpaper 视频壁纸:默认壁纸,随 sway 会话自动启动;
+    # 切静态由 video_wallpaper 脚本 stop,切回视频再 start。
     video-wall = {
       Unit = {
         Description = "mpvpaper video wallpaper";
         PartOf = lib.mkForce [ "sway-session.target" ];
         After = [ "graphical-session.target" ];
       };
+      Install.WantedBy = lib.mkForce [ "sway-session.target" ];
       Service = {
         Type = "simple";
         ExecStart = "${sharedScripts.video_wallpaper_play}/bin/video_wallpaper_play";
@@ -99,7 +102,9 @@ in
               if [[ "$line" == *"boolean false"* ]]; then
                   echo "Detected system resume, waiting for GPU and Wayland to settle..."
                   ${pkgs.coreutils}/bin/sleep 0.5
-                  ${pkgs.systemd}/bin/systemctl --user restart default_wall
+                  # 默认视频壁纸时 awww 不运行,只有静态模式才需要重刷壁纸
+                  ${pkgs.systemd}/bin/systemctl --user is-active --quiet awww.service && \
+                    ${pkgs.systemd}/bin/systemctl --user restart default_wall
               fi
           done
         '';

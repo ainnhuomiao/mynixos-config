@@ -27,6 +27,7 @@ let
 in
 {
   imports = [
+    ./agy-hud.nix
     ./mcp.nix
   ];
 

@@ -189,12 +189,13 @@ omp-provider
 omp-provider --doctor
 ```
 
-Home Manager 激活时只合并 Context7 MCP 项，不接管各工具的完整配置：
+Home Manager 激活时会将声明的 MCP 项合并到各工具配置中，不接管各工具的完整配置：
 
 | 工具               | 配置位置                           |
 | ------------------ | ---------------------------------- |
 | Codex              | `~/.codex/config.toml`             |
 | Claude Code        | `~/.claude.json`                   |
+| Antigravity CLI    | `~/.gemini/config/mcp_config.json` |
 | OpenCode           | `~/.config/opencode/opencode.json` |
 | GitHub Copilot CLI | `~/.copilot/mcp-config.json`       |
 | cc-switch          | `~/.cc-switch/cc-switch.db`        |
