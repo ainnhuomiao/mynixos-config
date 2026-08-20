@@ -431,15 +431,18 @@ in
       ExecStartPre = [
         (pkgs.writeShellScript "waybar-wait-mpvpaper" ''
           # systemd user 服务 PATH 不含 coreutils, 必须全路径。
-          # 轮询 mpvpaper 的 IPC socket(视频壁纸真正占层)后再起 waybar,
+          # 视频壁纸模式下轮询 mpvpaper 的 IPC socket(真正占层)后再起 waybar,
           # 错开登录/激活时 layer-shell configure 竞争。
-          for ((i = 0; i < 30; i++)); do
-            if [ -S /tmp/mpvpaper.sock ]; then
-              exit 0
-            fi
-            ${pkgs.coreutils}/bin/sleep 0.2
-          done
-          # 30*0.2s=6s 未就绪也继续启动 (mpvpaper 可能没在跑, 不阻塞 waybar)
+          # 静态模式 (video-wall 未运行) 立即继续, 不白等。
+          if ${pkgs.systemd}/bin/systemctl --user is-active --quiet video-wall.service; then
+            for ((i = 0; i < 30; i++)); do
+              if [ -S /tmp/mpvpaper.sock ]; then
+                exit 0
+              fi
+              ${pkgs.coreutils}/bin/sleep 0.2
+            done
+          fi
+          # 30*0.2s=6s 未就绪或静态模式: 直接启动, 不阻塞 waybar
           exit 0
         '')
       ];
