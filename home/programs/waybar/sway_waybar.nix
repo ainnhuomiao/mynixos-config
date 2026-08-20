@@ -430,11 +430,14 @@ in
       # mpvpaper 的 IPC socket 就绪(视频壁纸真正占层)后再起, 错开竞争。
       ExecStartPre = [
         (pkgs.writeShellScript "waybar-wait-mpvpaper" ''
-          for i in $(seq 1 30); do
+          # systemd user 服务 PATH 不含 coreutils, 必须全路径。
+          # 轮询 mpvpaper 的 IPC socket(视频壁纸真正占层)后再起 waybar,
+          # 错开登录/激活时 layer-shell configure 竞争。
+          for ((i = 0; i < 30; i++)); do
             if [ -S /tmp/mpvpaper.sock ]; then
               exit 0
             fi
-            sleep 0.2
+            ${pkgs.coreutils}/bin/sleep 0.2
           done
           # 30*0.2s=6s 未就绪也继续启动 (mpvpaper 可能没在跑, 不阻塞 waybar)
           exit 0
