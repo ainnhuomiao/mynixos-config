@@ -34,6 +34,26 @@ let
       # wrapper 被外部信号终止时, 先杀掉后台 v2rayN 子进程再恢复服务,
       # 避免 v2rayN 变孤儿与 dae TUN 同时接管(正常退出时 kill 静默失败)
       CHILD_PID=""
+      WATCHDOG_PID=""
+
+      # 看门狗: nixos-rebuild switch 在 dae/mihomo 单元文件变更时, 会强制重启
+      # 这两个单元——即使它们已被本脚本手动停掉(「重启」停着的单元=拉起来)。
+      # dae 透明代理与 v2rayN TUN 同时在跑会形成路由回环(全部 dial timeout/
+      # connection refused, 节点全 -1)。故 v2rayN 运行期间每 5s 巡检一次,
+      # 发现服务被外力拉起就再次停掉; wrapper 退出时先杀看门狗再恢复服务。
+      watchdog() {
+        while [ -f "$FLAG" ] && [ -d "/proc/$PPID" ]; do
+          if systemctl is-active --quiet dae.service 2>/dev/null && [ -f "$FLAG" ]; then
+            systemctl stop dae.service 2>/dev/null || true
+            echo "v2rayN: 看门狗发现 dae 被外力拉起(疑似 rebuild), 已再次停止"
+          fi
+          if systemctl is-active --quiet mihomo.service 2>/dev/null && [ -f "$FLAG" ]; then
+            systemctl stop mihomo.service 2>/dev/null || true
+            echo "v2rayN: 看门狗发现 mihomo 被外力拉起(疑似 rebuild), 已再次停止"
+          fi
+          sleep 5
+        done
+      }
 
       stop_transparent_proxy() {
         # 先 dae 后 mihomo，避免 Requires 传播顺序产生竞态
@@ -44,9 +64,13 @@ let
       }
 
       restore_transparent_proxy() {
+        # 先杀看门狗再动服务, 避免竞态: 看门狗若在恢复后跑完最后一轮,
+        # 会把刚恢复的 dae/mihomo 又停掉
+        if [ -n "$WATCHDOG_PID" ]; then
+          kill "$WATCHDOG_PID" 2>/dev/null || true
+          wait "$WATCHDOG_PID" 2>/dev/null || true
+        fi
         if [ -n "$CHILD_PID" ]; then
-          # v2rayN 会再拉起 core 子进程(含 sudo -S 起的 root 级 sing-box/xray),
-          # 直接 kill 只会杀应用本体; 按 v2rayN bin 路径精确清掉所有 core,
           # 避免孤儿 core 继续占端口/TUN(sudo 免密环境, -n 静默跳过)
           kill "$CHILD_PID" 2>/dev/null || true
           sudo -n pkill -TERM -f "$HOME/.local/share/v2rayN/bin/" 2>/dev/null || true
@@ -70,6 +94,8 @@ let
       trap restore_transparent_proxy EXIT
 
       stop_transparent_proxy
+      watchdog &
+      WATCHDOG_PID=$!
       "$V2RAYN_BIN" "$@" &
       CHILD_PID=$!
       wait "$CHILD_PID"
