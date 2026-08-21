@@ -2,6 +2,9 @@
 
 let
   context7Url = "https://mcp.context7.com/mcp";
+  # Obsidian Local REST API 插件自带的 MCP server(Streamable HTTP)。
+  # 需要 Obsidian 打开 ai-knowledge vault 且启用该插件。
+  obsidianMcpUrl = "http://127.0.0.1:27123/mcp/";
 in
 {
   home.activation.configureContext7 = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
@@ -12,7 +15,13 @@ in
         ${pkgs.coreutils}/bin/touch "$codex_config"
       fi
       codex_tmp="$(${pkgs.coreutils}/bin/mktemp "$HOME/.codex/config.toml.XXXXXX")"
-      ${pkgs.gawk}/bin/awk -v url="${context7Url}" '
+      obsidian_data="$HOME/ai-knowledge/.obsidian/plugins/obsidian-local-rest-api/data.json"
+      if [[ -f "$obsidian_data" ]]; then
+        obsidian_key="$(${pkgs.jq}/bin/jq -r '.apiKey // empty' "$obsidian_data" 2>/dev/null || true)"
+      else
+        obsidian_key=""
+      fi
+      ${pkgs.gawk}/bin/awk -v url="${context7Url}" -v obsidian_url="${obsidianMcpUrl}" -v obsidian_key="$obsidian_key" '
         function write_context7() {
           if (!context7_written) {
             print "[mcp_servers.context7]"
@@ -22,17 +31,36 @@ in
           }
         }
 
+        function write_obsidian() {
+          if (!obsidian_written) {
+            print "[mcp_servers.obsidian]"
+            print "url = \"" obsidian_url "\""
+            if (obsidian_key != "") {
+              print "http_headers = { Authorization = \"Bearer " obsidian_key "\" }"
+            }
+            print ""
+            obsidian_written = 1
+          }
+        }
+
         /^\[mcp_servers\.context7(\.|\])/ {
           write_context7()
           in_context7 = 1
           next
         }
 
-        /^\[/ && in_context7 {
-          in_context7 = 0
+        /^\[mcp_servers\.obsidian(\.|\])/ {
+          write_obsidian()
+          in_obsidian = 1
+          next
         }
 
-        !in_context7 {
+        /^\[/ && (in_context7 || in_obsidian) {
+          in_context7 = 0
+          in_obsidian = 0
+        }
+
+        !in_context7 && !in_obsidian {
           print
         }
 
@@ -42,6 +70,12 @@ in
               print ""
             }
             write_context7()
+          }
+          if (!obsidian_written) {
+            if (NR > 0 || context7_written) {
+              print ""
+            }
+            write_obsidian()
           }
         }
       ' "$codex_config" > "$codex_tmp"
@@ -144,10 +178,15 @@ in
       fi
       antigravity_tmp="$(${pkgs.coreutils}/bin/mktemp \
         "$antigravity_config_dir/mcp_config.json.XXXXXX")"
+      # 注意:antigravity-cli(agy,Go 实现)的远程 MCP 键是 serverUrl,
+      # 与 gemini-cli(TS)的 httpUrl/url 不同;实测 serverUrl 可连 Streamable HTTP 端点。
+      # 勿改成 httpUrl——agy 不识别,服务器会静默不加载。
       ${pkgs.jq}/bin/jq \
         --arg context7_url "${context7Url}" \
         --arg mcp_nixos "${pkgs.mcp-nixos}/bin/mcp-nixos" \
         --arg flake_stats_mcp "${pkgs.flake-stats-mcp}/bin/flake-stats-mcp" \
+        --arg obsidian_url "${obsidianMcpUrl}" \
+        --arg obsidian_key "$obsidian_key" \
         '.mcpServers.context7 = { serverUrl: $context7_url }
          | .mcpServers["mcp-nixos"] = {
              command: $mcp_nixos,
@@ -156,6 +195,12 @@ in
          | .mcpServers["flake-stats-mcp"] = {
              command: $flake_stats_mcp,
              args: []
+           }
+         | .mcpServers.obsidian = {
+            serverUrl: $obsidian_url,
+             headers: {
+               Authorization: "Bearer " + $obsidian_key
+             }
            }' \
         "$antigravity_config" > "$antigravity_tmp"
       ${pkgs.coreutils}/bin/chmod --reference="$antigravity_config" "$antigravity_tmp"
