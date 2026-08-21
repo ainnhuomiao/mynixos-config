@@ -4,7 +4,7 @@
   fetchurl,
 }:
 let
-  version = "3.16.0";
+  version = "3.22.1";
   # 运行时依赖（commander/undici，均无传递依赖）随插件自带 node_modules，
   # 与 `dsh plugin add @liustack/modlens` 的 pnpm 安装态保持一致
   commander = fetchurl {
@@ -23,7 +23,7 @@ stdenvNoCC.mkDerivation {
   # npm 官方发布的预构建 tarball（dist/、dsh/ 已构建），无需跑 npm 脚本
   src = fetchurl {
     url = "https://registry.npmjs.org/@liustack/modlens/-/modlens-${version}.tgz";
-    sha256 = "sha256-jK8brvgnHt5kkj9tRXsSdAN4HIpNciCWV7tsLvOh9Zo=";
+    sha256 = "sha256-XgRIZxGwTb5HCT9A9xhvWHhYG/2YOLx4q5SCvjTBSis=";
   };
 
   dontUnpack = true;

@@ -5,12 +5,12 @@
   fetchurl,
 }:
 let
-  version = "0.4.0";
+  version = "0.6.7";
   src = fetchFromGitHub {
-    owner = "omdsh-dev";
+    owner = "FSMargoo";
     repo = "dsh-at-file";
-    rev = "d083071d12ef832b5bea6369e516c8d26b475096"; # tag v0.4.0
-    hash = "sha256-4fQIPh37sY2qVIwuKlQ/o3dTUQ/jBs/wXpRKTu0YRIg=";
+    rev = "a6ce4f0cef1fd916d48215eedb71ffcbb6cfa75b"; # tag v0.6.7 (原 omdsh-dev, 已转移)
+    hash = "sha256-iU1w+JqcpQ/ymrsQAuYPG2oDS/+3NiDQN9FOWovXtGU=";
   };
   # 与 pnpm 安装态保持一致；lib/index.js 已被 esbuild 内联 zod，属防御性冗余
   zod = fetchurl {
@@ -36,7 +36,7 @@ stdenvNoCC.mkDerivation {
 
   meta = with lib; {
     description = "Codex-style @file mentions for the DeepSeek Harness web GUI: pick workspace paths in the composer";
-    homepage = "https://github.com/omdsh-dev/dsh-at-file";
+    homepage = "https://github.com/FSMargoo/dsh-at-file";
     license = licenses.mit;
     platforms = platforms.all;
   };

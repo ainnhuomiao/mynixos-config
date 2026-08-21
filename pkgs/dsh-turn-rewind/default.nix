@@ -4,12 +4,12 @@
   fetchFromGitHub,
 }:
 let
-  version = "0.1.0";
+  version = "0.1.1";
   src = fetchFromGitHub {
     owner = "Anionex";
     repo = "dsh-turn-rewind";
-    rev = "944b1ac8f6b170b55b692a51ddfa3a09f1b97ff1"; # main（仓库暂无 tag）
-    hash = "sha256-apDvanZKjx9ATYopaHmNJwfeI0kUwSbnpyXyIroe7Yo=";
+    rev = "b1b85f18aaaaf71d76c84613429ce04d71f69620"; # main（npm 0.1.1 对应提交）
+    hash = "sha256-oR/CwmY3EYg7e2jo8KE9F2HA86a6ETQjDVgI/Ri4JE4=";
   };
 in
 stdenvNoCC.mkDerivation {

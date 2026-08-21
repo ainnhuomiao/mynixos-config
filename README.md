@@ -302,7 +302,6 @@ just rebuild-switch
 
 `pkgs/` 中的本地包：
 
-- `axolotl`
 - `bili_tui`
 - `bun_1_3_14`（仅 oh-my-pi-zh 构建期依赖，不导出为 flake 包）
 - `dsh`
@@ -316,32 +315,31 @@ just rebuild-switch
 - `flake-stats-mcp`
 - `nordic`
 - `oh-my-pi-zh`
-- `orca-ide`
 
 `overlays/` 当前包含：
 
 - `motrix-next`：固定为 `3.9.6`，并修复其 sidecar 在 NixOS 上的动态链接
 - `mcp-nixos`：禁用一个会误判普通源码内容的上游测试
 
-Flake 对外提供 37 个包（`packages.x86_64-linux.*`）：
+Flake 对外提供 39 个包（`packages.x86_64-linux.*`）：
 
 ```text
-axolotl              bili_tui            bilibili
-caelestia-cli        caelestia-shell     claude-code
-discord              dsh                 dsh-at-file
-dsh-modlens          dsh-plugin-hub      dsh-turn-rewind
-dsh-web-search-tavily element-desktop    fcitx5-pinyin-moegirl
-fcitx5-pinyin-zhwiki feishu              flake-stats-mcp
-github-copilot-cli   google-chrome       hmcl
-mcp-nixos            microsoft-edge      motrix-next
-nordic               obsidian            oh-my-pi-zh
-orca-ide             qq                  steam
-swayfx               thunderbird-bin     v2rayn
-vscode               wechat              wemeet
-zen-browser
+agy-hud              antigravity-cli     bili_tui
+bilibili             caelestia-cli       caelestia-shell
+claude-code          discord             dsh
+dsh-at-file          dsh-modlens         dsh-plugin-hub
+dsh-tui              dsh-turn-rewind     dsh-web-search-tavily
+element-desktop      fcitx5-pinyin-moegirl fcitx5-pinyin-zhwiki
+feishu               flake-stats-mcp     github-copilot-cli
+google-chrome        hmcl                mcp-nixos
+microsoft-edge       motrix-next         nordic
+obsidian             oh-my-pi-zh         qq
+reasonix             steam               swayfx
+thunderbird-bin      v2rayn              vscode
+wechat               wemeet              zen-browser
 ```
 
-其中 `caelestia-shell` 为上游 `github:caelestia-dots/shell` 加上本仓库内 `patches/caelestia-zh_CN.patch.gz` 的汉化补丁（由 `~/hanhua_drive.py` 基于 hdcy 字典生成，见下文“上游 caelestia-shell 更新”），`zen-browser` 来自 `zen-browser-flake`，其余为 nixpkgs 包。这 37 个包全部由 GitHub Actions 构建并推送到自建 Attic 缓存（见下文“CI 与更新流程”）。
+其中 `caelestia-shell` 为上游 `github:caelestia-dots/shell` 加上本仓库内 `patches/caelestia-zh_CN.patch.gz` 的汉化补丁（由 `~/hanhua_drive.py` 基于 hdcy 字典生成，见下文“上游 caelestia-shell 更新”），`zen-browser` 来自 `zen-browser-flake`，其余为 nixpkgs 包。这 39 个包全部由 GitHub Actions 构建并推送到自建 Attic 缓存（见下文“CI 与更新流程”）。
 
 例如：
 

@@ -17,7 +17,6 @@
     {
       packages = {
         inherit (pkgs)
-          axolotl
           agy-hud
           bilibili
           bili_tui
@@ -44,7 +43,6 @@
           nordic
           obsidian
           oh-my-pi-zh
-          orca-ide
           qq
           swayfx
           steam

@@ -9,70 +9,70 @@
 # 简化：只装 GTK 主题与壁纸，去掉 GTK2（需 murrine）与 KDE/SDDM 部分。
 stdenvNoCC.mkDerivation {
   pname = "nordic";
-  version = "2.2.0-unstable-2025-05-05";
+  version = "2.2.0-unstable-2026-07-23";
 
   srcs = [
     (fetchFromGitHub {
       owner = "EliverLara";
       repo = "nordic";
-      rev = "d9b5c42cebf9a165bcce7b6b8a019f5cfd5b789c";
-      hash = "sha256-OkXjwaoXyWfTgNkeU+ab+uv+U/5OaJ8oTt/G8YLz84o=";
+      rev = "be5bda37ba01139650e34238336e58e065d2f406";
+      hash = "sha256-dQ9xc1kXqc4phCObAwWwHH//vm6NK6z61ieYV3NWWQE=";
       name = "Nordic";
     })
 
     (fetchFromGitHub {
       owner = "EliverLara";
       repo = "nordic";
-      rev = "361f0d1d23177a1154d415f793ce52a2c09629d4";
-      hash = "sha256-0IBuCMbHxTL3YtIK35g9xiBEs1DZgA4MwMAVPIw3Omk=";
+      rev = "be5bda37ba01139650e34238336e58e065d2f406";
+      hash = "sha256-dQ9xc1kXqc4phCObAwWwHH//vm6NK6z61ieYV3NWWQE=";
       name = "Nordic-standard-buttons";
     })
 
     (fetchFromGitHub {
       owner = "EliverLara";
       repo = "nordic";
-      rev = "bf05d41c7c7cd03e391854739bcc843fc6053ced";
-      hash = "sha256-AjVvciUrm/X3U6Pmo52ZrucLRJdsRFPeEMRwSKyjwi4=";
+      rev = "be5bda37ba01139650e34238336e58e065d2f406";
+      hash = "sha256-dQ9xc1kXqc4phCObAwWwHH//vm6NK6z61ieYV3NWWQE=";
       name = "Nordic-darker";
     })
 
     (fetchFromGitHub {
       owner = "EliverLara";
       repo = "nordic";
-      rev = "98cdf88d77fa7f0535ff660148e0ccbabe47a579";
-      hash = "sha256-70l5+renDhniZroPoMrCHsPgT6Pg3cr5w86LjkaWchg=";
+      rev = "be5bda37ba01139650e34238336e58e065d2f406";
+      hash = "sha256-dQ9xc1kXqc4phCObAwWwHH//vm6NK6z61ieYV3NWWQE=";
       name = "Nordic-darker-standard-buttons";
     })
 
     (fetchFromGitHub {
       owner = "EliverLara";
       repo = "nordic";
-      rev = "f1e43cf9ba83602f73f71407a8a4ba768122b7f4";
-      hash = "sha256-yLE/M9PXfQv2JD+HTsBHFiFaKuY8vOkZiOlQLLON+HM=";
+      rev = "be5bda37ba01139650e34238336e58e065d2f406";
+      hash = "sha256-dQ9xc1kXqc4phCObAwWwHH//vm6NK6z61ieYV3NWWQE=";
       name = "Nordic-bluish-accent";
     })
 
     (fetchFromGitHub {
       owner = "EliverLara";
       repo = "nordic";
-      rev = "52a37ebce50f948129507e4804240d9e7788a7a2";
-      hash = "sha256-zwnCaS08vceHjFHn9ET2509Zat7a1gHEG1RDR+xrbhc=";
+      rev = "be5bda37ba01139650e34238336e58e065d2f406";
+      hash = "sha256-dQ9xc1kXqc4phCObAwWwHH//vm6NK6z61ieYV3NWWQE=";
       name = "Nordic-bluish-accent-standard-buttons";
     })
 
     (fetchFromGitHub {
       owner = "EliverLara";
       repo = "nordic-polar";
-      rev = "24dc0325c4a38508039f5fee9a5391c1d9d8d5d5";
-      hash = "sha256-Y3PFuIc7UPbRg9NZie4buKCUiMXzl5idg7LSrj/lsos=";
+      rev = "4103a3d4e3445e71de6544b348a3562fa2021ead";
+      hash = "sha256-fjTc/KiDdfdbcSw3CRuL61tsdvf1jCae5wr2prA29fA=";
       name = "Nordic-Polar";
     })
 
     (fetchFromGitHub {
       owner = "EliverLara";
       repo = "nordic-polar";
-      rev = "fe0d657613a1e6330fa8c41378c324af93a42c3a";
-      hash = "sha256-fusSDXawWttXWQfGloRkpkHWvfLPuljm1l0BpAKvNSg=";
+      rev = "4103a3d4e3445e71de6544b348a3562fa2021ead";
+      hash = "sha256-fjTc/KiDdfdbcSw3CRuL61tsdvf1jCae5wr2prA29fA=";
       name = "Nordic-Polar-standard-buttons";
     })
   ];

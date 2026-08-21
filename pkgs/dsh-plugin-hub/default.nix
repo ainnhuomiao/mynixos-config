@@ -8,8 +8,8 @@ let
   src = fetchFromGitHub {
     owner = "Noob-stupid";
     repo = "dsh-plugin-hub";
-    rev = "bf58e9605263040863d639f8001e033120275497"; # main（仓库暂无 tag）
-    hash = "sha256-EyuOhbonIOFOoe6qtNMTqwq0fhStUBhFdrrxhxKiYaQ=";
+    rev = "6e7c8682b235ae0dd1b1c3e7dadeeea17c3b37e6"; # main（仓库暂无 tag）
+    hash = "sha256-Hzb74q/57c468qXjWhU8jDnMjx+spU1gJRyH1mIbBts=";
   };
 in
 stdenvNoCC.mkDerivation {
