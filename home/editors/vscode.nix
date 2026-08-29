@@ -11,6 +11,14 @@
         pkgs.vscode-extensions.arrterian.nix-env-selector
         pkgs.vscode-extensions.mkhl.direnv
         pkgs.vscode-extensions.anthropic.claude-code
+        (pkgs.vscode-utils.buildVscodeMarketplaceExtension {
+          mktplcRef = {
+            publisher = "Google";
+            name = "google-antigravity";
+            version = "1.0.0";
+            hash = "sha256-nQ1DKtKrFMMbOCxfqqSwV50o/q6+tXeB40TfKFzPXgw=";
+          };
+        })
       ];
       userSettings = {
         "workbench.colorTheme" = "Catppuccin Frappé";

@@ -1,7 +1,6 @@
 result
 result-*
 nixos.*
-dsh-cc-export-*.md
 nixpkgs/
 /.vscode
 myconfig.dae

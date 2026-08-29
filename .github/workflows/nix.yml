@@ -45,17 +45,8 @@ jobs:
             --accept-flake-config \
             .#bilibili \
             .#bili_tui \
-            .#caelestia-cli \
-            .#caelestia-shell \
             .#claude-code \
             .#discord \
-            .#dsh \
-            .#dsh-at-file \
-            .#dsh-modlens \
-            .#dsh-plugin-hub \
-            .#dsh-tui \
-            .#dsh-turn-rewind \
-            .#dsh-web-search-tavily \
             .#element-desktop \
             .#fcitx5-pinyin-moegirl \
             .#fcitx5-pinyin-zhwiki \

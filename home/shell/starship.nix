@@ -58,7 +58,7 @@ in
       };
 
       # 只在实际 venv 目录中显示 python 模块;默认的 detect_extensions
-      # 会让 ~/hanhua_drive.py 这类 .py 文件触发版本显示
+      # 会让目录里的 .py 文件触发版本显示
       python = {
         detect_extensions = [ ];
         detect_files = [ ];

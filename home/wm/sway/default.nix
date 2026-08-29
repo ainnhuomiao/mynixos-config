@@ -46,13 +46,12 @@ in
   systemd.user = {
     targets.sway-session.Unit.Wants = [ "xdg-desktop-autostart.target" ];
     # swayidle 只属于 sway 会话: hm 模块默认挂 graphical-session.target,
-    # Hyprland 会话激活它会导致双 swayidle (Hyprland 用 exec-once 自己的)
+    # 会话结束时随 wayland 断连退出
     services.swayidle = {
       Unit.PartOf = lib.mkForce [ "sway-session.target" ];
       Install.WantedBy = lib.mkForce [ "sway-session.target" ];
       # hm 模块默认 Restart=always: 会话结束时 swayidle 随 wayland 断连以
       # exit 253 退出, 触发 6 连重启风暴直到 start-limit-hit (每次切换必现),
-      # 若重启落在 Hyprland 会话窗口还会游离进 Hyprland 造成双重锁屏。
       # Restart=no: 会话结束时安静退出, 下次 sway-session.target 启动时全新拉起。
       Service.Restart = lib.mkForce "no";
     };

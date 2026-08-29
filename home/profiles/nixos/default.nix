@@ -10,7 +10,6 @@
     ../../programs
     ../../ai
     ../../wm/sway
-    ../../wm/hyprland
   ];
 
   wayland.windowManager.sway = lib.mkIf config.wayland.windowManager.sway.enable {

@@ -25,21 +25,13 @@
         "org.freedesktop.impl.portal.ScreenCast" = [ "wlr" ];
         "org.freedesktop.impl.portal.Screenshot" = [ "wlr" ];
       };
-      hyprland = {
-        default = [ "gtk" ];
-        "org.freedesktop.impl.portal.ScreenCast" = [ "hyprland" ];
-        "org.freedesktop.impl.portal.Screenshot" = [ "hyprland" ];
-      };
     };
     wlr = {
       enable = true;
       settings.screencast.chooser_type = "none";
     };
     configPackages = [ pkgs.gnome-session ];
-    extraPortals = [
-      pkgs.xdg-desktop-portal-gtk
-      pkgs.xdg-desktop-portal-hyprland
-    ];
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
   };
 
   # xdg-desktop-portal 在登录早期会被 fake graphical-session 拉起, 彼时
@@ -95,7 +87,6 @@
     };
   };
 
-  # ly 登录管理器已拆分为独立模块 ./ly.nix
   systemd = {
     user.services.polkit-gnome-authentication-agent-1 = {
       description = "polkit-gnome-authentication-agent-1";

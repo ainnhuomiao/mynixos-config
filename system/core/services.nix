@@ -70,10 +70,10 @@ in
   # 由 console.colors 生成 vt.default_red/grn/blu 内核参数
   console.colors = ttyPalette;
 
-  # ly 登录管理器(tty1)选择 sway / Hyprland, 不再需要 getty autologin;
-  # kmscon 接管 VTs 2–6(中文 TTY)
+  # ly 已移除; tty1 保留真实 getty 并 autologin(fish loginShellInit 守卫 exec sway),
+  # 直接启动进 sway; kmscon 仍接管 VTs 2–6 渲染中文 TTY
   systemd.suppressedSystemUnits = lib.mkForce [ ];
-  systemd.targets.getty.wants = lib.mkForce [ ];
+  systemd.targets.getty.wants = lib.mkForce [ "getty@tty1.service" ];
 
   # stateVersion 记录首次安装时的 NixOS release(当前 stable: 26.05),升级后不要随意改动
   system.stateVersion = "26.05";

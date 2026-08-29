@@ -14,8 +14,7 @@ in
       Unit = {
         Description = "Efficient animated wallpaper daemon for wayland";
         # 壁纸服务只属于 sway 会话: graphical-session.target 常驻不停止,
-        # Hyprland 会话(hyprpaper 后端)会把 awww/mpvpaper 一并拉起,
-        # 与 hyprpaper 抢 layer-shell 背景层。模式同 waybar/swayidle。
+        # 模式同 waybar/swayidle (会话结束不风暴重启)。
         PartOf = lib.mkForce [ "sway-session.target" ];
         After = [ "graphical-session.target" ];
       };
@@ -26,7 +25,7 @@ in
         ExecStart = "${pkgs.awww}/bin/awww-daemon";
         ExecStop = "${pkgs.awww}/bin/awww kill";
         # 同 swayidle: awww 是 wayland 客户端, 会话结束时随断连退出,
-        # Restart=always 会风暴重启并可能游离进 Hyprland 会话抢背景层。
+        # Restart=always 会风暴重启。
         Restart = "no";
       };
     };

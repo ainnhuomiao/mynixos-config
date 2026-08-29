@@ -5,7 +5,6 @@
     ./chrome
     ./dbclient
     ./discord
-    ./dsh
     ./edge
     ./emailclient
     ./emanote

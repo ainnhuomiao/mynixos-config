@@ -174,6 +174,11 @@ in
       for_window [app_id="(?i)^splayer$"] focus
       for_window [class="(?i)^splayer$"] move --no-auto-back-and-forth container to workspace SPlayer
       for_window [class="(?i)^splayer$"] focus
+      for_window [app_id="md.Obsidian"] move --no-auto-back-and-forth container to workspace Obsidian
+      for_window [app_id="md.Obsidian"] focus
+      for_window [class="(?i)^v2rayn$"] move --no-auto-back-and-forth container to workspace V2rayN
+      for_window [instance="(?i)^v2rayn$"] move --no-auto-back-and-forth container to workspace V2rayN
+      for_window [class="(?i)^v2rayn$"] focus
 
       #---------------------#
       # Focus follows mouse #

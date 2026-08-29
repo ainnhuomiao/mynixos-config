@@ -43,7 +43,7 @@
 | 主机         | `nixos`                                                                       |
 | 内核         | CachyOS latest `x86_64-v3`（pinned）                                          |
 | 显卡         | 雷电显卡坞外接 RTX 3050（PRIME offload）                                      |
-| 桌面         | swayfx + Hyprland 双 WM（ly 登录选择）                                        |
+| 桌面         | swayfx（getty 自动登录直接进入）                                              |
 | 用户环境     | Home Manager，作为 NixOS 模块集成                                             |
 | Shell        | Fish + Starship                                                               |
 | 音频         | PipeWire（ALSA、PulseAudio、JACK）                                            |
@@ -75,12 +75,7 @@ flake.nix
 
 ### 桌面与日常应用
 
-双 WM 平行会话，登录管理器 **ly** 在 TTY1 选择启动哪个（会话 wrapper 经 login shell 加载 Home Manager 环境变量）：
-
-- **swayfx**（wlroots，支持毛玻璃模糊与窗口动画，`Mod` 为 `Super`）：Waybar、Rofi、Mako 通知
-- **Hyprland 0.56+**（Lua 配置）：[`caelestia-shell`](https://github.com/caelestia-dots/shell) 桌面 shell（替代 waybar/mako，含启动器/控制中心/锁屏）
-
-两套 WM 键位对齐（Hyprland 为 92 条 Lua 绑定 + caelestia 全局快捷键）；sway 专属服务（waybar/swayidle/壁纸）通过 `sway-session.target` 隔离，不会串入 Hyprland 会话。
+唯一 WM 为 **swayfx**（wlroots，支持毛玻璃模糊与窗口动画，`Mod` 为 `Super`）：Waybar、Rofi、Mako 通知。开机经 getty 自动登录直接进入 sway（fish 登录 shell 在 tty1 上自动 `exec sway`），无需显示管理器。
 
 - Kitty、Firefox、Zen Browser、Google Chrome、Microsoft Edge
 - 聊天：Telegram、QQ、Vesktop、WeChat、Discord、Feishu、腾讯会议、Element
@@ -91,8 +86,8 @@ flake.nix
 - Fcitx5 + Rime + 中文扩展词库，左 `Ctrl` + 左 `Shift` 切换输入法
 - PipeWire、Blueman、NetworkManager Applet、XDG Desktop Portal、Mako 通知
 - btop 资源监视
-- ly 登录管理器（TTY1 选择 sway / Hyprland，kmscon 接管其他虚拟终端显示中文）
-- 锁屏与待机：sway 会话由 `swayidle` 在挂起前调用模糊截图 swaylock；Hyprland 会话由 `swayidle` 在空闲 600 秒或挂起前调用 `caelestia shell lock lock`（两会话各一个 idle 管理器，互不干扰）
+- getty 自动登录直接进入 Sway（tty1），kmscon 接管其他虚拟终端显示中文
+- 锁屏与待机：`swayidle` 在挂起前调用模糊截图 swaylock
 
 ### 雷电显卡坞（外接 RTX 3050）
 
@@ -159,7 +154,7 @@ Home Manager 配置包含：
 - Nix：`nixd`、`nixfmt`、`treefmt-nix`、`nix-output-monitor`
 - 外部二进制兼容：`nix-ld`
 
-默认开发 Shell 提供 `git`、`jq`、`just`、`neovim`、`nom` 和 `sbctl`。另有 `secret` Shell，提供 `age`、`sops` 和 `ssh-to-age`：
+默认开发 Shell 提供 `git`、`jq`、`just`、`neovim`、`nom`。另有 `secret` Shell，提供 `age`、`sops` 和 `ssh-to-age`：
 
 ```bash
 nix develop
@@ -275,9 +270,7 @@ assets/wallpapers/   # 静态壁纸（.png/.jpg/.jpeg/.webp）
 assets/videos/       # 视频壁纸（.mp4/.webm/.mkv/.mov）
 ```
 
-默认壁纸必须为 `assets/wallpapers/default.png`。随机选择会递归识别 `assets/wallpapers/` 下的图片。
-
-静态壁纸由 `awww-daemon` 管理（sway 会话；Hyprland 会话使用 hyprpaper，`Mod + Shift + W` 随机壁纸）：
+默认壁纸为视频（`assets/videos/`，mpvpaper 随会话自动播放）。静态壁纸由 `awww-daemon` 按需管理（切换时启动，不随登录驻留），随机选择会递归识别 `assets/wallpapers/` 下的图片：
 
 - `Mod + Shift + w`：随机切换一次
 - `Mod + Ctrl + w`：每 120 秒随机切换
@@ -304,12 +297,6 @@ just rebuild-switch
 
 - `bili_tui`
 - `bun_1_3_14`（仅 oh-my-pi-zh 构建期依赖，不导出为 flake 包）
-- `dsh`
-- `dsh-at-file`
-- `dsh-modlens`
-- `dsh-plugin-hub`
-- `dsh-turn-rewind`
-- `dsh-web-search-tavily`
 - `fcitx5-pinyin-moegirl`
 - `fcitx5-pinyin-zhwiki`
 - `flake-stats-mcp`
@@ -318,17 +305,16 @@ just rebuild-switch
 
 `overlays/` 当前包含：
 
+- `firefox`：固定 firefox-bin 154.0 与 zh-CN 语言包（nixpkgs 升级不再带动 Firefox 版本）
 - `motrix-next`：固定为 `3.9.6`，并修复其 sidecar 在 NixOS 上的动态链接
 - `mcp-nixos`：禁用一个会误判普通源码内容的上游测试
+- `v2rayn`：修复 Linux TUN 门禁（rebuild 后节点延迟 -1 的根因）
 
-Flake 对外提供 39 个包（`packages.x86_64-linux.*`）：
+Flake 对外提供 30 个包（`packages.x86_64-linux.*`）：
 
 ```text
 agy-hud              antigravity-cli     bili_tui
-bilibili             caelestia-cli       caelestia-shell
-claude-code          discord             dsh
-dsh-at-file          dsh-modlens         dsh-plugin-hub
-dsh-tui              dsh-turn-rewind     dsh-web-search-tavily
+bilibili             claude-code         discord
 element-desktop      fcitx5-pinyin-moegirl fcitx5-pinyin-zhwiki
 feishu               flake-stats-mcp     github-copilot-cli
 google-chrome        hmcl                mcp-nixos
@@ -339,14 +325,13 @@ thunderbird-bin      v2rayn              vscode
 wechat               wemeet              zen-browser
 ```
 
-其中 `caelestia-shell` 为上游 `github:caelestia-dots/shell` 加上本仓库内 `patches/caelestia-zh_CN.patch.gz` 的汉化补丁（由 `~/hanhua_drive.py` 基于 hdcy 字典生成，见下文“上游 caelestia-shell 更新”），`zen-browser` 来自 `zen-browser-flake`，其余为 nixpkgs 包。这 39 个包全部由 GitHub Actions 构建并推送到自建 Attic 缓存（见下文“CI 与更新流程”）。
+其中 `zen-browser` 来自 `zen-browser-flake`，`reasonix`/`antigravity-cli` 来自 `llm-agents`，其余为 nixpkgs 包。这 30 个包全部由 GitHub Actions 构建并推送到自建 Attic 缓存（见下文“CI 与更新流程”）。
 
 例如：
 
 ```bash
 nix build .#oh-my-pi-zh
 nix build .#mcp-nixos
-nix build .#caelestia-shell
 ```
 
 ## 目录结构
@@ -364,7 +349,7 @@ nix build .#caelestia-shell
 │   ├── shell/               # Fish、Starship 与 Shell 工具
 │   ├── terminals/           # 终端配置
 │   ├── wall/                # awww/mpvpaper 壁纸服务
-│   └── wm/                  # swayfx 与 hyprland 两套 WM 配置
+│   └── wm/                  # swayfx WM 配置
 ├── hosts/                   # NixOS 主机定义
 │   └── nixos/               # 当前物理机配置
 ├── lib/
@@ -390,20 +375,21 @@ nix build .#caelestia-shell
 
 仓库使用 `just` 管理常用命令（切换、清理与代际查看基于 [`nh`](https://github.com/nix-community/nh)，构建树可视化由 nh 内置的 nix-output-monitor 提供）：
 
-| 命令                  | 作用                                                                |
-| --------------------- | ------------------------------------------------------------------- |
-| `just`                | 列出全部 recipes                                                    |
-| `just update`         | 更新所有 Flake inputs                                               |
-| `just check`          | 执行 `nix flake check --fallback`                                   |
-| `just format`         | 使用 Flake formatter 格式化仓库                                     |
-| `just build [host]`   | 通过 `nh os build` 构建指定 NixOS 主机，不激活；默认 `nixos`        |
-| `just show`           | 显示全部 Flake outputs                                              |
-| `just develop`        | 通过 `nom` 进入默认开发 Shell                                       |
-| `just generations`    | 通过 `nh os info` 列出 NixOS 系统 generations                       |
-| `just rebuild-switch` | 先检查和格式化，再交互选择主机并通过 `nh os switch` 切换            |
-| `just clean`          | 通过 `nh clean` 清理旧 generations 与 gcroots，保留最近 3 代和 7 天 |
-| `just disko`          | 交互选择磁盘布局并分区、格式化、挂载                                |
-| `just install`        | 从 `/mnt/etc/nixos/flakes` 安装所选主机                             |
+| 命令                         | 作用                                                                |
+| ---------------------------- | ------------------------------------------------------------------- |
+| `just`                       | 列出全部 recipes                                                    |
+| `just update`                | 更新所有 Flake inputs                                               |
+| `just check`                 | 执行 `nix flake check --fallback`                                   |
+| `just format`                | 使用 Flake formatter 格式化仓库                                     |
+| `just build [host]`          | 通过 `nh os build` 构建指定 NixOS 主机，不激活；默认 `nixos`        |
+| `just show`                  | 显示全部 Flake outputs                                              |
+| `just develop`               | 通过 `nom` 进入默认开发 Shell                                       |
+| `just generations`           | 通过 `nh os info` 列出 NixOS 系统 generations                       |
+| `just rebuild-switch`        | 先检查和格式化，再交互选择主机并通过 `nh os switch` 切换            |
+| `just update-rebuild-switch` | 一键完整更新：flake update → check → format → 两次切换              |
+| `just clean`                 | 通过 `nh clean` 清理旧 generations 与 gcroots，保留最近 3 代和 7 天 |
+| `just disko`                 | 交互选择磁盘布局并分区、格式化、挂载                                |
+| `just install`               | 从 `/mnt/etc/nixos/flakes` 安装所选主机                             |
 
 常用流程：
 
@@ -424,33 +410,19 @@ just build
 
 ## CI 缓存与更新流程
 
-推送到 `main` 后，GitHub Actions（`.github/workflows/nix.yml`）会构建上述 36 个 flake 包并推送到自建 Attic 缓存（`ainnhuomiao.qianyuanqing.asia`），工作站重建时优先命中缓存。因此**更新依赖后必须推送 `flake.lock`**，CI 才会为新路径重新构建。
+推送到 `main` 后，GitHub Actions（`.github/workflows/nix.yml`）会构建上述 30 个 flake 包并推送到自建 Attic 缓存（`ainnhuomiao.qianyuanqing.asia`），工作站重建时优先命中缓存。因此**更新依赖后必须推送 `flake.lock`**，CI 才会为新路径重新构建。
 
 ### 日常更新（配置 / nixpkgs）
 
 ```bash
 just update          # 升级所有 flake inputs（含 nixpkgs）
 just rebuild-switch  # 检查、格式化、构建并切换
-# 本地验证无误后推 main，CI 自动构建 36 个包进 Attic
-```
-
-### 上游 caelestia-shell 更新（重新汉化）
-
-汉化不走独立 fork：flake input 保持上游 `github:caelestia-dots/shell`，本仓库的 `lib/caelestia-zh.nix` 对 `with-cli` 包应用 `patches/caelestia-zh_CN.patch.gz`（hdcy/Caelestia_Shell_zh_CN 字典 + 补丁，由 `~/hanhua_drive.py` 重新生成）。
-
-```bash
-# 1. 拉取上游最新 main 并重新生成汉化补丁（脚本自动完成 clone → 生成 patch）
-python3 ~/hanhua_drive.py
-# 2. 更新上游输入到新 commit
-nix flake lock --update-input caelestia-shell
-# 3. 验证并切换
-just rebuild-switch
-# 4. 推 main → CI 构建新汉化版进 Attic
+# 本地验证无误后推 main，CI 自动构建 30 个包进 Attic
 ```
 
 ## 常用 Sway 快捷键
 
-`Mod` 为 `Super`。Hyprland 会话的键位与 sway 对齐（92 条 Lua 绑定），caelestia 全局快捷键（如 `Mod + Z` 启动器）由 Hyprland 绑定并需 release 触发。
+`Mod` 为 `Super`。
 
 ### 启动与系统
 

@@ -20,17 +20,6 @@
       url = "github:nix-community/bun2nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    caelestia-shell = {
-      # 汉化不打独立仓库: lib/caelestia-zh.nix 对 with-cli 包应用 patches/caelestia-zh_CN.patch
-      # (hdcy/Caelestia_Shell_zh_CN 字典 647/659 词条 + 12 补丁 + 2 bugfix, 基于 rev 817a220)
-      # 上游更新后重新生成: python3 ~/hanhua_drive.py (自动 clone 最新 main -> 生成 patch)
-      url = "github:caelestia-dots/shell";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    caelestia-cli = {
-      url = "github:caelestia-dots/cli";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     emanote = {
       url = "github:srid/emanote";
       # emanote 的 Haskell 依赖 fsnotify-0.4.1.0 要求 text < 2.1.2，
@@ -57,20 +46,8 @@
       url = "github:hyprwm/hyprpicker";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    dsh-anchored-standard = {
-      # 社区两阶段锚定 preset（深文神 Harness），部署到 ~/.dsh/.agent-presets
-      # 更新: nix flake lock --update-input dsh-anchored-standard
-      url = "github:xiaobright/dsh-anchored-standard";
-      flake = false;
-    };
-    dsh-router-standard = {
-      # 社区思维模式路由预设（dsh-routing-suite 的 preset 子模块本体，
-      # 套装仓库的 submodule 无法被 flake 拉取，故直接引独立仓库）
-      url = "github:yjh051108/dsh-router-standard";
-      flake = false;
-    };
     llm-agents = {
-      # numtide/llm-agents.nix: AI coding agent 包集 (dsh/reasonix/antigravity-cli/...)
+      # numtide/llm-agents.nix: AI coding agent 包集 (reasonix/antigravity-cli/...)
       # 不 follows nixpkgs: 其包只对其钉的 nixpkgs-unstable 构建测试,
       # 跟随会丢 cache.numtide.com 缓存命中且随上游 nixpkgs 更新漂移
       url = "github:numtide/llm-agents.nix";

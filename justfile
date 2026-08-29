@@ -36,21 +36,12 @@ generations:
     nh os info
 
 # Validate, format, and switch via nh (nom output built in)
-# After activation, sync the Firefox zh-CN langpack to the running version
-# (firefox-bin ships en-US only; the profile langpack goes appDisabled on bump)
 rebuild-switch: check format
     NIX_CONFIG="experimental-features = nix-command flakes" bash ./lib/scripts/rebuild.sh
-    bash ./lib/scripts/firefox-langpack-sync.sh
-
-# Sync the Firefox zh-CN language pack to the active Firefox version
-# (run manually after a firefox-bin bump, or automatically via rebuild-switch)
-firefox-langpack:
-    bash ./lib/scripts/firefox-langpack-sync.sh
 
 # Complete system update: flake update → check → format → build+switch twice
-# (registry snapshot needs two rebuilds to consume the new nixpkgs), then sync
-# the Firefox langpack. See lib/scripts/update-rebuild-switch.sh for details;
-# manual extras: caelestia-shell 汉化 patch (python3 ~/hanhua_drive.py) + just clean
+# (registry snapshot needs two rebuilds to consume the new nixpkgs).
+# See lib/scripts/update-rebuild-switch.sh for details; manual extra: just clean
 update-rebuild-switch:
     bash ./lib/scripts/update-rebuild-switch.sh
 

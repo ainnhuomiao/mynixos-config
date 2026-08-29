@@ -22,13 +22,6 @@
           bili_tui
           claude-code
           discord
-          dsh
-          dsh-at-file
-          dsh-modlens
-          dsh-plugin-hub
-          dsh-tui
-          dsh-turn-rewind
-          dsh-web-search-tavily
           element-desktop
           fcitx5-pinyin-moegirl
           fcitx5-pinyin-zhwiki
@@ -52,15 +45,9 @@
           wechat
           wemeet
           ;
-        # caelestia-shell/cli 来自 flake input, nixpkgs 没有, 需一并缓存
-        # (with-cli 与系统 home 配置一致, 闭包含 quickshell/qml-plugin/extras/m3shapes)
-        # 汉化: 应用 lib/caelestia-zh.nix 的 zh_CN patch (hdcy 字典)
-        caelestia-shell = import ../../lib/caelestia-zh.nix { inherit inputs system; };
-        caelestia-cli = inputs.caelestia-cli.packages.${system}.default;
         # zen-browser 来自 flake input，nixpkgs 没有，需一并缓存
         zen-browser = inputs.zen-browser.packages.${system}.default;
-        # reasonix/antigravity-cli 来自 numtide/llm-agents.nix input（dsh 同源，
-        # 经 pkgs 的 overlay 以 pkgs.dsh 暴露，见 pkgs/default.nix）
+        # reasonix/antigravity-cli 来自 numtide/llm-agents.nix input
         reasonix = inputs.llm-agents.packages.${system}.reasonix;
         antigravity-cli = inputs.llm-agents.packages.${system}.antigravity-cli;
       };
