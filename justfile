@@ -11,7 +11,7 @@ update:
 
 # Check all flake outputs with nix-output-monitor
 check:
-    nix flake check --fallback --log-format internal-json -v 2>&1 | nom --json
+    nix flake check --fallback --option substituters "http://127.0.0.1:5496/ https://ainnhuomiao.qianyuanqing.asia/ainnhuomiao https://ainnhuomiao.cachix.org https://nix-community.cachix.org https://attic.xuyh0120.win/lantian https://cache.numtide.com" --log-format internal-json -v 2>&1 | nom --json
 
 # Format the repository
 format:

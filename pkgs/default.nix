@@ -8,11 +8,6 @@
     fcitx5-pinyin-zhwiki = final.callPackage ./fcitx5-pinyin-zhwiki { };
     flake-stats-mcp = final.callPackage ./flake-stats-mcp { };
     nordic = final.callPackage ./nordic { };
-    oh-my-pi-zh = final.callPackage ./oh-my-pi-zh {
-      bun2nix = inputs.bun2nix.packages.${final.system}.default;
-      src = inputs.oh-my-pi-src;
-      patchSrc = inputs.oh-my-pi-zh-src;
-    };
     # swayfx 0.6(窗口开合动画),nixpkgs 仍钉 0.5.3;复用 nixpkgs 的 sway wrapper
     swayfx = prev.sway.override {
       sway-unwrapped = inputs.swayfx.packages.${final.system}.swayfx-unwrapped-git;

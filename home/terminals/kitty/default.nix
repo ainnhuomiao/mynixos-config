@@ -15,7 +15,7 @@ in
       cursor_shape = "block";
       url_style = "dotted";
       confirm_os_window_close = 0;
-      background_opacity = "0.85";
+      background_opacity = "0.35";
       dynamic_background_opacity = true;
     };
     extraConfig = ''

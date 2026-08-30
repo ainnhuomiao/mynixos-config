@@ -50,7 +50,7 @@ in
     kmscon = {
       enable = true;
       config = {
-        font-name = "Maple Mono NF CN, Noto Sans Mono CJK SC";
+        font-name = "Hanekokoro Mono, Noto Sans Mono CJK SC";
         font-size = 14;
         # Catppuccin ${appearance.catppuccinVariant} 配色（kmscon.conf palette=custom + palette-* 键）
         palette = "custom";

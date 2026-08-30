@@ -16,10 +16,6 @@
   inputs = {
     # update single input: `nix flake lock --update-input <name>`
     # update all inputs: `nix flake update`
-    bun2nix = {
-      url = "github:nix-community/bun2nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     emanote = {
       url = "github:srid/emanote";
       # emanote 的 Haskell 依赖 fsnotify-0.4.1.0 要求 text < 2.1.2，
@@ -57,14 +53,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable-small";
-    oh-my-pi-src = {
-      url = "github:can1357/oh-my-pi/v17.1.7";
-      flake = false;
-    };
-    oh-my-pi-zh-src = {
-      url = "github:LiuQingHuaYang/oh-my-pi-zh/v17.1.7";
-      flake = false;
-    };
     nix-index-database = {
       url = "github:Mic92/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";

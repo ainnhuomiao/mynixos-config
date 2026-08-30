@@ -35,7 +35,6 @@
           motrix-next
           nordic
           obsidian
-          oh-my-pi-zh
           qq
           swayfx
           steam
@@ -50,6 +49,8 @@
         # reasonix/antigravity-cli 来自 numtide/llm-agents.nix input
         reasonix = inputs.llm-agents.packages.${system}.reasonix;
         antigravity-cli = inputs.llm-agents.packages.${system}.antigravity-cli;
+        omp = inputs.llm-agents.packages.${system}.omp;
+        pi = inputs.llm-agents.packages.${system}.pi;
       };
     };
 }

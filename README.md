@@ -115,32 +115,6 @@ nvidia-egpu-off              # 卸载驱动，提示“可安全关闭坞电源�
 
 配置位置：`system/hardware/egpu.nix`（驱动、授权与 wrapper）、`home/wm/sway/default.nix`（`WLR_DRM_DEVICES`）。
 
-### 外出远控（iPad + Moonlight）
-
-在家串流打游戏：**Sunshine**（服务端，KMS 抓屏 + NVENC/QSV 编码）→ **Moonlight**（iPad 客户端）→ **Tailscale**（异地组网，无需公网 IP/端口映射）。
-
-首次使用：
-
-```bash
-# 1. 登录 Tailscale(电脑与 iPad 用同一账号)
-sudo tailscale up
-```
-
-1. iPad App Store 安装 Tailscale 与 Moonlight，同一账号登录 Tailscale
-2. Moonlight 添加电脑，地址填 Tailscale IP（`tailscale ip -4` 查看，形如 100.x.x.x）
-3. 首次配对：iPad 上 Moonlight 显示 4 位 PIN，浏览器打开 `https://<电脑IP>:47990` 输入（可在家提前完成）
-4. 游戏用 `nvidia-egpu steam` 启动；编码器自动选择：坞通电走 NVENC，否则核显 QSV
-
-关键行为：
-
-- 合盖不睡眠不挂起（`services.logind.settings.Login.HandleLidSwitch=ignore`），Sway 无空闲超时，屏幕保持 active，KMS 抓屏不中断
-- dae 放行 `pname(tailscaled) -> direct`，Tailscale 控制面/DERP/打洞不经过代理
-- 防火墙已开 Sunshine 端口（47984-48010）供 Tailscale/局域网直连
-- 家宽上行带宽决定画质（1080p60 约需 10-20 Mbps）；P2P 打洞失败时走 DERP 中继，延迟会明显升高
-- 建议配蓝牙手柄；Moonlight 自带触屏虚拟手柄可应急
-
-配置位置：`system/remote.nix`（Sunshine / Tailscale / logind 合盖）、`system/dae.dae`（tailscaled 直连规则）。
-
 ### 开发环境
 
 Home Manager 配置包含：
@@ -172,7 +146,7 @@ nix develop .#secret
 - OpenCode
 - `cc-switch`
 - Herdr
-- Oh My Pi 中文版（`oh-my-pi-zh`）
+- Oh My Pi 与 Pi（来自 `llm-agents` 的 `omp`、`pi`）
 - `omp-provider` 中文交互式配置工具
 - `mcp-nixos`
 - `flake-stats-mcp`
@@ -296,12 +270,11 @@ just rebuild-switch
 `pkgs/` 中的本地包：
 
 - `bili_tui`
-- `bun_1_3_14`（仅 oh-my-pi-zh 构建期依赖，不导出为 flake 包）
 - `fcitx5-pinyin-moegirl`
 - `fcitx5-pinyin-zhwiki`
 - `flake-stats-mcp`
 - `nordic`
-- `oh-my-pi-zh`
+- `omp`、`pi`（来自 `llm-agents`）
 
 `overlays/` 当前包含：
 
@@ -319,19 +292,20 @@ element-desktop      fcitx5-pinyin-moegirl fcitx5-pinyin-zhwiki
 feishu               flake-stats-mcp     github-copilot-cli
 google-chrome        hmcl                mcp-nixos
 microsoft-edge       motrix-next         nordic
-obsidian             oh-my-pi-zh         qq
-reasonix             steam               swayfx
-thunderbird-bin      v2rayn              vscode
-wechat               wemeet              zen-browser
+obsidian             omp                 pi
+qq                   reasonix            swayfx
+steam                thunderbird-bin     v2rayn
+vscode               wechat              wemeet
+zen-browser
 ```
 
-其中 `zen-browser` 来自 `zen-browser-flake`，`reasonix`/`antigravity-cli` 来自 `llm-agents`，其余为 nixpkgs 包。这 30 个包全部由 GitHub Actions 构建并推送到自建 Attic 缓存（见下文“CI 与更新流程”）。
+其中 `zen-browser` 来自 `zen-browser-flake`，`reasonix`/`antigravity-cli`/`omp`/`pi` 来自 `llm-agents`，其余为 nixpkgs 包。这 30 个包全部由 GitHub Actions 构建并推送到自建 Attic 缓存（见下文“CI 与更新流程”）。
 
 例如：
 
 ```bash
-nix build .#oh-my-pi-zh
-nix build .#mcp-nixos
+nix build .#omp
+nix build .#pi
 ```
 
 ## 目录结构

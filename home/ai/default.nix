@@ -43,7 +43,8 @@ in
       inputs.herdr.packages.${system}.default
       inputs.llm-agents.packages.${system}.reasonix
       inputs.llm-agents.packages.${system}.antigravity-cli
-      oh-my-pi-zh
+      inputs.llm-agents.packages.${system}.omp
+      inputs.llm-agents.packages.${system}.pi
       omp-provider
     ]
     ++ mcps;

@@ -20,150 +20,189 @@ in
       /* catppuccin ${appearance.catppuccinVariant} (固定主题, 切换: lib/appearance.nix 的 catppuccinVariant) */
       @define-color wall_bg     ${h cp.bg};
       @define-color wall_bg_alt ${h cp.color0};
-      @define-color wall_fg     ${h cp.fg};
-      @define-color wall_fg_dim ${h cp.color7};
-      @define-color wall_red    ${h cp.color1};
-      @define-color wall_green  ${h cp.color2};
-      @define-color wall_yellow ${h cp.color3};
-      @define-color wall_blue   ${h cp.color4};
-      @define-color wall_purple ${h cp.color5};
-      @define-color wall_cyan   ${h cp.color6};
+      /* 中性文字：深灰色，适用于 Cava、日期和应用工作区。 */
+      @define-color wall_fg     #343434;
+      @define-color wall_fg_dim #5a5a5a;
+      /* 深色 Catppuccin 色相：在浅色/视频壁纸上保持可读性。 */
+      @define-color wall_red    #9b1c31;
+      @define-color wall_green  #287a3d;
+      @define-color wall_yellow #8a5b00;
+      @define-color wall_blue   #1d4ed8;
+      @define-color wall_purple #8b236b;
+      @define-color wall_cyan   #0f6e7a;
 
-      * {
-        font-family: "${appearance.font.name}";
-        font-size: 12pt;
-        font-weight: bold;
-        color: @wall_fg;
-        border-radius: 0px;
-        transition-property: background-color;
-        transition-duration: 0.5s;
-      }
+            * {
+              font-family: "${appearance.font.name}";
+              font-size: 12pt;
+              font-weight: 800;
+              color: @wall_fg;
+              transition-property: background-color;
+              transition-duration: 0.5s;
+            }
 
-      @keyframes blink_red {
-        to {
-          background-color: @wall_red;
-          color: @wall_bg;
-        }
-      }
+            @keyframes blink_red {
+              to {
+                background-color: @wall_red;
+                color: @wall_bg;
+              }
+            }
 
-      .warning,
-      .critical,
-      .urgent {
-        animation-name: blink_red;
-        animation-duration: 1s;
-        animation-timing-function: linear;
-        animation-iteration-count: infinite;
-        animation-direction: alternate;
-      }
+            .warning,
+            .critical,
+            .urgent {
+              animation-name: blink_red;
+              animation-duration: 1s;
+              animation-timing-function: linear;
+              animation-iteration-count: infinite;
+              animation-direction: alternate;
+            }
 
-      window#waybar {
-        background-color: transparent;
-      }
+            window#waybar {
+              background-color: transparent;
+            }
 
-      window>box {
-        margin-left: 5px;
-        margin-right: 5px;
-        margin-top: 5px;
-        background-color: @wall_bg_alt;
-      }
+            window>box {
+              margin: 0px 2px;
+              background-color: rgba(30, 30, 46, 0.28);
+              border: 1px dashed rgba(52, 52, 52, 0.72);
+            }
 
-      #workspaces {
-        padding-left: 0px;
-        padding-right: 4px;
-      }
+            /* 模块透明，让 SwayFX 的全局 blur 作用于框内壁纸。 */
+            .modules-left,
+            .modules-center,
+            .modules-right {
+              background-color: transparent;
+              border: none;
+              margin: 0px 1px;
+            }
 
-      #workspaces button {
-        padding-top: 5px;
-        padding-bottom: 5px;
-        padding-left: 6px;
-        padding-right: 6px;
-        color: @wall_fg_dim;
-      }
+            #custom-wall,
+            #custom-recgif,
+            #custom-launcher {
+              min-height: 18px;
+              padding-left: 5px;
+              padding-right: 5px;
+              padding-top: 0px;
+              padding-bottom: 0px;
+              background-color: transparent;
+            }
 
-      #workspaces button label {
-        color: inherit;
-      }
+            #custom-recgif {
+              min-width: 24px;
+              color: @wall_fg;
+            }
 
-      #workspaces button.focused {
-        background-color: @wall_cyan;
-        color: @wall_bg;
-      }
 
-      #workspaces button.focused label,
-      #workspaces button.urgent label,
-      #workspaces button:hover label {
-        color: @wall_bg;
-      }
+            /* MPD 与频谱不再各自绘制底色，依靠左侧虚线框形成统一区域 */
+            #mpd {
+              margin-right: 0px;
+            }
 
-      #workspaces button.urgent {
-        color: @wall_bg;
-      }
+            #custom-cava-internal {
+              margin-left: 0px;
+              min-width: 120px;
+              padding-left: 4px;
+              padding-right: 4px;
+              background-color: transparent;
+            }
 
-      #workspaces button:hover {
-        background-color: @wall_purple;
-        color: @wall_bg;
-      }
+            #clock {
+              padding-left: 9px;
+              padding-right: 9px;
+              color: @wall_fg;
+            }
 
-      tooltip {
-        /* background: rgb(250, 244, 252); */
-        background: @wall_bg_alt;
-      }
+            #workspaces {
+              padding-left: 4px;
+              padding-right: 4px;
+            }
 
-      tooltip label {
-        color: @wall_fg;
-      }
+            #workspaces button {
+              padding-top: 0px;
+              padding-bottom: 0px;
+              padding-left: 6px;
+              padding-right: 6px;
+              color: @wall_fg;
+            }
 
-      #custom-launcher {
-        font-size: 20px;
-        padding-left: 8px;
-        padding-right: 6px;
-        color: @wall_blue;
-      }
+            #workspaces button label {
+              color: inherit;
+            }
 
-      #mode,
-      #clock,
-      #memory,
-      #temperature,
-      #cpu,
-      #mpd,
-      #custom-wall,
-      #temperature,
-      #backlight,
-      #pulseaudio,
-      #network,
-      #battery,
-      #custom-powermenu,
-      #custom-cava-internal {
-        padding-left: 10px;
-        padding-right: 10px;
-      }
+            #workspaces button.focused {
+              background-color: @wall_cyan;
+              color: @wall_fg;
+            }
 
-      /* #mode { */
-      /* 	margin-left: 10px; */
-      /* 	background-color: rgb(248, 189, 150); */
-      /*     color: rgb(26, 24, 38); */
-      /* } */
+            #workspaces button.focused label,
+            #workspaces button.urgent label,
+            #workspaces button:hover label {
+              color: @wall_fg;
+            }
+
+            #workspaces button.urgent {
+              color: @wall_bg;
+            }
+
+            #workspaces button:hover {
+              background-color: @wall_purple;
+              color: @wall_bg;
+            }
+
+            tooltip {
+              /* background: rgb(250, 244, 252); */
+              background: @wall_bg_alt;
+            }
+
+            tooltip label {
+              color: @wall_fg;
+            }
+
+            #custom-launcher {
+              font-size: 16pt;
+              color: @wall_blue;
+              margin-right: 6px;
+            }
+
+            #mode,
+            #clock,
+            #memory,
+            #temperature,
+            #cpu,
+            #mpd,
+            #custom-wall,
+            #temperature,
+            #backlight,
+            #pulseaudio,
+            #battery,
+            #custom-powermenu,
+            #custom-cava-internal {
+              padding-left: 10px;
+              padding-right: 10px;
+            }
+
+            /* #mode { */
+            /* 	margin-left: 10px; */
+            /* 	background-color: rgb(248, 189, 150); */
+            /*     color: rgb(26, 24, 38); */
+            /* } */
       #memory {
         color: @wall_cyan;
       }
 
-      #cpu {
-        color: @wall_purple;
-      }
-
-      #clock {
-        color: @wall_fg;
-      }
-
+      #cpu,
       #custom-wall {
         color: @wall_purple;
       }
 
-      #custom-recgif {
+      #clock,
+      #custom-recgif,
+      #mpd {
         color: @wall_fg;
       }
 
-      #temperature {
+      #temperature,
+      #mpd.paused {
         color: @wall_blue;
       }
 
@@ -171,60 +210,35 @@ in
         color: @wall_green;
       }
 
-      #pulseaudio {
-        color: @wall_yellow;
-      }
-
-      #network {
-        color: @wall_green;
-      }
-
-      #network.disconnected {
-        color: @wall_fg_dim;
-      }
-
+      #pulseaudio,
       #battery.charging,
       #battery.full,
       #battery.discharging {
         color: @wall_yellow;
       }
 
-      #battery.critical:not(.charging) {
-        color: @wall_fg_dim;
-      }
-
+      #battery.critical:not(.charging),
       #custom-powermenu {
         color: @wall_red;
       }
 
-      #tray {
-        padding-right: 8px;
-        padding-left: 10px;
-      }
+            #tray {
+              padding-right: 8px;
+              padding-left: 10px;
+            }
 
-      #tray menu {
-        background: @wall_bg_alt;
-        color: @wall_fg_dim;
-      }
+            #tray menu {
+              background: @wall_bg_alt;
+              color: @wall_fg;
+            }
 
-      #mpd.paused {
-        color: @wall_blue;
-        font-style: italic;
-      }
+            #mpd.paused {
+              font-style: italic;
+            }
 
-      #mpd.stopped {
-        background: transparent;
-      }
-
-      #mpd {
-        color: @wall_fg;
-
-        /* color: #c0caf5; */
-      }
-
-      #custom-cava-internal {
-        font-family: "${appearance.font.name}";
-      }
+            #mpd.stopped {
+              background: transparent;
+            }
     '';
     settings = [
       {
@@ -247,13 +261,12 @@ in
           "backlight"
           "memory"
           "cpu"
-          # "network"
           "battery"
           "custom/powermenu"
           "tray"
         ];
         "custom/launcher" = {
-          "format" = " ";
+          "format" = "";
           "on-click" = "~/.config/rofi/launcher.sh";
           "tooltip" = false;
         };
@@ -261,8 +274,8 @@ in
           "format" = "{icon}";
           "return-type" = "json";
           "format-icons" = {
-            "recording" = "<span foreground='${h cp.color1}'> </span>";
-            "stopped" = " ";
+            "recording" = "<span foreground='${h cp.color1}'></span>";
+            "stopped" = "";
           };
           "exec" =
             "pgrep -x recgif >/dev/null && echo '{\"alt\": \"recording\"}' || echo '{\"alt\": \"stopped\"}'";
@@ -272,19 +285,21 @@ in
           "on-click-right" = "flameshot gui";
           "tooltip" = false;
         };
-        "custom/wall" = {
-          "on-click" = "${sharedScripts.wallpaper_random}/bin/wallpaper_random";
-          "on-click-middle" = "${sharedScripts.default_wall}/bin/default_wall";
-          "on-click-right" = "${sharedScripts.video_wallpaper}/bin/video_wallpaper";
-          "format" = " 󰠖 ";
-          "tooltip" = false;
-        };
         "custom/cava-internal" = {
           "exec" = "sleep 1s && ${sharedScripts.cava-internal}/bin/cava-internal";
           "tooltip" = false;
         };
+        "custom/wall" = {
+          "on-click" = "${sharedScripts.wallpaper_random}/bin/wallpaper_random";
+          "on-click-middle" = "${sharedScripts.default_wall}/bin/default_wall";
+          "on-click-right" = "${sharedScripts.video_wallpaper}/bin/video_wallpaper";
+          "format" = "󰠖";
+          "tooltip" = false;
+        };
         "sway/workspaces" = {
           "disable-scroll" = true;
+          # Waybar's {name} omits Sway's numeric ordering prefix.
+          "format" = "{name}";
         };
         "backlight" = {
           "on-scroll-up" = "brightnessctl set +5%";
@@ -382,14 +397,6 @@ in
           "on-scroll-down" = "mpc --quiet next";
           "smooth-scrolling-threshold" = 5;
           "tooltip-format" = "{title} - {artist} ({elapsedTime:%M:%S}/{totalTime:%H:%M:%S})";
-        };
-        "network" = {
-          "interval" = 1;
-          "format-wifi" = "󰖩 {essid} ({ipaddr})";
-          "format-ethernet" = "󰀂 {ifname} ({ipaddr})";
-          "format-linked" = "󰖪 {essid} (No IP)";
-          "format-disconnected" = "󰯡 Disconnected";
-          "tooltip" = false;
         };
         "temperature" = {
           #"critical-threshold"= 80;

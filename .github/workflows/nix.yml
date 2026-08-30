@@ -60,7 +60,8 @@ jobs:
             .#motrix-next \
             .#nordic \
             .#obsidian \
-            .#oh-my-pi-zh \
+            .#omp \
+            .#pi \
             .#qq \
             .#antigravity-cli \
             .#reasonix \

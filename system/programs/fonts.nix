@@ -1,13 +1,21 @@
 { pkgs, appearance, ... }:
 let
-  maple-mono-NF-CN = pkgs.maple-mono.NF.overrideAttrs (_: rec {
-    version = "7.0-beta36";
-    pname = "MapleMono-NF-CN";
+  hanekokoro-mono = pkgs.stdenvNoCC.mkDerivation {
+    pname = "hanekokoro-mono";
+    version = "0.2.4";
     src = pkgs.fetchurl {
-      url = "https://github.com/subframe7536/Maple-font/releases/download/v${version}/${pname}.zip";
-      sha256 = "sha256-W5b4jcr6fGaAbasCXCswGMkG/SklCXUbfRcPvZfzsNo=";
+      url = "https://github.com/ShadowRZ/hanekokoro-fonts/releases/download/v0.2.4/PkgTTF-HanekokoroMono.zip";
+      hash = "sha256-b6EjjrYY20eq69YCn8dG+qVsaJSsYEZEx8T9qABPR4c=";
     };
-  });
+    nativeBuildInputs = [ pkgs.unzip ];
+    dontUnpack = true;
+    installPhase = ''
+      runHook preInstall
+      install -d $out/share/fonts/truetype
+      unzip -q $src '*.ttf' -d $out/share/fonts/truetype
+      runHook postInstall
+    '';
+  };
 
   nerdFonts = with pkgs.nerd-fonts; [
     # fonts name can get in `https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/data/fonts/nerdfonts/shas.nix`
@@ -27,7 +35,7 @@ in
         noto-fonts-cjk-sans
         noto-fonts-cjk-serif
         noto-fonts-color-emoji
-        maple-mono-NF-CN
+        hanekokoro-mono
       ]
       ++ nerdFonts;
     fontconfig = {
@@ -90,42 +98,6 @@ in
             </test>
             <edit name="family" binding="strong">
               <string>Noto Sans CJK HK</string>
-            </edit>
-          </match>
-
-          <match target="pattern">
-            <test name="lang">
-              <string>zh-TW</string>
-            </test>
-            <test name="family">
-              <string>Noto Sans CJK SC</string>
-            </test>
-            <edit name="family" binding="strong">
-              <string>Noto Sans CJK TC</string>
-            </edit>
-          </match>
-
-          <match target="pattern">
-            <test name="lang">
-              <string>ja</string>
-            </test>
-            <test name="family">
-              <string>Noto Sans CJK SC</string>
-            </test>
-            <edit name="family" binding="strong">
-              <string>Noto Sans CJK JP</string>
-            </edit>
-          </match>
-
-          <match target="pattern">
-            <test name="lang" compare="contains">
-              <string>en</string>
-            </test>
-            <test name="family" compare="contains">
-              <string>Noto Serif CJK</string>
-            </test>
-            <edit name="family" mode="prepend" binding="strong">
-              <string>Noto Serif</string>
             </edit>
           </match>
         </fontconfig>
