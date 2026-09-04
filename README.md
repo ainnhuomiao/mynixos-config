@@ -226,7 +226,8 @@ http://127.0.0.1:9090/ui/
 
 - 并行查询所有上游缓存，按延迟和优先级选择最快源；故障源自动跳过并按指数退避重试
 - NAR 从最优源流式转发，本机只持久缓存 `.narinfo` 查询结果（`/var/cache/selector4nix`）
-- 上游列表：`cache.nixos.org`、`ainnhuomiao` Attic、`ainnhuomiao.cachix.org`、`nix-community.cachix.org`、`lantian` Attic，以及 USTC 镜像（`priority 45`，备用）
+- 上游列表：`ainnhuomiao` Attic、`ainnhuomiao.cachix.org`、`nix-community.cachix.org`、`lantian` Attic、`cache.numtide.com`，以及 USTC 镜像（cache.nixos.org 的 CN 直连镜像，作通用二进制源）
+- cache.nixos.org 不作为上游：dae 将其（非 geosite:cn）路由进 mihomo 节点，实测间歇性瘫痪/限速；nix 直连列表保留它作最后兜底
 - `configureSubstituter = "prepend"`：代理 `http://127.0.0.1:5496/` 排在 substituters 首位，原始列表保留作 fallback；代理故障时 Nix 自动回退，不影响构建
 
 配置位置：`system/nix/substituters.nix`。查看日志：

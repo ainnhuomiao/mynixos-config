@@ -13,8 +13,13 @@
         # port = 5496; # Default port
       };
 
+      # NOTE: cache.nixos.org deliberately NOT an upstream — dae routes it
+      # (non-geosite:cn) through the mihomo node, where it is intermittently
+      # dead/throttled (33KB/s-6.5MB/s measured 2026-09-04); USTC below
+      # mirrors its content and goes direct (geosite:cn). Direct
+      # cache.nixos.org remains in nix.settings.substituters as a last-resort
+      # fallback (NixOS appends it by default).
       substituters = [
-        { url = "https://cache.nixos.org/"; }
         { url = "https://ainnhuomiao.qianyuanqing.asia/ainnhuomiao"; }
         { url = "https://ainnhuomiao.cachix.org"; }
         { url = "https://nix-community.cachix.org"; }
