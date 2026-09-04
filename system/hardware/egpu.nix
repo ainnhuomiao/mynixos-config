@@ -65,11 +65,15 @@ in
       ExecStart = [
         (pkgs.writeShellScript "egpu-power-fix" ''
           set -e
-          ${egpu-pm-on} /devices
-          for d in 0000:00:07.0 0000:03:01.0 0000:03:04.0 0000:04:00.0 0000:04:00.1; do
-            echo on >"/sys/bus/pci/devices/$d/power/control" 2>/dev/null || true
+          # 从实际枚举到的 NVIDIA GPU 反向遍历父级，避免 Thunderbolt 热插拔
+          # 后 BDF 变化（当前拓扑已经是 03:00/04:01/04:04/05:00）。
+          for pci_device in /sys/bus/pci/devices/*; do
+            [ -r "$pci_device/vendor" ] && [ -r "$pci_device/device" ] || continue
+            if [ "$(cat "$pci_device/vendor")" = "0x10de" ] && [ "$(cat "$pci_device/device")" = "0x2584" ]; then
+              device_path="$(readlink -f "$pci_device")"
+              ${egpu-pm-on} "''${device_path#/sys}"
+            fi
           done
-          echo on >/sys/bus/thunderbolt/devices/domain0/power/control 2>/dev/null || true
         '')
       ];
     };
@@ -121,15 +125,25 @@ in
       set -euo pipefail
       export PATH="$PATH:/run/current-system/sw/bin"
       [ $# -gt 0 ] || { echo "usage: nvidia-egpu <command...>" >&2; exit 1; }
-      # 坑:nvidia-smi -L 在 GPU 楔死(驱动 full-chip reset 后)时仍 exit 0、只打印
-      # "No devices found.",所以必须检查输出以 "GPU " 开头,否则会在坏 GPU 上照常启动游戏
+      # 先区分“坞未连接”和“GPU 已枚举但驱动未加载”。无 PCI 设备时不要
+      # 触发 sudo，也不要白等重试；设备存在时才尝试加载 NVIDIA 驱动。
+      nvidia_pci_present=0
+      for pci_device in /sys/bus/pci/devices/*; do
+        [ -r "$pci_device/vendor" ] && [ -r "$pci_device/device" ] || continue
+        if [ "$(cat "$pci_device/vendor")" = "0x10de" ] && [ "$(cat "$pci_device/device")" = "0x2584" ]; then
+          nvidia_pci_present=1
+          break
+        fi
+      done
       if ! nvidia-smi -L 2>/dev/null | grep -q '^GPU '; then
-        echo "NVIDIA 驱动未加载,尝试加载..."
-        sudo modprobe nvidia_drm || true
-        for _ in 1 2 3 4 5; do
-          nvidia-smi -L 2>/dev/null | grep -q '^GPU ' && break
-          sleep 1
-        done
+        if [ "$nvidia_pci_present" -eq 1 ]; then
+          echo "NVIDIA 驱动未加载,尝试加载..."
+          sudo modprobe nvidia_drm || true
+          for _ in 1 2 3 4 5; do
+            nvidia-smi -L 2>/dev/null | grep -q '^GPU ' && break
+            sleep 1
+          done
+        fi
       fi
       if nvidia-smi -L 2>/dev/null | grep -q '^GPU '; then
         nvidia-smi -L
@@ -153,12 +167,12 @@ in
     (pkgs.writeShellScriptBin "nvidia-egpu-off" ''
       set -euo pipefail
       export PATH="$PATH:/run/current-system/sw/bin"
-      if ! grep -q '^nvidia ' /proc/modules; then
+      if ! grep -q '^nvidia\(_drm\|_modeset\)\? ' /proc/modules; then
         echo "NVIDIA 驱动未加载,无需卸载,可直接关闭坞电源"
         exit 0
       fi
       # GPU 掉线(Xid 79)后 rmmod 会挂起等待 GPU 响应,必须用 timeout 兜底
-      if timeout 30 sudo modprobe -r nvidia_drm nvidia_modeset nvidia 2>/dev/null; then
+      if timeout 30 sudo modprobe -r nvidia_drm nvidia_modeset nvidia_uvm nvidia 2>/dev/null; then
         echo "NVIDIA 驱动已卸载,现在可以安全关闭坞电源"
         notify-send "eGPU 已卸载" "驱动已卸载,可安全关闭坞电源" 2>/dev/null || true
       elif [ $? -eq 124 ]; then

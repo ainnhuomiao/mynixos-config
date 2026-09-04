@@ -39,12 +39,16 @@ generations:
 rebuild-switch: check format
     NIX_CONFIG="experimental-features = nix-command flakes" bash ./lib/scripts/rebuild.sh
 
-# Complete system update: flake update → check → format → build+switch twice
-# (registry snapshot needs two rebuilds to consume the new nixpkgs).
-# See lib/scripts/update-rebuild-switch.sh for details; manual extra: just clean
-update-rebuild-switch:
-    bash ./lib/scripts/update-rebuild-switch.sh
 
+
+# Fast path: build and switch without pre-check or formatting
+rebuild-switch-fast:
+    NIX_CONFIG="experimental-features = nix-command flakes" bash ./lib/scripts/rebuild.sh
+
+# Explicit full validation before switching
+verify:
+    just check
+    just format
 # Delete old generations and gcroots, keeping 3 generations and 7 days of history
 # nh clean all extends nix-collect-garbage with gcroot cleanup
 # (replace the old `nix-collect-garbage --delete-old`)
