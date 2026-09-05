@@ -33,7 +33,7 @@ let
 in
 {
   font = {
-    name = "Hanekokoro Mono";
+    name = "Maple Mono NF CN";
     size = 12;
   };
 
