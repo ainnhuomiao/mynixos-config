@@ -51,6 +51,7 @@ ORIG_BRANCH="$(git branch --show-current)"
 
 # ---- 分支名(由 commit message 生成 slug + 时间戳保证唯一) ----
 slug="$(echo "$MSG" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]\+/-/g; s/^-\+//; s/-\+$//')"
+[[ -z $slug ]] && slug="change"
 branch="pr/$slug-$(date +%s)"
 
 echo "=== [1/5] 拉取最新 main ==="
@@ -71,13 +72,13 @@ git commit -m "$MSG" >/dev/null
 git push -u origin "$branch" 2>&1 | tail -2
 
 echo "=== [4/5] 开 PR 到 main ==="
-pr_url="$(gh pr create --base main --head "$branch" --title "$MSG" --body "自动生成: \`${branch}\` 已推送到 main。CI 通过后可合并。")"
+pr_url="$(gh pr create --repo ainnhuomiao/mynixos-config --base main --head "$branch" --title "$MSG" --body "自动生成: \`${branch}\` 已推送到 main。CI 通过后可合并。")"
 pr_num="$(echo "$pr_url" | sed -n 's|.*/pull/\([0-9]*\).*|\1|p')"
 echo "   PR: $pr_url"
 
 if [[ $AUTO == "1" ]]; then
   echo "=== [5/5] 设自动合并 ==="
-  gh pr merge "$pr_num" --auto --merge --delete-branch
+  gh pr merge "$pr_num" --repo ainnhuomiao/mynixos-config --auto --merge --delete-branch
   echo "   已挂自动合并: CI(Build NixOS x86_64-linux) 通过后自动合并且删 $branch"
 else
   echo "=== [5/5] 跳过自动合并(手动合并) ==="
