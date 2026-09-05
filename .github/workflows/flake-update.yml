@@ -25,6 +25,10 @@ jobs:
         uses: actions/checkout@v6
         with:
           ref: main
+          # 必须 false: checkout 默认 persist-credentials=true 会写一个
+          # Authorization extraheader,再叠加 create-pull-request 的 BOT_TOKEN
+          # 会发出两个 Authorization 头 → "Duplicate header" → git 400
+          persist-credentials: false
 
       - name: Install Nix
         uses: cachix/install-nix-action@v31
