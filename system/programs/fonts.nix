@@ -1,21 +1,13 @@
 { pkgs, appearance, ... }:
 let
-  hanekokoro-mono = pkgs.stdenvNoCC.mkDerivation {
-    pname = "hanekokoro-mono";
-    version = "0.2.4";
+  maple-mono-NF-CN = pkgs.maple-mono.NF.overrideAttrs (_: rec {
+    version = "7.0-beta36";
+    pname = "MapleMono-NF-CN";
     src = pkgs.fetchurl {
-      url = "https://github.com/ShadowRZ/hanekokoro-fonts/releases/download/v0.2.4/PkgTTF-HanekokoroMono.zip";
-      hash = "sha256-b6EjjrYY20eq69YCn8dG+qVsaJSsYEZEx8T9qABPR4c=";
+      url = "https://github.com/subframe7536/Maple-font/releases/download/v${version}/${pname}.zip";
+      sha256 = "sha256-W5b4jcr6fGaAbasCXCswGMkG/SklCXUbfRcPvZfzsNo=";
     };
-    nativeBuildInputs = [ pkgs.unzip ];
-    dontUnpack = true;
-    installPhase = ''
-      runHook preInstall
-      install -d $out/share/fonts/truetype
-      unzip -q $src '*.ttf' -d $out/share/fonts/truetype
-      runHook postInstall
-    '';
-  };
+  });
 
   nerdFonts = with pkgs.nerd-fonts; [
     # fonts name can get in `https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/data/fonts/nerdfonts/shas.nix`
@@ -35,7 +27,7 @@ in
         noto-fonts-cjk-sans
         noto-fonts-cjk-serif
         noto-fonts-color-emoji
-        hanekokoro-mono
+        maple-mono-NF-CN
       ]
       ++ nerdFonts;
     fontconfig = {
