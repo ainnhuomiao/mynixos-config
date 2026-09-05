@@ -42,6 +42,7 @@ jobs:
         run: nix flake check --print-build-logs
 
       - name: Create pull request
+        id: create-pr
         uses: peter-evans/create-pull-request@v6
         with:
           # PAT: bot 开的 PR 才会触发 nix.yml 的 pull_request CI (30 包构建 + check)
@@ -53,5 +54,13 @@ jobs:
             GitHub Actions 每周六 08:00 (北京时间) 自动执行 `nix flake update` 生成。
 
             本 PR 会触发仓库完整 CI（`nix.yml`：30 包构建 + `nix flake check`）。
-            请确认 CI 通过后合并；若锁定升级砸包，直接在 PR 上排查或关掉下轮再试。
-          delete-branch: true
+            分支保护要求该构建通过后**自动合并**并删除 `bot/flake-update` 分支。
+            若锁定升级砸包，合并会因 CI 失败而取消，请排查后重跑下轮。
+
+      - name: Enable auto-merge
+        if: steps.create-pr.outputs.pull-request-number != ''
+        env:
+          GH_TOKEN: ${{ secrets.BOT_TOKEN }}
+        run: |
+          gh pr merge "${{ steps.create-pr.outputs.pull-request-number }}" \
+            --auto --merge --delete-branch
