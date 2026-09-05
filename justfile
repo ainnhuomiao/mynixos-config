@@ -62,3 +62,11 @@ disko:
 # Install NixOS on the mounted target
 install:
     bash ./lib/scripts/install.sh
+
+# Push local config changes to main via a PR; auto-merges after CI passes
+pr msg:
+    bash ./lib/scripts/pr.sh "{{msg}}"
+
+# Same, but only open the PR (no auto-merge; merge manually)
+pr-noauto msg:
+    bash ./lib/scripts/pr.sh --no-auto "{{msg}}"
