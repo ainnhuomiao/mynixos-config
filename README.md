@@ -396,6 +396,10 @@ just rebuild-switch  # 检查、格式化、构建并切换
 # 本地验证无误后推 main，CI 自动构建 30 个包进 Attic
 ```
 
+### 每周自动更新 `flake.lock`（bot）
+
+GitHub Actions（`.github/workflows/flake-update.yml`）每周六 `00:00 UTC`（= 北京时间 08:00）自动运行 `nix flake update` 并开一个 PR。该 PR 用 `BOT_TOKEN`（仓库 Secret 中的 Personal Access Token，需 `contents` + `pull_requests` 写权限）创建，因此会触发 `nix.yml` 的完整 CI（30 包构建 + `nix flake check`）。确认 CI 通过后合并即可；若滚动升级砸包，直接在 PR 上排查或关掉下轮再试。也可 `workflow_dispatch` 手动触发。
+
 ## 常用 Sway 快捷键
 
 `Mod` 为 `Super`。
