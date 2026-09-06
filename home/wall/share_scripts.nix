@@ -1,7 +1,7 @@
 { pkgs, ... }:
 let
-  wallpaperDirectory = ../../../assets/wallpapers;
-  videoDirectory = ../../../assets/videos;
+  wallpaperDirectory = ../../assets/wallpapers;
+  videoDirectory = ../../assets/videos;
   selectWallpaper = ''
     wallpaper=$(${pkgs.findutils}/bin/find "${wallpaperDirectory}" -type f \
       \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' \) \
@@ -20,10 +20,6 @@ let
   '';
 in
 {
-  cava-internal = pkgs.writeShellScriptBin "cava-internal" ''
-    killall cava
-    cava -p ~/.config/cava/config_internal | sed -u 's/;//g;s/0/▁/g;s/1/▂/g;s/2/▃/g;s/3/▄/g;s/4/▅/g;s/5/▆/g;s/6/▇/g;s/7/█/g;'
-  '';
   wallpaper_random = pkgs.writeShellScriptBin "wallpaper_random" ''
     ${ensureStatic}
     ${selectWallpaper}
@@ -111,25 +107,6 @@ in
       if [[ -n "$NEW" && "$NEW" != "$NAME" ]]; then
         ${pkgs.libnotify}/bin/notify-send "Wallpaper" "视频壁纸: $NEW"
       fi
-    fi
-  '';
-  recgif = pkgs.writeShellScriptBin "recgif" ''
-    TIMESTAMP=$(date "+%Y-%m-%dT%H_%M_%S")
-    TEMP_VIDEO="/tmp/recording_$TIMESTAMP.mkv"
-    OUTPUT_GIF="$HOME/Pictures/recording_$TIMESTAMP.gif"
-    GEOMETRY=$(slurp)
-    if [[ $? -ne 0 ]]; then
-      exit 1
-    fi
-    wf-recorder -f "$TEMP_VIDEO" -g "$GEOMETRY"
-    if [[ -f "$TEMP_VIDEO" ]]; then
-      ffmpeg -i "$TEMP_VIDEO" -vf "fps=15,scale=640:-1:flags=lanczos" -f gif "$OUTPUT_GIF"
-      if [[ -f "$OUTPUT_GIF" ]]; then
-        notify-send "GIF Conversion Complete" "GIF saved to $OUTPUT_GIF"
-      fi
-      rm "$TEMP_VIDEO"
-    else
-      notify-send "Recording Failed" "Video file not found"
     fi
   '';
 }

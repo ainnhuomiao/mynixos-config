@@ -16,7 +16,6 @@
 
   services.blueman.enable = true;
 
-  security.pam.services.swaylock = { };
   xdg.portal = {
     enable = true;
     config = {
@@ -46,8 +45,6 @@
   environment = {
     systemPackages = with pkgs; [
       libnotify
-      wl-clipboard
-      cliphist
       wlr-randr
       wf-recorder
       wlprop

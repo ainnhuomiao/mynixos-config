@@ -5,7 +5,7 @@
   ...
 }:
 let
-  sharedScripts = import ../../programs/waybar/share_scripts.nix { inherit pkgs; };
+  sharedScripts = import ../../wall/share_scripts.nix { inherit pkgs; };
 in
 {
   imports = [ ./config.nix ];
