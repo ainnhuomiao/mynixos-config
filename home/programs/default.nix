@@ -22,6 +22,7 @@
     ./imgview
     ./kooha
     ./lazygit
+    ./lxmusic
     ./motrix
     ./mpv
     ./music
