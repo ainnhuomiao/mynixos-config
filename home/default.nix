@@ -6,6 +6,7 @@
 {
   imports = [
     inputs.nix-index-database.homeModules.nix-index
+    inputs.noctalia.homeModules.default
   ];
 
   home = {

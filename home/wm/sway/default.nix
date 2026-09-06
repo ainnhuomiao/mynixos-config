@@ -27,7 +27,6 @@ in
     sharedScripts.video_wallpaper_next
   ]
   ++ (with pkgs; [
-    swaylock
     sway-contrib.grimshot
     pamixer
     swayidle

@@ -21,13 +21,12 @@
     ./im
     ./imgview
     ./kooha
-    ./launcher
     ./lazygit
     ./motrix
     ./mpv
     ./music
     ./nix-index
-    ./notice
+    ./noctalia
     ./nvtop
     ./obs-studio
     ./obsidian

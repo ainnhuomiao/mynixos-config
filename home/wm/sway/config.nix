@@ -4,40 +4,14 @@
   ...
 }:
 let
-  n = appearance.palettes.nord;
   h = appearance.toHex;
   cp = appearance.catppuccin.${appearance.catppuccinVariant};
-  myswaylock = pkgs.writeShellScriptBin "myswaylock" ''
-    ${pkgs.grim}/bin/grim /tmp/screen.png
-    ${pkgs.ffmpeg}/bin/ffmpeg -y -loglevel error -i /tmp/screen.png -vf "gblur=sigma=8,colorlevels=rimin=0.1:gimin=0.1:bimin=0.1" -update 1 -frames:v 1 /tmp/screen_blur.png
-    ${pkgs.swaylock}/bin/swaylock -i /tmp/screen_blur.png -s fill \
-      --indicator-radius 120 \
-      --indicator-thickness 10 \
-      --inside-color ${n.nord0}88 \
-      --ring-color ${n.nord3} \
-      --key-hl-color ${n.nord8} \
-      --bs-hl-color ${n.nord11} \
-      --text-color ${n.nord4} \
-      --separator-color 00000000 \
-      --line-uses-ring \
-      --inside-ver-color ${n.nord9} \
-      --ring-ver-color ${n.nord10} \
-      --text-ver-color ${n.nord6} \
-      --inside-wrong-color ${n.nord11} \
-      --ring-wrong-color ${n.nord12} \
-      --text-wrong-color ${n.nord6} \
-      --inside-clear-color ${n.nord14} \
-      --ring-clear-color ${n.nord7} \
-      --text-clear-color ${n.nord0}
-    rm /tmp/screen.png /tmp/screen_blur.png
-  '';
 in
 {
-  imports = [ ../../programs/waybar/sway_waybar.nix ];
   services.swayidle = {
     enable = true;
     events = {
-      "before-sleep" = "${myswaylock}/bin/myswaylock";
+      "before-sleep" = "${pkgs.systemd}/bin/loginctl lock-session";
     };
   };
   wayland.windowManager.sway = {
@@ -47,6 +21,7 @@ in
       # mod key #
       #---------#
       set $mod Mod4
+      set $ipc noctalia msg
 
       #-------------------#
       # swayfx 毛玻璃效果 #
@@ -59,9 +34,9 @@ in
       animation_duration_ms 250
 
       #---------------#
-      # waybar toggle #
+      # bar toggle    #
       #---------------#
-      bindsym $mod+o exec killall -SIGUSR1 .waybar-wrapped
+      bindsym $mod+o exec $ipc bar-toggle
 
       #-------------------------------------------#
       # switch between current and last workspace #
@@ -188,13 +163,14 @@ in
       #-----------#
       # Autostart #
       #-----------#
-      exec_always pkill wl-paste; wl-paste --watch cliphist store
       exec_always  ${pkgs.autotiling}/bin/autotiling
       # XWayland 高清渲染: 加载 Xft.dpi=120 (scale 1.25)
       exec_always ${pkgs.xorg.xrdb}/bin/xrdb -merge $HOME/.Xresources
       # 由 sway 启动 fcitx5(而非 fcitx5-daemon.service): 避免 daemon 在
       # sway 的 wayland socket 就绪前启动导致输入法热键失效 (ly 登录时代出现)
       exec_always --no-startup-id fcitx5 -d
+      # Noctalia shell: 用 exec 而非 exec_always, 避免配置 reload 时重复实例
+      exec --no-startup-id noctalia --daemon
 
       #------------------------------#
       # Make capslock work as escape #
@@ -291,7 +267,7 @@ in
       bindsym Alt+Shift+s exec --no-startup-id         splayer
       bindsym $mod+Shift+b exec --no-startup-id        firefox
       bindsym $mod+Shift+y exec --no-startup-id        qutebrowser
-      bindsym $mod+Shift+x exec --no-startup-id        ${myswaylock}/bin/myswaylock
+      bindsym $mod+Shift+x exec --no-startup-id        $ipc session lock
       bindsym $mod+Shift+t exec --no-startup-id        Telegram
       bindsym $mod+bracketleft  exec --no-startup-id   grimshot --notify savecopy anything ~/Pictures/$(date "+%Y-%m-%d"T"%H_%M_%S").png
       bindsym $mod+bracketright exec --no-startup-id   grimshot --notify copy anything
@@ -316,13 +292,13 @@ in
       bindsym $mod+q kill
 
       # Start your launcher
-      bindsym $mod+z exec pkill rofi || ~/.config/rofi/launcher.sh
+      bindsym $mod+z exec $ipc panel-toggle launcher
 
       # Clipboard history
-      bindsym $mod+v exec pkill rofi ||  ~/.config/rofi/clipboard.sh
+      bindsym $mod+v exec $ipc panel-toggle clipboard
 
       # Start your powermenu
-      bindsym $mod+Shift+p exec pkill rofi || bash ~/.config/rofi/powermenu.sh
+      bindsym $mod+Shift+p exec $ipc panel-toggle session
 
       # Reload the configuration file
       bindsym $mod+Shift+c reload

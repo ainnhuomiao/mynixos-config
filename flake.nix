@@ -48,6 +48,11 @@
       # 跟随会丢 cache.numtide.com 缓存命中且随上游 nixpkgs 更新漂移
       url = "github:numtide/llm-agents.nix";
     };
+    noctalia = {
+      # 不 follows nixpkgs: 其包只对自身钉的 nixpkgs-unstable 构建测试,
+      # 跟随会丢 noctalia.cachix 命中且随上游 nixpkgs 更新漂移 (同 llm-agents 注释)
+      url = "github:noctalia-dev/noctalia/v5.0.1";
+    };
     nix-cachyos-kernel = {
       url = "github:xddxdd/nix-cachyos-kernel/release";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -84,12 +89,14 @@
     fallback = true;
     http-connections = 16;
     extra-substituters = [
+      "https://noctalia.cachix.org"
       "https://ainnhuomiao.qianyuanqing.asia/ainnhuomiao"
       "https://ainnhuomiao.cachix.org"
       "https://nix-community.cachix.org"
       "https://attic.xuyh0120.win/lantian"
     ];
     extra-trusted-public-keys = [
+      "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
       "ainnhuomiao:rSRSxFzka/Hu1R27mYg8TIE34+X9Vq4RA+orXAUr7U4="
       "ainnhuomiao.cachix.org-1:scMAjHS0YtCSBV0d6bbFWHDGD3BkPKuWbcfeWpqw5ck="
       "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
