@@ -30,7 +30,6 @@
           github-copilot-cli
           google-chrome
           hmcl
-          lx-music-desktop
           mcp-nixos
           microsoft-edge
           motrix-next
