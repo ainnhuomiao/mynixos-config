@@ -10,6 +10,18 @@ in
     settings = {
       add_newline = false;
 
+      # 在 prompt 符号 (❯) 前显示 NixOS 图标 (nf-linux-nixos U+F313),与其同一行
+      # 覆盖默认 format:把 $os 挪到 $character 前(line_break 之后),其余顺序与默认一致
+      format = "$username$hostname$directory$git_branch$git_state$git_status$nix_shell$cmd_duration$line_break$python$os$character";
+
+      os = {
+        disabled = false;
+        format = "[$symbol](bold ${h c.mauve}) ";
+        symbols = {
+          NixOS = "";
+        };
+      };
+
       character = {
         success_symbol = "[❯](bold ${h c.mauve})";
         error_symbol = "[❯](bold ${h c.red})";
