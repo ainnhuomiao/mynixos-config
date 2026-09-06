@@ -1,7 +1,7 @@
 { pkgs, lib, ... }:
 let
   wallpaperDirectory = ../../assets/wallpapers;
-  sharedScripts = import ../programs/waybar/share_scripts.nix { inherit pkgs; };
+  sharedScripts = import ./share_scripts.nix { inherit pkgs; };
 in
 {
   home.packages = [

@@ -48,7 +48,7 @@ in
     method = raw
     data_format = ascii
     ascii_max_range = 7
-  ''; # 由 ../waybar/share_scripts.nix 的 cava-internal 脚本读取(sed 把 0-7 映射为方块字符)
+  ''; # cava 的 raw ascii 输出配置 (Noctalia bar 无 cava 可视化,保留供终端手动 cava 使用)
   services = {
     mpd = {
       enable = true;

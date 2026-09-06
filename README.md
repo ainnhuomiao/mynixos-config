@@ -84,10 +84,10 @@ flake.nix
 - Nemo、Yazi、Zathura、Obsidian、Emanote、imv/swayimg
 - Thunderbird、DBeaver
 - Fcitx5 + Rime + 中文扩展词库，左 `Ctrl` + 左 `Shift` 切换输入法
-- PipeWire、Blueman、NetworkManager Applet、XDG Desktop Portal、Mako 通知
+- PipeWire、Blueman、NetworkManager Applet、XDG Desktop Portal、Noctalia 通知
 - btop 资源监视
 - getty 自动登录直接进入 Sway（tty1），kmscon 接管其他虚拟终端显示中文
-- 锁屏与待机：`swayidle` 在挂起前调用模糊截图 swaylock
+- 锁屏与待机：`swayidle` 挂起前触发 Noctalia 锁屏（桌面捕捉模糊，复刻 swaylock-blur）
 
 ### 雷电显卡坞（外接 RTX 3050）
 
@@ -262,7 +262,7 @@ just rebuild-switch
 
 ### 主题（Catppuccin）
 
-桌面配色固定为 Catppuccin **Mocha**，统一作用于 Kitty 终端、Sway 窗口边框与 Waybar，不随壁纸变化、无运行时切换。锁屏（swaylock）保持 Nord 配色。
+桌面配色固定为 Catppuccin **Mocha**，统一作用于 Kitty 终端、Sway 窗口边框与 Noctalia 外壳，不随壁纸变化、无运行时切换。锁屏亦为 Noctalia 内置 Catppuccin 主题。
 
 配色定义在 `lib/appearance.nix`（`catppuccin` 四套 16 色 + `catppuccinVariant` 一行切换，改完重新 `just rebuild-switch` 生效）。
 

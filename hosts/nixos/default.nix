@@ -19,6 +19,7 @@
   services = {
     fstrim.enable = true;
     fwupd.enable = true;
+    upower.enable = true;
   };
 
   hardware = {

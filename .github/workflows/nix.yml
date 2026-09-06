@@ -59,6 +59,7 @@ jobs:
             .#microsoft-edge \
             .#motrix-next \
             .#nordic \
+            .#noctalia \
             .#obsidian \
             .#omp \
             .#pi \
